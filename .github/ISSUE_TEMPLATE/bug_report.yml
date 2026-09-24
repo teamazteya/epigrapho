@@ -1,54 +1,53 @@
-name: Bug Report
-description: Are you facing a bug or a crash in Notesnook?
+name: Reportar un error
+description: ¿Algo falla o la app se cierra en Epigrapho?
 type: Bug
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for taking the time to fill out this bug report!
+        Gracias por tomarte el tiempo de reportarlo. No incluyas el contenido privado de tus notas.
   - type: textarea
     id: what-happened
     attributes:
-      label: What happened?
-      description: Tell us what you were trying to do & what happened
+      label: ¿Qué pasó?
+      description: Cuéntanos qué intentabas hacer y qué pasó en su lugar.
     validations:
       required: true
   - type: textarea
     id: reproduction-steps
     attributes:
-      label: Steps to reproduce the problem
-      description: If we can reproduce it, we can fix it
+      label: Pasos para reproducirlo
+      description: Si podemos reproducirlo, podemos corregirlo.
     validations:
       required: true
   - type: input
     id: version
     attributes:
-      label: Version
-      description: What version of Notesnook are you using?
-      placeholder: v1.8.10 etc
+      label: Versión
+      description: ¿Qué versión de Epigrapho usas? Está en Ajustes > Acerca de.
+      placeholder: 3.4.8
     validations:
       required: true
   - type: dropdown
     id: platform
     attributes:
-      label: Platform/OS
-      description: What platform are you seeing the problem on?
+      label: Sistema
+      description: ¿En qué sistema ves el problema?
       multiple: true
       options:
         - Windows
         - macOS
-        - Linux
-        - iOS
+        - Linux (Debian / Ubuntu)
+        - Linux (Fedora)
+        - Linux (Arch / CachyOS)
+        - Linux (AppImage)
         - Android
-        - Chrome/Chromium
-        - Firefox
-        - Safari
-        - Other browser
+        - iOS
     validations:
       required: true
   - type: textarea
     id: logs
     attributes:
-      label: Relevant log output
-      description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
+      label: Registros
+      description: Si tienes registros o mensajes de error, pégalos aquí. Se formatean como código, no hace falta agregar comillas invertidas.
       render: shell

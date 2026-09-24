@@ -1,30 +1,28 @@
-## Description
-<!-- Add a detailed summary of what this feature/bugfix does -->
+## Descripción
 
-## Type of Change
-- [ ] Bug fix
-- [ ] Feature
+<!-- Resume qué hace este cambio y por qué -->
 
-## Visuals
-- [ ] Attached relevant screenshots / screen recording / GIF
-- [ ] N/A (not a feature or no UI changes)
+## Tipo de cambio
 
-## Testing
-- [ ] Ran all E2E tests
-- [ ] Ran all integration tests
-- [ ] Added/updated tests for this change (if needed)
-- [ ] N/A (tests not needed — explanation provided below)
+- [ ] Corrección de error
+- [ ] Función nueva
 
-### If tests were not added, explain why
-<!-- explanation -->
+## Visuales
 
-## Platform
-<!-- Describe which platforms this PR is related to -->
+- [ ] Adjunté capturas, grabación o GIF
+- [ ] No aplica (sin cambios de interfaz)
 
-- [ ] Web
-- [ ] Mobile
-- [ ] Desktop
+## Pruebas
 
-## Sign-off
-- [ ] QA passed
-- [ ] UI/UX passed
+- [ ] Corrí los oráculos de `apps/desktop/scripts` que toca este cambio
+- [ ] Agregué o actualicé pruebas para este cambio (si hacía falta)
+- [ ] No aplica (explico abajo por qué)
+
+### Si no agregaste pruebas, explica por qué
+
+<!-- explicación -->
+
+## Plataforma
+
+- [ ] Escritorio
+- [ ] Móvil

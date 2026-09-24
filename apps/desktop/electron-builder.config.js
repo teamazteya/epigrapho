@@ -206,6 +206,28 @@ module.exports = {
       }
     }
   },
+  // Epigrapho: electron-builder's default list for Arch names libraries a
+  // bundled Electron never loads (http-parser, re2, minizip...), and any that
+  // leaves the Arch repositories makes pacman -U refuse the package.
+  // electron-builder's default list for Debian leaves out ALSA, which
+  // Electron links against; Ubuntu 24.04 renamed it libasound2t64.
+  deb: {
+    depends: [
+      "libgtk-3-0",
+      "libnotify4",
+      "libnss3",
+      "libxss1",
+      "libxtst6",
+      "xdg-utils",
+      "libatspi2.0-0",
+      "libuuid1",
+      "libsecret-1-0",
+      "libasound2t64 | libasound2"
+    ]
+  },
+  pacman: {
+    depends: ["gtk3", "nss", "alsa-lib", "libxss", "libnotify", "xdg-utils"]
+  },
   toolsets: {
     appimage: "1.0.2"
   },

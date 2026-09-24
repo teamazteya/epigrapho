@@ -1,31 +1,31 @@
-name: Feature request
-description: Suggest a feature you are missing in Notesnook
+name: Sugerir una función
+description: Propón algo que te falta en Epigrapho.
 type: Feature
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for taking the time to suggest this idea!
+        Gracias por compartir tu idea.
   - type: textarea
     id: problem
     attributes:
-      label: What problem are you facing?
-      description: Also tell us how this idea will fix the problem & what's the use case.
-      placeholder: e.g. I'm always frustrated when...
+      label: ¿Qué problema tienes?
+      description: Cuéntanos también cómo resolvería el problema esta idea y en qué caso la usarías.
+      placeholder: p. ej. Cuando preparo una enseñanza siempre me cuesta...
     validations:
       required: true
   - type: textarea
     id: solution
     attributes:
-      label: What's the solution you'd like to see in Notesnook?
+      label: ¿Qué solución te gustaría ver en Epigrapho?
     validations:
       required: true
   - type: textarea
     id: alternatives
     attributes:
-      label: What alternatives have you considered?
+      label: ¿Qué alternativas has considerado?
   - type: textarea
     id: general
     attributes:
-      label: Additional context
-      description: Add any other context or screenshots about the feature request here.
+      label: Contexto adicional
+      description: Agrega cualquier otro contexto o captura de pantalla sobre la sugerencia.
