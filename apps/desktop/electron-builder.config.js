@@ -117,7 +117,13 @@ module.exports = {
     category: "public.app-category.productivity",
     darkModeSupport: true,
     type: "distribution",
-    hardenedRuntime: true,
+    // Without an Apple certificate (CSC_LINK) the app is signed ad hoc. An
+    // unsigned Apple Silicon app that arrives quarantined is reported as
+    // "damaged", with no way to open it; an ad-hoc one gets the usual
+    // "Open Anyway". The hardened runtime only matters for notarisation, and
+    // ad hoc it would refuse the SQLite extensions the app loads.
+    identity: process.env.CSC_LINK ? undefined : "-",
+    hardenedRuntime: !!process.env.CSC_LINK,
     entitlements: "assets/entitlements.mac.plist",
     entitlementsInherit: "assets/entitlements.mac.plist",
     gatekeeperAssess: false,

@@ -89,6 +89,17 @@ jobs:
         working-directory: ./apps/desktop
         run: npx electron-builder --config=electron-builder.config.js --publish=never
 
+      # An unsigned Apple Silicon app is reported as "damaged" once it has
+      # been downloaded; fail here instead of shipping one.
+      - name: Check the macOS signature
+        if: runner.os == 'macOS'
+        working-directory: ./apps/desktop/output
+        run: |
+          for app in mac-arm64/Epigrapho.app mac/Epigrapho.app; do
+            codesign --verify --deep --strict --verbose=2 "$app"
+            codesign -dv "$app" 2>&1 | grep -E "^(Identifier|Signature)"
+          done
+
       - uses: actions/upload-artifact@v4
         with:
           name: epigrapho-${{ matrix.name }}

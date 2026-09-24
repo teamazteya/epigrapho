@@ -11,6 +11,8 @@
 ·
 <a href="#linux">Instalar en Linux</a>
 ·
+<a href="#macos">Instalar en macOS</a>
+·
 <a href="https://github.com/teamazteya/epigrapho/issues/new/choose">Reportar un problema</a>
 </p>
 
@@ -122,7 +124,34 @@ sudo pacman -R epigrapho-desktop       # Arch y CachyOS
 
 ### macOS
 
-Todavía no hay un instalador publicado.
+Requiere macOS 11 o posterior. Hay versiones para Apple Silicon (M1 en adelante) y para Intel.
+
+**Con Homebrew (recomendado)**
+
+```bash
+brew install --cask teamazteya/epigrapho/epigrapho
+```
+
+Homebrew elige solo la versión de tu Mac. Para actualizar, usa `brew upgrade --cask epigrapho`; para desinstalar, `brew uninstall --cask epigrapho` (tus notas se conservan).
+
+**Con la terminal, sin Homebrew**
+
+```bash
+arch=$([ "$(uname -m)" = "arm64" ] && echo arm64 || echo x64)
+curl -L -o /tmp/epigrapho.zip "https://downloads.sourceforge.net/epigrapho/epigrapho_mac_$arch.zip"
+ditto -x -k /tmp/epigrapho.zip /Applications
+rm /tmp/epigrapho.zip
+open /Applications/Epigrapho.app
+```
+
+**A mano**
+
+Descarga el `.dmg` de tu Mac, ábrelo y arrastra Epigrapho a Aplicaciones:
+
+- Apple Silicon: [epigrapho_mac_arm64.dmg](https://sourceforge.net/projects/epigrapho/files/epigrapho_mac_arm64.dmg/download)
+- Intel: [epigrapho_mac_x64.dmg](https://sourceforge.net/projects/epigrapho/files/epigrapho_mac_x64.dmg/download)
+
+La app todavía no está firmada por Apple. Si macOS no la deja abrir la primera vez, ve a Ajustes del Sistema → Privacidad y seguridad y pulsa **Abrir de todos modos**.
 
 ## Desarrollo
 
