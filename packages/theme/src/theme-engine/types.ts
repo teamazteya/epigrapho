@@ -33,8 +33,8 @@ export function isThemeColor(
 export type ThemeCompatibilityVersion = 1;
 
 /**
- * @title Notesnook Theme schema
- * @description This is a schema for validation of Notesnook themes.
+ * @title Epigrapho Theme schema
+ * @description This is a schema for validation of Epigrapho themes.
  */
 export type ThemeDefinition = {
   /**
@@ -334,3 +334,13 @@ export const Variants: readonly (keyof Variants)[] = [
 ];
 
 export const DEPRECATED_COLORS = ["shade", "textSelection"];
+
+/**
+ * A theme as the theme picker lists it: everything but the styles, plus the
+ * colors of its preview card. It used to come from the themes server.
+ */
+export type ThemeMetadata = Omit<ThemeDefinition, "scopes" | "codeBlockCSS"> & {
+  sourceURL?: string;
+  totalInstalls?: number;
+  previewColors: PreviewColors;
+};

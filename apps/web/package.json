@@ -4,8 +4,8 @@
   "version": "3.4.8",
   "private": true,
   "main": "./src/app.js",
-  "homepage": "https://notesnook.com/",
-  "repository": "https://github.com/streetwriters/notesnook",
+  "homepage": "https://github.com/teamazteya/epigrapho",
+  "repository": "https://github.com/teamazteya/epigrapho",
   "license": "GPL-3.0-or-later",
   "dependencies": {
     "@dnd-kit/core": "^6.1.0",
@@ -30,9 +30,7 @@
     "@notesnook/scripture-provider": "file:../../packages/scripture-provider",
     "@notesnook/streamable-fs": "file:../../packages/streamable-fs",
     "@notesnook/theme": "file:../../packages/theme",
-    "@notesnook/themes-server": "file:../../servers/themes",
     "@notesnook/ui": "file:../../packages/ui",
-    "@notesnook/web-clipper": "file:../../extensions/web-clipper",
     "@paddle/paddle-js": "^1.4.2",
     "@react-pdf-viewer/core": "^3.12.0",
     "@react-pdf-viewer/toolbar": "^3.12.0",
@@ -161,8 +159,8 @@
     ]
   },
   "author": {
-    "name": "Streetwriters (Private) Limited",
-    "email": "support@streetwriters.co",
-    "url": "https://streetwriters.co"
+    "name": "Azteya",
+    "email": "support@azteya.tech",
+    "url": "https://github.com/teamazteya/epigrapho"
   }
 }

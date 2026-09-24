@@ -1,10 +1,8 @@
 const SCOPES = [
-  // for full list of scopes + details see: https://github.com/streetwriters/notesnook/blob/master/CONTRIBUTING.md#commit-guidelines
+  // for the list of scopes see CONTRIBUTING.md
 
   "mobile",
   "web",
-  "vericrypt",
-  "monograph",
   "desktop",
   "crypto",
   "editor",
@@ -14,7 +12,6 @@ const SCOPES = [
   "core",
   "fs",
   "ui",
-  "clipper",
   "config",
   "ci",
   "setup",
@@ -24,9 +21,7 @@ const SCOPES = [
   "common",
   "global",
   "docs",
-  "themebuilder",
-  "intl",
-  "webclipper"
+  "intl"
 ];
 
 module.exports = {

@@ -1,20 +1,15 @@
 {
-  "name": "notesnook",
+  "name": "epigrapho",
   "private": true,
   "scripts": {
     "prepare": "husky install && npm run bootstrap",
     "bootstrap": "node scripts/bootstrap.mjs",
     "clean": "node scripts/clean.mjs",
-    "build": "npm run tx -- build --all --exclude=mobile,web,monograph,theme-builder,vericrypt",
+    "build": "npm run tx -- build --all --exclude=mobile,web",
     "build:web": "npm run tx web:build",
-    "build:help": "npm run tx help:build",
-    "build:vericrypt": "npm run tx vericrypt:build",
     "build:test:web": "npm run tx web:build:test",
     "build:beta:web": "npm run tx web:build:beta",
     "start:web": "npm run tx web:start",
-    "start:theme-builder": "npm run tx theme-builder:start",
-    "build:theme-builder": "npm run tx theme-builder:build",
-    "start:vericrypt": "npm run tx vericrypt:start",
     "start:desktop": "npm run tx desktop:start",
     "test:web": "npm run tx web:test",
     "test:core": "npm run tx core:test",
@@ -34,8 +29,6 @@
     "start:repack": "npm run tx mobile:repack",
     "start:editor-mobile": "npm run tx editor-mobile:start",
     "start:editor": "npm run tx editor:start",
-    "start:server:themes": "npm run tx themes-server:start",
-    "build:server:themes": "npm run tx themes-server:build",
     "build:intl": "npm run tx intl:build",
     "start:intl": "npm run tx intl:start",
     "prettier": "npx prettier . --write",
@@ -83,10 +76,7 @@
   "taskRunner": {
     "projects": [
       "packages/*",
-      "apps/*",
-      "extensions/*",
-      "servers/*",
-      "docs/*"
+      "apps/*"
     ],
     "tasks": [
       {

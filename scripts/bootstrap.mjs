@@ -32,14 +32,9 @@ const THREADS = Math.max(4, process.env.THREADS || os.cpus().length / 2);
 const scopes = {
   mobile: "apps/mobile",
   web: "apps/web",
-  monograph: "apps/monograph",
-  vericrypt: "apps/vericrypt",
   desktop: "apps/desktop",
   core: "packages/core",
-  editor: "packages/editor",
-  themes: "servers/themes",
-  themebuilder: "apps/theme-builder",
-  help: "docs/help"
+  editor: "packages/editor"
 };
 // packages that we should run npm rebuild for
 const POSTINSTALL_WHITELIST = [
@@ -60,10 +55,12 @@ if (IS_BOOTSTRAP_ALL) {
     await new fdir()
       .onlyDirs()
       .withMaxDepth(2)
-      .glob("packages/**", "apps/**", "extensions/**", "servers/**")
+      .glob("packages/**", "apps/**")
       .crawl(".")
       .withPromise()
-  ).slice(4);
+  )
+    // The first two entries are apps/ and packages/ themselves.
+    .slice(2);
 
   const dependencies = Array.from(
     new Set(
