@@ -571,9 +571,13 @@ export async function areFeaturesAvailable<TIds extends FeatureId[]>(
 }
 
 async function getUserPlan() {
-  const user = await db.user.getUser();
-  const plan = user?.subscription?.plan || SubscriptionPlan.FREE;
-  return plan;
+  // Epigrapho is free, so there is no plan to look up: every feature the app
+  // can deliver on its own is simply available. The table above is kept as it
+  // is because the captions ("infinity", "10GB/mo") are still what the
+  // interface shows, and because the features that do need a server — storage,
+  // attachment size, monographs, SMS two-factor — are gated again where they
+  // talk to that server.
+  return SubscriptionPlan.BELIEVER;
 }
 
 async function availableOn(id: FeatureId, value?: number) {

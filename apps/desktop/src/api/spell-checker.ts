@@ -18,146 +18,80 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import { initTRPC } from "@trpc/server";
+import { dialog } from "electron";
 import { z } from "zod";
+import { strings } from "@notesnook/intl";
 import { config } from "../utils/config";
+import { userDictionary } from "../utils/user-dictionary";
 
 const t = initTRPC.create();
 
-const LANGUAGES: Record<string, string> = {
-  af: "Afrikaans",
-  bg: "Bulgarian",
-  ca: "Catalan",
-  cs: "Czech",
-  cy: "Welsh",
-  da: "Danish",
-  de: "German",
-  "de-DE": "German (Germany)",
-  el: "Greek",
-  en: "English",
-  "en-AU": "English (Australia)",
-  "en-CA": "English (Canada)",
-  "en-GB": "English (UK)",
-  "en-GB-oxendict": "English (UK Oxford)",
-  "en-US": "English (US)",
-  es: "Spanish",
-  "es-419": "Spanish (Latin America)",
-  "es-AR": "Spanish (Argentina)",
-  "es-ES": "Spanish (Spain)",
-  "es-MX": "Spanish (Mexico)",
-  "es-US": "Spanish (US)",
-  et: "Estonian",
-  fa: "Persian",
-  fo: "Faroese",
-  fr: "French",
-  "fr-FR": "French (France)",
-  he: "Hebrew",
-  hi: "Hindi",
-  hr: "Croatian",
-  hu: "Hungarian",
-  hy: "Armenian",
-  id: "Indonesian",
-  it: "Italian",
-  "it-IT": "Italian (Italy)",
-  ko: "Korean",
-  lt: "Lithuanian",
-  lv: "Latvian",
-  nb: "Norwegian Bokmål",
-  nl: "Dutch",
-  pl: "Polish",
-  pt: "Portuguese",
-  "pt-BR": "Portuguese (Brazil)",
-  "pt-PT": "Portuguese (Portugal)",
-  ro: "Romanian",
-  ru: "Russian",
-  sh: "Serbo-Croatian",
-  sk: "Slovak",
-  sl: "Slovenian",
-  sq: "Albanian",
-  sr: "Serbian",
-  sv: "Swedish",
-  ta: "Tamil",
-  tg: "Tajik",
-  tr: "Turkish",
-  uk: "Ukrainian",
-  vi: "Vietnamese"
-};
-
-type Language = { code: string; name: string };
-
-const LANGUAGE_REDIRECT_MAP: Record<string, string> = {
-  es: "es-MX",
-  "es-419": "es-MX",
-  "es-ES": "es-AR"
-};
-
+/**
+ * Settings talk to the spell checker through here (Pasos 6.1 and 6.3).
+ *
+ * There is no list of languages any more: Chromium's checker is off and its
+ * list of downloadable languages said nothing about what this app can read.
+ * What is left is the switch, the person's own words, and a file to carry
+ * them to another machine.
+ *
+ * The words themselves belong to the account since Fase 7. This process only
+ * keeps the copy it answers with, so what crosses here is the list going down
+ * and the file going either way.
+ */
 export const spellCheckerRouter = t.router({
   isEnabled: t.procedure.query(() => config.isSpellCheckerEnabled),
-  languages: t.procedure.query(() => {
-    const available =
-      globalThis.window?.webContents.session.availableSpellCheckerLanguages ||
-      [];
-
-    return <Language[]>available
-      .map((code) => ({
-        code,
-        name: LANGUAGES[code] || code
-      }))
-      .sort((a, b) => a.name.localeCompare(b.name));
-  }),
-
-  enabledLanguages: t.procedure.query(() => {
-    const enabled =
-      globalThis.window?.webContents.session.getSpellCheckerLanguages() || [];
-    const available =
-      globalThis.window?.webContents.session.availableSpellCheckerLanguages ||
-      [];
-
-    const resolved = enabled
-      .map((code) => resolveLanguage(code, available))
-      .filter(Boolean) as string[];
-
-    return <Language[]>resolved.map((code) => ({
-      code,
-      name: LANGUAGES[code] || code
-    }));
-  }),
-
-  setLanguages: t.procedure.input(z.array(z.string())).mutation(({ input }) => {
-    const available =
-      globalThis.window?.webContents.session.availableSpellCheckerLanguages ||
-      [];
-
-    const resolved = input
-      .map((code) => resolveLanguage(code, available))
-      .filter(Boolean) as string[];
-
-    globalThis.window?.webContents.session.setSpellCheckerLanguages(resolved);
-  }),
   toggle: t.procedure
     .input(z.object({ enabled: z.boolean() }))
     .mutation(({ input: { enabled } }) => {
-      globalThis.window?.webContents.session.setSpellCheckerEnabled(enabled);
       config.isSpellCheckerEnabled = enabled;
     }),
-  words: t.procedure.query(() =>
-    globalThis.window?.webContents.session.listWordsInSpellCheckerDictionary()
-  ),
-  deleteWord: t.procedure.input(z.string()).mutation(({ input: word }) => {
-    globalThis.window?.webContents.session.removeWordFromSpellCheckerDictionary(
-      word
-    );
+  /**
+   * The account's lists, handed over whenever they change (Fase 7). They are
+   * replaced whole: a word deleted in settings has to disappear here too.
+   */
+  setWords: t.procedure
+    .input(
+      z.object({
+        words: z.array(z.string()),
+        byNote: z.record(z.string(), z.array(z.string()))
+      })
+    )
+    .mutation(({ input: { words, byNote } }) => {
+      userDictionary.replaceWith(words, byNote);
+    }),
+  /**
+   * The words Paso 6.3 kept in this machine's settings file, handed over once
+   * so the account can take them, and erased from there as they go: from now
+   * on they live encrypted with everything else.
+   */
+  adoptWords: t.procedure.mutation(() => {
+    const kept = {
+      words: config.customWords,
+      byNote: config.ignoredWordsByNote
+    };
+    if (kept.words.length) config.customWords = [];
+    if (Object.keys(kept.byNote).length) config.ignoredWordsByNote = {};
+    return kept;
+  }),
+  exportWords: t.procedure.mutation(async () => {
+    if (!globalThis.window) return false;
+    const result = await dialog.showSaveDialog(globalThis.window, {
+      title: strings.exportDictionary(),
+      defaultPath: "epigrapho-dictionary.json",
+      filters: [{ name: strings.dictionaryFile(), extensions: ["json"] }]
+    });
+    if (result.canceled || !result.filePath) return false;
+    await userDictionary.exportTo(result.filePath);
+    return true;
+  }),
+  importWords: t.procedure.mutation(async () => {
+    if (!globalThis.window) return [];
+    const result = await dialog.showOpenDialog(globalThis.window, {
+      title: strings.importDictionary(),
+      properties: ["openFile"],
+      filters: [{ name: strings.dictionaryFile(), extensions: ["json"] }]
+    });
+    if (result.canceled || !result.filePaths[0]) return [];
+    return userDictionary.wordsFrom(result.filePaths[0]);
   })
 });
-
-function resolveLanguage(code: string, available: string[]) {
-  if (LANGUAGE_REDIRECT_MAP[code]) {
-    const working = LANGUAGE_REDIRECT_MAP[code];
-    return available.includes(working) ? working : code;
-  }
-  const fallback = code.split("-")[0];
-  return available.includes(code)
-    ? code
-    : available.includes(fallback)
-    ? fallback
-    : undefined;
-}

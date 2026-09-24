@@ -26,14 +26,42 @@ import {
 import { useStore as useSettingStore } from "../../stores/setting-store";
 import { getFonts } from "@notesnook/editor";
 import { useSpellChecker } from "../../hooks/use-spell-checker";
-import { SpellCheckerLanguages } from "./components/spell-checker-languages";
 import { CustomizeToolbar } from "./components/customize-toolbar";
 import { DictionaryWords } from "./components/dictionary-words";
 import { strings } from "@notesnook/intl";
-import { isMac } from "../../utils/platform";
 import { EDITOR_LINE_HEIGHT } from "../../components/editor/common";
+import {
+  TRANSLATIONS,
+  availabilityGroup,
+  getTranslation,
+  setTranslation
+} from "../../common/translation";
 
 export const EditorSettings: SettingsGroup[] = [
+  {
+    key: "scripture",
+    section: "editor",
+    header: strings.scriptureTranslation(),
+    settings: [
+      {
+        key: "scripture-translation",
+        title: strings.scriptureTranslation(),
+        description: strings.scriptureTranslationDesc(),
+        components: [
+          {
+            type: "dropdown",
+            options: TRANSLATIONS.map((translation) => ({
+              value: translation.id,
+              title: `${translation.name} (${translation.id})`,
+              group: availabilityGroup(translation)
+            })),
+            selectedOption: () => getTranslation(),
+            onSelectionChanged: (value) => setTranslation(value)
+          }
+        ]
+      }
+    ]
+  },
   {
     key: "editor",
     section: "editor",
@@ -182,26 +210,26 @@ export const EditorSettings: SettingsGroup[] = [
         ]
       },
       {
-        key: "spell-checker-languages",
-        title: strings.languages(),
-        description: strings.spellCheckerLanguagesDescription(),
-        isHidden: () => !useSpellChecker.getState().enabled || isMac(),
-        onStateChange: (listener) =>
-          useSpellChecker.subscribe((c) => c.enabled, listener),
-        components: [
-          {
-            type: "custom",
-            component: SpellCheckerLanguages
-          }
-        ]
-      },
-      {
         key: "custom-dictionay-words",
         title: strings.customDictionaryWords(),
+        onStateChange: (listener) =>
+          useSpellChecker.subscribe((c) => c.words, listener),
         components: [
           {
             type: "custom",
             component: DictionaryWords
+          },
+          {
+            type: "button",
+            title: strings.exportDictionary(),
+            variant: "secondary",
+            action: () => useSpellChecker.getState().exportWords()
+          },
+          {
+            type: "button",
+            title: strings.importDictionary(),
+            variant: "secondary",
+            action: () => useSpellChecker.getState().importWords()
           }
         ]
       }

@@ -120,8 +120,9 @@ export function TitleBar({
           className="titlebarLogo"
           style={{
             alignSelf: "center",
+            // Epigrapho's mark is square; the old one was taller than wide.
             height: 16,
-            width: 12,
+            width: 16,
             marginRight: 10,
             marginLeft: 10
           }}

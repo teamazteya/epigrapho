@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import path from "path";
+import { existsSync } from "fs";
 import fs from "fs/promises";
 import chokidar from "chokidar";
 import { execSync, spawn } from "child_process";
@@ -28,6 +29,15 @@ import crypto from "crypto";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const root = path.join(__dirname, "..");
+// The one native module the app cannot start without.
+const SQLITE_BINDING = path.join(
+  root,
+  "node_modules",
+  "better-sqlite3-multiple-ciphers",
+  "build",
+  "Release",
+  "better_sqlite3.node"
+);
 const RUNNING_PROCESSES = [];
 const RESTARTABLE_PROCESSES = [];
 let lastBundleHash = null;
@@ -61,11 +71,15 @@ async function onChange(first) {
       path.join(root, "node_modules", "electron")
     );
 
-    await exec("yarn electron-builder install-app-deps", root);
+    // Rebuilding the native modules needs a C++ toolchain, which not every
+    // machine that only wants to run the app has. When the binding Electron
+    // needs is already sitting there, there is nothing to rebuild.
+    if (!existsSync(SQLITE_BINDING))
+      await exec("npm exec --no -- electron-builder install-app-deps", root);
   }
 
-  await exec(`yarn run bundle`, root);
-  await exec(`yarn run build`, root);
+  await exec(`npm run bundle`, root);
+  await exec(`npm run build`, root);
 
   if (await isBundleSame()) {
     console.log("Bundle is same. Doing nothing.");
@@ -74,8 +88,8 @@ async function onChange(first) {
 
   if (first) {
     await spawnAndWaitUntil(
-      ["npm", "run", "start:desktop"],
-      path.join(__dirname, "..", "..", "web"),
+      ["npm", "run", "tx", "web:start:desktop"],
+      path.join(root, "..", ".."),
       (data) => data.includes("Network: use --host to expose")
     );
   }
@@ -86,24 +100,26 @@ async function onChange(first) {
   }
 
   execAsync(
-    "yarn",
-    ["electron", path.join("build", "electron.js")],
+    "npm",
+    ["exec", "--no", "--", "electron", path.join("build", "electron.js")],
     true,
     cleanup
   );
 }
 
 function spawnAndWaitUntil(cmd, cwd, predicate) {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     console.log(">", ...cmd);
 
     const s = spawn(cmd[0], cmd.slice(1), {
       cwd,
       env: ENV,
-      shell: false
+      shell: process.platform === "win32"
     });
 
     RUNNING_PROCESSES.push(s);
+    s.once("error", reject);
+    s.once("exit", (code) => reject(new Error(`Dev server exited: ${code}`)));
 
     s.stderr.pipe(process.stderr);
     s.stdout.on("data", (data) => {
@@ -114,18 +130,13 @@ function spawnAndWaitUntil(cmd, cwd, predicate) {
 }
 
 async function exec(cmd, cwd) {
-  try {
-    console.log(">", cmd, cwd);
+  console.log(">", cmd, cwd);
 
-    return execSync(cmd, {
-      env: ENV,
-      stdio: "inherit",
-      shell: false,
-      cwd: cwd || process.cwd()
-    });
-  } catch {
-    //ignore
-  }
+  return execSync(cmd, {
+    env: ENV,
+    stdio: "inherit",
+    cwd: cwd || process.cwd()
+  });
 }
 
 function execAsync(cmd, args, restartable, onExit) {
@@ -135,7 +146,7 @@ function execAsync(cmd, args, restartable, onExit) {
     const proc = spawn(cmd, args, {
       stdio: "inherit",
       env: ENV,
-      shell: false
+      shell: process.platform === "win32"
     });
 
     const array = restartable ? RESTARTABLE_PROCESSES : RUNNING_PROCESSES;

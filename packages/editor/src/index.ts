@@ -89,7 +89,15 @@ import { strings } from "@notesnook/intl";
 import { InlineCode } from "./extensions/inline-code/inline-code.js";
 import { FontLigature } from "./extensions/font-ligature/font-ligature.js";
 import { SearchResult } from "./extensions/search-result/search-result.js";
-import { LinkData } from "./types.js";
+import {
+  ScriptureReference,
+  ScriptureReferenceOptions
+} from "./extensions/scripture-reference/scripture-reference.js";
+import {
+  ScriptureBlock,
+  type ScriptureBlockOptions
+} from "./extensions/scripture-block/scripture-block.js";
+import { Editor, LinkData } from "./types.js";
 
 interface TiptapStorage {
   dateFormat?: DateTimeOptions["dateFormat"];
@@ -102,6 +110,8 @@ interface TiptapStorage {
   previewAttachment?: (attachment: Attachment) => void;
   copyToClipboard?: (text: string, html?: string) => void;
   downloadCsvTable?: (csv: string) => void;
+  /** Asks the user for a reference and inserts it as a scripture block. */
+  insertScripture?: (editor: Editor) => void;
   createInternalLink?: (
     attributes?: LinkAttributes
   ) => Promise<LinkAttributes | undefined>;
@@ -137,6 +147,10 @@ export type TiptapOptions = EditorOptions &
     isMobile?: boolean;
     doubleSpacedLines?: boolean;
     enableFontLigatures?: boolean;
+    // Epigrapho: the parser lives outside this package, so the app injects it.
+    parseScriptureReferences?: ScriptureReferenceOptions["parse"];
+    // Epigrapho: likewise the licence registry, which lives with the provider.
+    scriptureAttribution?: ScriptureBlockOptions["attributionOf"];
   } & {
     placeholder: string;
   };
@@ -159,11 +173,14 @@ const useTiptap = (
     copyToClipboard,
     createInternalLink,
     downloadCsvTable,
+    insertScripture,
     doubleSpacedLines = true,
     isMobile,
     downloadOptions,
     editorProps,
     enableFontLigatures,
+    parseScriptureReferences,
+    scriptureAttribution,
     ...restOptions
   } = options;
 
@@ -391,7 +408,11 @@ const useTiptap = (
           ]
         }),
         FontLigature.configure({ enabled: enableFontLigatures }),
-        SearchResult.configure()
+        SearchResult.configure(),
+        ScriptureReference.configure({ parse: parseScriptureReferences }),
+        scriptureAttribution
+          ? ScriptureBlock.configure({ attributionOf: scriptureAttribution })
+          : ScriptureBlock
       ],
       onBeforeCreate: ({ editor }) => {
         editor.storage.dateFormat = dateFormat;
@@ -406,6 +427,7 @@ const useTiptap = (
         editor.storage.createInternalLink = createInternalLink;
         editor.storage.getAttachmentData = getAttachmentData;
         editor.storage.downloadCsvTable = downloadCsvTable;
+        editor.storage.insertScripture = insertScripture;
         editor.storage.getLinkData = getLinkData;
 
         if (onBeforeCreate) onBeforeCreate({ editor });
@@ -429,8 +451,11 @@ const useTiptap = (
       dayFormat,
       doubleSpacedLines,
       enableFontLigatures,
+      parseScriptureReferences,
+      scriptureAttribution,
       getLinkData,
       downloadCsvTable,
+      insertScripture,
       options.placeholder
     ]
   );
@@ -459,6 +484,24 @@ export {
 } from "./extensions/attachment/index.js";
 export { type ImageAttributes } from "./extensions/image/index.js";
 export { type LinkAttributes } from "./extensions/link/index.js";
+// Exported so the app sees the command this extension adds to @tiptap/core.
+export {
+  ScriptureBlock,
+  type ScriptureBlockAttributes
+} from "./extensions/scripture-block/scripture-block.js";
+// Epigrapho: the preview and the copy are markup this package draws, so every
+// app that shows the editor gets them from here (Fase 8).
+export {
+  attachScripturePopover,
+  type ScripturePopoverOptions,
+  type ResolvedVerse,
+  type VerseNotice
+} from "./extensions/scripture-reference/popover.js";
+export {
+  attachScriptureCopy,
+  formatVerseForClipboard,
+  type ScriptureCopyOptions
+} from "./extensions/scripture-block/copy.js";
 export * from "./toolbar/index.js";
 export * from "./types.js";
 export * from "./utils/word-counter.js";

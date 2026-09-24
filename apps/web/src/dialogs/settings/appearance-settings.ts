@@ -22,8 +22,37 @@ import { useStore as useSettingStore } from "../../stores/setting-store";
 import { useStore as useThemeStore } from "../../stores/theme-store";
 import { ThemesSelector } from "./components/themes-selector";
 import { strings } from "@notesnook/intl";
+import {
+  UI_LOCALES,
+  getUiLocale,
+  setUiLocale,
+  UiLocale
+} from "../../common/ui-locale";
 
 export const AppearanceSettings: SettingsGroup[] = [
+  {
+    key: "language",
+    section: "appearance",
+    header: strings.uiLanguage(),
+    settings: [
+      {
+        key: "ui-language",
+        title: strings.uiLanguage(),
+        description: strings.uiLanguageDesc(),
+        components: [
+          {
+            type: "dropdown",
+            options: Object.entries(UI_LOCALES).map(([value, title]) => ({
+              value,
+              title
+            })),
+            selectedOption: () => getUiLocale(),
+            onSelectionChanged: (value) => setUiLocale(value as UiLocale)
+          }
+        ]
+      }
+    ]
+  },
   {
     key: "theme",
     section: "appearance",

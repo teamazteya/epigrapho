@@ -24,7 +24,7 @@ import { extname, normalize } from "path";
 import { URL } from "url";
 
 const BASE_PATH = isDevelopment() ? "../public" : "";
-const HOSTNAME = `app.notesnook.com`;
+const HOSTNAME = `app.epigrapho.local`;
 const SCHEME = "https";
 const extensionToMimeType: Record<string, string> = {
   html: "text/html",

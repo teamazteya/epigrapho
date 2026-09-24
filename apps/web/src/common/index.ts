@@ -58,11 +58,11 @@ import { ConfirmDialog, showLogoutConfirmation } from "../dialogs/confirm";
 import { Home } from "../components/icons";
 import { MenuItem } from "@notesnook/ui";
 import { showFeatureNotAllowedToast } from "./toasts";
-import { UpgradeDialog } from "../dialogs/buy-dialog/upgrade-dialog";
 import { setToolbarPreset } from "./toolbar-config";
 import { useKeyStore } from "../interfaces/key-store";
 import { TaskScheduler } from "../utils/task-scheduler";
 import { path } from "@notesnook-importer/core/dist/src/utils/path";
+import { pullSyncedPreferences } from "./synced-preferences";
 
 export const CREATE_BUTTON_MAP = {
   notes: {
@@ -371,6 +371,12 @@ export async function restoreBackupFile(backupFile: File) {
       showToast("success", strings.backupRestored());
     }
   }
+
+  // Epigrapho (Fase 7): a restored backup brings the language, the
+  // translation and the person's words with it. It runs last because the
+  // language changing reloads the window, and nothing may be left half done
+  // when it does.
+  await pullSyncedPreferences();
 }
 
 async function restoreWithProgress(
@@ -509,16 +515,14 @@ export function createSetDefaultHomepageMenuItem(
 
 export async function checkFeature<TId extends FeatureId>(
   idOrFeature: TId | FeatureResult<TId>,
-  { type = "dialog", value }: { value?: number; type?: "toast" | "dialog" } = {}
+  { value }: { value?: number } = {}
 ) {
   const result =
     typeof idOrFeature === "object"
       ? idOrFeature
       : await isFeatureAvailable(idOrFeature, value);
   if (!result.isAllowed) {
-    type === "dialog"
-      ? await UpgradeDialog.show({ feature: result })
-      : showFeatureNotAllowedToast(result);
+    showFeatureNotAllowedToast(result);
     return false;
   }
   return true;

@@ -17,7 +17,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { SubscriptionPlan } from "@notesnook/core";
 import { strings } from "@notesnook/intl";
 import { Platform } from "react-native";
 import Config from "react-native-config";
@@ -86,11 +85,10 @@ async function loadProductsAndSubs() {
 }
 
 function get() {
-  // if (__DEV__ || Config.isTesting === "true") return true;
-  return (
-    useUserStore.getState().user?.subscription?.plan !== undefined &&
-    useUserStore.getState().user?.subscription?.plan !== SubscriptionPlan.FREE
-  );
+  // Epigrapho is free: there is no paid tier to be outside of. See
+  // getUserPlan() in @notesnook/common for the same decision on the web and
+  // desktop side.
+  return true;
 }
 
 const showVerifyEmailDialog = () => {

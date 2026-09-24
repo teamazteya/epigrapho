@@ -38,7 +38,9 @@ import {
   getTableOfContents,
   getChangedNodes,
   LinkAttributes,
-  type Selection
+  type Selection,
+  attachScripturePopover,
+  attachScriptureCopy
 } from "@notesnook/editor";
 import { Box, Flex } from "@theme-ui/components";
 import {
@@ -66,12 +68,22 @@ import { TimeFormat } from "@notesnook/core";
 import { EDITOR_ZOOM } from "./common";
 import { ScrollContainer } from "@notesnook/ui";
 import { showFeatureNotAllowedToast } from "../../common/toasts";
-import { UpgradeDialog } from "../../dialogs/buy-dialog/upgrade-dialog";
 import { ConfirmDialog } from "../../dialogs/confirm";
 import { strings } from "@notesnook/intl";
 import { handleInternalLink } from "../../common";
 import { db } from "../../common/db";
 import { showToast } from "../../utils/toast";
+import {
+  formatReadableRef,
+  formatRef,
+  parseRef,
+  parseReferences
+} from "@notesnook/scripture-parser";
+import { getTranslation } from "../../common/translation";
+import { getBookNameLocale } from "../../common/ui-locale";
+import { resolveVerse } from "../../common/scripture";
+import { attributionOf } from "@notesnook/scripture-provider";
+import { PromptDialog } from "../../dialogs/prompt";
 
 export type OnChangeHandler = (
   content: () => string,
@@ -222,16 +234,7 @@ function TipTap(props: TipTapProps) {
         return;
       }
 
-      if (silent) {
-        console.log(features, features?.[claim]);
-        if (features?.[claim]) showFeatureNotAllowedToast(features[claim]);
-        return;
-      }
-
-      if (features)
-        UpgradeDialog.show({
-          feature: features[claim]
-        });
+      if (features?.[claim]) showFeatureNotAllowedToast(features[claim]);
     }
   });
 
@@ -268,6 +271,9 @@ function TipTap(props: TipTapProps) {
       },
       enableInputRules: markdownShortcuts,
       enableFontLigatures: fontLigatures,
+      parseScriptureReferences: detectScriptureReferences,
+      scriptureAttribution: attributionOf,
+      insertScripture,
       downloadOptions,
       doubleSpacedLines,
       dateFormat,
@@ -519,10 +525,44 @@ function TipTap(props: TipTapProps) {
       }
     }
     editor.view.dom.addEventListener("click", onClick);
+    // Epigrapho: these two hang off the container rather than editor.view.dom.
+    // That node is replaced whenever the editor reloads its content, which
+    // would leave both listeners on a discarded element and silently stop the
+    // popover and the copy-on-click; the container outlives every reload.
+    const container = editorContainer() || editor.view.dom;
+    // Epigrapho: the two behaviours are the editor package's; what the app
+    // supplies is where the words come from and how they reach the clipboard.
+    const detachScripturePopover = attachScripturePopover(container, {
+      translation: getTranslation,
+      resolve: (ref, translationId) => {
+        const range = parseRef(ref);
+        if (!range) throw new Error(`Not a reference: ${ref}`);
+        return resolveVerse(range, translationId);
+      },
+      attributionOf
+    });
+    const detachScriptureCopy = attachScriptureCopy(container, {
+      formatReference: (ref) => {
+        const range = parseRef(ref);
+        return range ? formatReadableRef(range, getBookNameLocale()) : ref;
+      },
+      attributionOf,
+      copy: async (text) => {
+        try {
+          await writeToClipboard({ "text/plain": text });
+          showToast("success", strings.verseCopied());
+        } catch (error) {
+          console.error("could not copy the verse", error);
+          showToast("error", strings.verseCopyFailed());
+        }
+      }
+    });
     return () => {
       editor.view.dom.removeEventListener("click", onClick);
+      detachScripturePopover();
+      detachScriptureCopy();
     };
-  }, [editor]);
+  }, [editor, editorContainer]);
 
   useEffect(() => {
     const unsubscribe = useEditorManager.subscribe(
@@ -763,6 +803,59 @@ function TiptapWrapper(
   );
 }
 export default TiptapWrapper;
+
+// Epigrapho: asks for a reference, reads the verse from the offline pack and
+// drops it in as a scripture block.
+async function insertScripture(editor: Editor) {
+  const input = await PromptDialog.show({
+    title: strings.insertScripture(),
+    description: strings.scripturePromptDesc()
+  });
+  if (!input) return;
+
+  // The parser reads every language it knows, so a person with the interface
+  // in English can still type "Juan 3:16" here (see common/ui-locale).
+  const [reference] = parseReferences(input);
+  if (!reference) {
+    showToast("error", strings.scriptureNotRecognized(input));
+    return;
+  }
+
+  const asked = getTranslation();
+  // The block records the translation that actually served the words, so its
+  // attribution stays true even when the online layer fell back to a pack.
+  const verse = await resolveVerse(reference, asked);
+  if (!verse.text) {
+    showToast("error", strings.scriptureNoTextFor(asked, input));
+    return;
+  }
+  if (verse.notice === "stale")
+    showToast("info", strings.scriptureSavedCopy(verse.translationId));
+  else if (verse.notice === "fallback")
+    showToast("info", strings.scriptureShowingInstead(verse.translationId));
+
+  editor
+    .chain()
+    .focus()
+    .insertScriptureBlock({
+      ref: formatRef(reference),
+      label: formatReadableRef(reference, getBookNameLocale()),
+      translationId: verse.translationId,
+      text: verse.text
+    })
+    .run();
+}
+
+// Epigrapho: the editor package does not depend on the parser, so the mapping
+// from a parsed reference to the mark's attributes lives here. The interface
+// language is not passed on purpose: detection reads every language.
+function detectScriptureReferences(text: string) {
+  return parseReferences(text).map((reference) => ({
+    ref: formatRef(reference),
+    versification: reference.versification,
+    indices: reference.indices
+  }));
+}
 
 function toIEditor(editor: Editor): IEditor {
   return {

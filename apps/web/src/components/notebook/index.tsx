@@ -309,7 +309,7 @@ export const notebookMenuItems: (
     {
       type: "button",
       key: "copyid",
-      title: "Copy ID",
+      title: strings.copyId(),
       icon: Copy.path,
       onClick: async () => {
         try {

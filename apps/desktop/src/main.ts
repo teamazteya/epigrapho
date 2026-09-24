@@ -24,6 +24,7 @@ import { registerProtocol, PROTOCOL_URL } from "./utils/protocol";
 import { configureAutoUpdater } from "./utils/autoupdater";
 import { getBackgroundColor, getTheme, setTheme } from "./utils/theme";
 import { setupMenu } from "./utils/menu";
+import { setupSpellChecker } from "./utils/spell-check";
 import { WindowState } from "./utils/window-state";
 import { setupJumplist } from "./utils/jumplist";
 import { setupTray } from "./utils/tray";
@@ -37,28 +38,25 @@ import { bringToFront } from "./utils/bring-to-front";
 import { bridge } from "./api/bridge";
 import { setupDesktopIntegration } from "./utils/desktop-integration";
 import { disableCustomDns, enableCustomDns } from "./utils/custom-dns";
-import { Messages, setI18nGlobal } from "@notesnook/intl";
-import { i18n } from "@lingui/core";
+import { Messages, setI18nGlobal, i18n } from "@notesnook/intl";
 import { PATHS } from "./constants";
 import { normalizePathString } from "./utils/resolve-path";
 
-const locale =
-  process.env.NODE_ENV === "development"
-    ? import("@notesnook/intl/locales/$pseudo-LOCALE.json")
-    : import("@notesnook/intl/locales/$en.json");
+// Epigrapho A0: es-MX es el único locale (ver apps/web/src/index.ts).
+const locale = import("@notesnook/intl/locales/$es-MX.json");
 locale.then(({ default: locale }) => {
   i18n.load({
-    en: locale.messages as unknown as Messages
+    "es-MX": locale.messages as unknown as Messages
   });
-  i18n.activate("en");
+  i18n.activate("es-MX");
 });
 setI18nGlobal(i18n);
 
 const appHostnames = isDevelopment()
   ? ["localhost", "127.0.0.1"]
-  : ["app.notesnook.com"];
-// Pending nn:// link to open once the window is ready (used on Windows/Linux
-// when the app is launched via the nn:// protocol for the first time).
+  : ["app.epigrapho.local"];
+// Pending epigrapho:// link to open once the window is ready (used on
+// Windows/Linux when the app is launched via the protocol for the first time).
 let pendingNNLink: string | undefined = findNNLink(process.argv);
 
 // only run a single instance
@@ -69,7 +67,7 @@ if (!MAC_APP_STORE && !app.requestSingleInstanceLock()) {
 
 if (process.platform == "win32" && process.env.PORTABLE_EXECUTABLE_DIR) {
   console.log("Portable app: true");
-  const root = path.join(process.env.PORTABLE_EXECUTABLE_DIR, "Notesnook");
+  const root = path.join(process.env.PORTABLE_EXECUTABLE_DIR, "Epigrapho");
   app.setPath("appData", path.join(root, "AppData"));
   app.setPath("documents", path.join(root, "Documents"));
   app.setPath("userData", path.join(root, "UserData"));
@@ -142,12 +140,17 @@ async function createWindow() {
 
     webPreferences: {
       zoomFactor: config.zoomFactor,
-      spellcheck: config.isSpellCheckerEnabled,
+      // Epigrapho: off, because a custom provider only gets asked when the
+      // built-in checker is not there (see utils/spell-check.ts). Whether
+      // spell checking happens at all is still config.isSpellCheckerEnabled,
+      // now read on our side.
+      spellcheck: false,
       preload: __dirname + "/preload.js"
     }
   });
 
   createIPCHandler({ router, windows: [mainWindow] });
+  setupSpellChecker();
   globalThis.window = mainWindow;
   mainWindow.setMenuBarVisibility(false);
   mainWindowState.manage(mainWindow);
@@ -235,17 +238,17 @@ app.once("ready", async () => {
     console.log("App is running under ARM64 translation");
     dialog.showMessageBoxSync({
       message:
-        "Notesnook detected that it is running under ARM64 translation. For the best performance, please download the ARM64 build of Notesnook from our website.",
+        "Epigrapho está corriendo bajo traducción ARM64. Para que vaya mejor, descarga la versión ARM64.",
       type: "warning",
-      buttons: ["Okay"],
-      title: "Degraded Performance Warning"
+      buttons: ["De acuerdo"],
+      title: "Aviso de rendimiento"
     });
   }
 
   if (config.customDns) enableCustomDns();
   else disableCustomDns();
 
-  if (!MAC_APP_STORE) app.setAsDefaultProtocolClient("nn");
+  if (!MAC_APP_STORE) app.setAsDefaultProtocolClient("epigrapho");
 
   if (!isDevelopment()) registerProtocol();
   await createWindow();
@@ -277,7 +280,7 @@ app.on("second-instance", async (_ev, argv) => {
 // macOS opens URLs via this event. The app may or may not be fully loaded yet.
 app.on("open-url", (event, url) => {
   event.preventDefault();
-  if (!url.startsWith("nn://")) return;
+  if (!url.startsWith("epigrapho://")) return;
   if (globalThis.window) {
     bridge.onOpenLink(url);
     bringToFront();
@@ -294,7 +297,7 @@ app.on("activate", () => {
 });
 
 function findNNLink(argv: string[]): string | undefined {
-  return argv.find((arg) => arg.startsWith("nn://"));
+  return argv.find((arg) => arg.startsWith("epigrapho://"));
 }
 
 function createURL(options: CLIOptions, path = "/") {

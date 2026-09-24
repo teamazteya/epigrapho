@@ -25,6 +25,7 @@ import {
 import Placeholder from "../components/placeholders";
 import { useSearch } from "../hooks/use-search";
 import { db } from "../common/db";
+import { lookupScripture } from "../common/scripture-search";
 import { handleDrop } from "../common/drop-handler";
 import { useEditorStore } from "../stores/editor-store";
 import { ListLoader } from "../components/loaders/list-loader";
@@ -47,7 +48,10 @@ function Notes(props: NotesProps) {
     async (query, sortOptions) => {
       if (!context || !contextNotes) return;
       const notes = notesFromContext(context);
-      return await db.lookup.notesWithHighlighting(query, notes, sortOptions);
+      return (
+        (await lookupScripture(query, notes, sortOptions)) ??
+        (await db.lookup.notesWithHighlighting(query, notes, sortOptions))
+      );
     },
     [context, contextNotes]
   );

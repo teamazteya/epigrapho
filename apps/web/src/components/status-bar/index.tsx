@@ -306,9 +306,11 @@ const syncStatusFilters: SyncStatusFilter[] = [
     icon: Sync,
     text: ({ lastSynced }) =>
       lastSynced
-        ? `Synced ${getTimeAgo(lastSynced, "en_short", { minInterval: 1000 })}`
-        : "click to sync",
-    tooltip: "All changes are synced."
+        ? strings.syncedTimeAgo(
+            getTimeAgo(lastSynced, "en_short", { minInterval: 1000 })
+          )
+        : strings.clickToSync(),
+    tooltip: strings.allChangesSynced()
   },
   {
     key: "syncing",
@@ -316,48 +318,48 @@ const syncStatusFilters: SyncStatusFilter[] = [
     icon: Sync,
     loading: true,
     text: ({ type }) => `${toTitleCase(type || "sync")}ing`,
-    tooltip: "Syncing your notes..."
+    tooltip: strings.syncingYourNotesNow()
   },
   {
     key: "conflicts",
     isActive: (syncStatus) => syncStatus === "conflicts",
     icon: Alert,
     iconColor: "var(--icon-error)",
-    text: () => "Merge conflicts",
-    tooltip: "Please resolve all merge conflicts and run the sync again."
+    text: () => strings.mergeConflicts(),
+    tooltip: strings.resolveMergeConflicts()
   },
   {
     key: "emailNotConfirmed",
     isActive: (_syncStatus, user) => !user?.isEmailConfirmed,
     icon: Alert,
     iconColor: "var(--icon-error)",
-    text: () => "Sync disabled",
-    tooltip: "Please confirm your email to start syncing."
+    text: () => strings.syncDisabledShort(),
+    tooltip: strings.confirmEmailToStartSyncing()
   },
   {
     key: "failed",
     isActive: (syncStatus) => syncStatus === "failed",
     icon: SyncError,
     iconColor: "var(--icon-error)",
-    text: () => "Sync failed",
-    tooltip: "Sync failed to completed. Please try again."
+    text: () => strings.syncFailedShort(),
+    tooltip: strings.syncFailedTryAgain()
   },
   {
     key: "offline",
     isActive: (syncStatus) => syncStatus === "offline",
     icon: SyncOff,
     text: ({ lastSynced }) =>
-      `Synced ${getTimeAgo(lastSynced, "en_short", {
-        minInterval: 1000
-      })} (offline)`,
-    tooltip: "You are offline."
+      strings.syncedTimeAgoOffline(
+        getTimeAgo(lastSynced, "en_short", { minInterval: 1000 })
+      ),
+    tooltip: strings.youAreOffline()
   },
   {
     key: "disabled",
     iconColor: "var(--icon-disabled)",
     isActive: (syncStatus) => syncStatus === "disabled",
     icon: SyncOff,
-    text: () => "Sync disabled",
-    tooltip: "Sync is disabled."
+    text: () => strings.syncDisabledShort(),
+    tooltip: strings.syncIsDisabled()
   }
 ];

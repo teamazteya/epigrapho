@@ -13,3 +13,5 @@ node_modules.backup
 .nx
 /*.patch
 .taskcache
+tsconfig.tsbuildinfo
+

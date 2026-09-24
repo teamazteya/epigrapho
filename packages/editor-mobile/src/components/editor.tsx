@@ -18,6 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import {
+  attachScriptureCopy,
+  attachScripturePopover,
   Editor,
   getFontById,
   getTableOfContents,
@@ -25,6 +27,15 @@ import {
   toBlobURL,
   usePermissionHandler
 } from "@notesnook/editor";
+import { formatRef, parseReferences } from "@notesnook/scripture-parser";
+import {
+  attributionOf,
+  formatReference,
+  getTranslation,
+  loadScripturePacks,
+  resolveVerse
+} from "../common/scripture";
+import { askForScripture } from "../common/scripture-prompt";
 import { strings } from "@notesnook/intl";
 import { useThemeColors } from "@notesnook/theme";
 import FingerprintIcon from "mdi-react/FingerprintIcon";
@@ -88,6 +99,29 @@ const Tiptap = ({
   useEffect(() => {
     setPasswordError(null);
   }, [tab.session?.noteId]);
+
+  // Epigrapho (Fase 8): resting on a reference shows the verse, and a tap on
+  // a block copies it with its attribution. Both are drawn by the editor
+  // package; what this page supplies is where the words come from and how
+  // they reach the clipboard, which on a phone is the app around this page.
+  useEffect(() => {
+    const content = getContentDiv();
+    const detachPopover = attachScripturePopover(content, {
+      translation: getTranslation,
+      resolve: resolveVerse,
+      attributionOf
+    });
+    const detachCopy = attachScriptureCopy(content, {
+      formatReference,
+      attributionOf,
+      copy: (text) =>
+        globalThis.editorControllers[tabRef.current.id]?.copyToClipboard(text)
+    });
+    return () => {
+      detachPopover();
+      detachCopy();
+    };
+  }, [getContentDiv]);
 
   logger("info", tabRef.current.id, "rendering");
 
@@ -225,6 +259,21 @@ const Tiptap = ({
       },
       copyToClipboard: (text) => {
         globalThis.editorControllers[tab.id]?.copyToClipboard(text);
+      },
+      // Epigrapho (Fase 8): the same three things the desktop and web builds
+      // hand the editor. The parser and the licence registry are packages, so
+      // the phone gets them without a message to the app around it.
+      parseScriptureReferences: (text) =>
+        parseReferences(text).map((reference) => ({
+          ref: formatRef(reference),
+          versification: reference.versification,
+          indices: reference.indices
+        })),
+      scriptureAttribution: attributionOf,
+      insertScripture: async (editor) => {
+        const scripture = await askForScripture();
+        if (scripture)
+          editor.chain().focus().insertScriptureBlock(scripture).run();
       },
       onFocus: () => {
         getContentDiv().classList.remove("searching");

@@ -31,6 +31,7 @@ import {
   Pin,
   Plus,
   Properties,
+  References,
   Publish,
   Published,
   Readonly,
@@ -109,6 +110,9 @@ export function EditorActionBar() {
     (store) => store.arePropertiesVisible
   );
   const isTOCVisible = useEditorStore((store) => store.isTOCVisible);
+  const areBacklinksVisible = useEditorStore(
+    (store) => store.areBacklinksVisible
+  );
   const monographs = useMonographStore((store) => store.monographs);
   const isNotePublished =
     activeSession &&
@@ -166,6 +170,19 @@ export function EditorActionBar() {
         activeSession.type !== "conflicted",
       onClick: () => useEditorStore.getState().toggleTableOfContents(),
       toggled: isTOCVisible
+    },
+    {
+      // Epigrapho: the verse backlinks pane (PRD §31.10, Paso 5.2).
+      title: strings.verseBacklinks(),
+      icon: References,
+      enabled:
+        activeSession &&
+        activeSession.type !== "new" &&
+        activeSession.type !== "locked" &&
+        activeSession.type !== "diff" &&
+        activeSession.type !== "conflicted",
+      onClick: () => useEditorStore.getState().toggleBacklinks(),
+      toggled: areBacklinksVisible
     },
     {
       title: strings.search(),

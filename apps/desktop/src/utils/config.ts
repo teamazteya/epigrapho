@@ -43,6 +43,11 @@ export const config = {
   },
   privacyMode: false,
   isSpellCheckerEnabled: true,
+  // Where Paso 6.3 kept the person's own words. Since Fase 7 they belong to
+  // the account, encrypted and synced, so these two are only a waiting room:
+  // the app takes what is here once and empties it (see api/spell-checker).
+  customWords: <string[]>[],
+  ignoredWordsByNote: <Record<string, string[]>>{},
   zoomFactor: 1,
   theme: nativeTheme.themeSource,
   automaticUpdates: true,

@@ -28,6 +28,11 @@ __diff_output__
 
 dist
 public/workbox
+# Epigrapho: built from packages/bible-pack on every build.
+public/vbl.json
+public/bsb.json
+public/kjv.json
+public/pddpt.json
 scripts/secrets
 test-results
 .swc

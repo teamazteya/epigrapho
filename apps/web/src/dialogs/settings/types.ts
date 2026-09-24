@@ -130,7 +130,13 @@ export type ToggleSettingComponent = BaseSettingComponent<"toggle"> & {
 };
 
 export type DropdownSettingComponent = BaseSettingComponent<"dropdown"> & {
-  options: { value: string | number; title: string; disabled?: boolean }[];
+  options: {
+    value: string | number;
+    title: string;
+    disabled?: boolean;
+    /** Heading this option is filed under, if the list reads in groups. */
+    group?: string;
+  }[];
   selectedOption: () => string | number | Promise<string | number>;
   onSelectionChanged: (value: string) => void | Promise<void>;
 };

@@ -26,6 +26,8 @@
     "@notesnook/editor": "file:../../packages/editor",
     "@notesnook/intl": "file:../../packages/intl",
     "@notesnook/logger": "file:../../packages/logger",
+    "@notesnook/scripture-parser": "file:../../packages/scripture-parser",
+    "@notesnook/scripture-provider": "file:../../packages/scripture-provider",
     "@notesnook/streamable-fs": "file:../../packages/streamable-fs",
     "@notesnook/theme": "file:../../packages/theme",
     "@notesnook/themes-server": "file:../../servers/themes",
@@ -88,6 +90,7 @@
   "devDependencies": {
     "@babel/core": "7.22.5",
     "@cloudflare/workers-types": "^4.20250224.0",
+    "@notesnook/bible-pack": "file:../../packages/bible-pack",
     "@playwright/test": "1.58.2",
     "@swc/plugin-react-remove-properties": "^6.0.2",
     "@trpc/server": "10.45.2",

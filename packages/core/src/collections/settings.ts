@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import { makeId } from "../utils/id.js";
 import Database from "../api/index.js";
 import {
+  EpigraphoSettingKey,
   GroupOptions,
   GroupingKey,
   Profile,
@@ -89,7 +90,12 @@ const defaultSettings: SettingItemMap = {
   "sideBarOrder:shortcuts": [],
 
   "sideBarHiddenItems:routes": [],
-  "sideBarHiddenItems:colors": []
+  "sideBarHiddenItems:colors": [],
+
+  "epigrapho:uiLocale": undefined,
+  "epigrapho:translation": undefined,
+  "epigrapho:words": [],
+  "epigrapho:wordsByNote": {}
 };
 
 // since setting keys are static, we can calculate ids for them
@@ -284,6 +290,24 @@ export class Settings implements ICollection {
 
   getVaultLockAfter() {
     return this.get("vault:lockAfter");
+  }
+
+  /**
+   * Epigrapho's own preferences (Fase 7): the interface language, the
+   * translation being read, and the words the person taught the spell
+   * checker. They are read and written by key instead of one pair of methods
+   * each, because unlike the settings above they are one flat set that the
+   * app hands around together.
+   */
+  getEpigrapho<TKey extends EpigraphoSettingKey>(key: TKey) {
+    return this.get(key);
+  }
+
+  setEpigrapho<TKey extends EpigraphoSettingKey>(
+    key: TKey,
+    value: SettingItemMap[TKey]
+  ) {
+    return this.set(key, value);
   }
 
   setVaultLockAfter(ms: number) {

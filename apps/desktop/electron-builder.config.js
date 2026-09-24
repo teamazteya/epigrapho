@@ -29,12 +29,12 @@ const buildFiles = [
   `!${buildRoot}/build/*.png`
 ];
 
-const productName = process.env.NN_PRODUCT_NAME || "Notesnook";
-const appId = process.env.NN_APP_ID || "org.streetwriters.notesnook";
+const productName = process.env.NN_PRODUCT_NAME || "Epigrapho";
+const appId = process.env.NN_APP_ID || "org.epigrapho.app";
 const outputDir = process.env.NN_OUTPUT_DIR || "output";
 const linuxExecutableName = process.env.NN_PRODUCT_NAME
   ? process.env.NN_PRODUCT_NAME.toLowerCase().replace(/\s+/g, "-")
-  : "notesnook";
+  : "epigrapho";
 const year = new Date().getFullYear();
 const isBeta = pkg.version.includes("-beta");
 
@@ -45,7 +45,7 @@ module.exports = {
   appId: appId,
   productName: productName,
   copyright: `Copyright © ${year} Streetwriters (Private) Limited`,
-  artifactName: "notesnook_${os}_${arch}.${ext}",
+  artifactName: "epigrapho_${os}_${arch}.${ext}",
   generateUpdatesFilesForAllChannels: true,
   asar: true,
   asarUnpack: [
@@ -96,7 +96,7 @@ module.exports = {
     "node_modules/sodium-native/package.json"
   ],
   afterPack: "./scripts/removeLocales.js",
-  protocols: [{ name: "Notesnook", schemes: ["nn"] }],
+  protocols: [{ name: "Epigrapho", schemes: ["epigrapho"] }],
   mac: {
     bundleVersion: "240",
     minimumSystemVersion: "10.12.0",
@@ -118,7 +118,9 @@ module.exports = {
     entitlementsInherit: "assets/entitlements.mac.plist",
     gatekeeperAssess: false,
     icon: "assets/icons/app.icns",
-    notarize: true
+    // Notarisation needs an Apple Developer account; without one the build
+    // fails instead of simply shipping unnotarised.
+    notarize: false
   },
   dmg: {
     contents: [
@@ -134,7 +136,7 @@ module.exports = {
       }
     ],
     icon: "assets/icons/app.icns",
-    title: "Install Notesnook"
+    title: "Instalar Epigrapho"
   },
   mas: {
     entitlements: "assets/entitlements.mas.plist",
@@ -153,14 +155,13 @@ module.exports = {
         arch: ["x64", "arm64"]
       }
     ],
-    signtoolOptions: {
-      signingHashAlgorithms: ["sha256"],
-      sign: "./scripts/sign.js"
-    },
+    // Signing needs a certificate Epigrapho does not have yet. With one,
+    // put back: signtoolOptions: { signingHashAlgorithms: ["sha256"],
+    // sign: "./scripts/sign.js" }.
     icon: "assets/icons/app.ico"
   },
   portable: {
-    artifactName: "notesnook_${os}_${arch}_portable.${ext}"
+    artifactName: "epigrapho_${os}_${arch}_portable.${ext}"
   },
   nsis: {
     oneClick: true,
@@ -180,7 +181,7 @@ module.exports = {
     ],
     category: "Office",
     icon: "assets/icons/app.icns",
-    description: "Your private note taking space",
+    description: "Tus notas y la Escritura, en privado",
     executableName: linuxExecutableName,
     mimeTypes: ["x-scheme-handler/nn"],
     desktop: {

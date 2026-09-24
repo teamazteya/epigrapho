@@ -134,8 +134,9 @@ export function ErrorComponent({ error, resetErrorBoundary }: FallbackProps) {
           <svg
             style={{
               borderRadius: "default",
+              // Epigrapho's mark is square.
               height: 60,
-              width: 40,
+              width: 60,
               alignSelf: "start",
               marginBottom: 20
             }}

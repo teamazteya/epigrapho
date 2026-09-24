@@ -27,6 +27,7 @@ import { deriveKey, useKeyStore } from "../interfaces/key-store";
 import { hosts, SubscriptionPlan, SubscriptionStatus } from "@notesnook/core";
 import Config from "../utils/config";
 import { FileStorage } from "../interfaces/fs";
+import { initSyncedPreferences } from "./synced-preferences";
 
 function getHostUrl(hostUrl: keyof typeof hosts, defaultUrl: string) {
   if (IS_TESTING) return defaultUrl;
@@ -59,7 +60,7 @@ async function initializeDatabase(persistence: DatabasePersistence) {
   });
 
   const storage = new NNStorage(
-    "Notesnook",
+    "Epigrapho",
     () => useKeyStore.getState(),
     persistence
   );
@@ -131,6 +132,11 @@ async function initializeDatabase(persistence: DatabasePersistence) {
       MigrationDialog.show({})
     );
   }
+
+  // Epigrapho (Fase 7): the language, the translation and the person's words
+  // come out of the database now, so this is the moment the copies this
+  // machine reads from are brought in line with it.
+  await initSyncedPreferences();
 
   performance.mark("end:initializeDatabase");
 

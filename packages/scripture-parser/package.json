@@ -1,0 +1,29 @@
+{
+  "name": "@notesnook/scripture-parser",
+  "version": "0.0.0",
+  "description": "Epigrapho: parses Bible references from text into canonical USFM identifiers.",
+  "type": "module",
+  "main": "./dist/parse.cjs",
+  "module": "./dist/parse.js",
+  "types": "./dist/parse.d.ts",
+  "exports": {
+    "require": {
+      "types": "./dist/parse.d.cts",
+      "default": "./dist/parse.cjs"
+    },
+    "import": {
+      "types": "./dist/parse.d.ts",
+      "default": "./dist/parse.js"
+    }
+  },
+  "private": true,
+  "license": "GPL-3.0-or-later",
+  "scripts": {
+    "build": "tsdown src/parse.ts",
+    "watch": "npm run build -- --watch",
+    "test": "node --experimental-strip-types --test test/parse.test.ts"
+  },
+  "dependencies": {
+    "bible-passage-reference-parser": "^4.0.0"
+  }
+}

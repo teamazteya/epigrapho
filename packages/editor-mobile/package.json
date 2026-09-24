@@ -9,6 +9,8 @@
     "@notesnook/editor": "file:../editor",
     "@notesnook/theme": "file:../theme",
     "@notesnook/intl": "file:../intl",
+    "@notesnook/scripture-parser": "file:../scripture-parser",
+    "@notesnook/scripture-provider": "file:../scripture-provider",
     "@szhsin/react-menu": "^4.1.0",
     "buffer": "^6.0.3",
     "localforage": "^1.10.0",

@@ -1,0 +1,10 @@
+# Versification "Lockman"
+# Written for Epigrapho. NBLA and NASB follow the English versification
+# everywhere the four cases of ADR 0004 look, except Revelation 12: they end
+# the chapter at verse 17 and open chapter 13 with the sentence English
+# numbers 12:18. Measured: API.Bible answers 404 for REV.12.18 in both.
+#! base = eng
+
+REV 12:17
+
+REV 13:1 = REV 12:18

@@ -36,7 +36,6 @@ import { createRoot, Root } from "react-dom/client";
 import { PopupPresenter } from "@notesnook/ui";
 import { BaseDialogProps, DialogManager } from "../../common/dialog-manager";
 import Dialog from "../../components/dialog";
-import { UpgradeDialog } from "../../dialogs/buy-dialog/upgrade-dialog";
 
 type PublishViewProps = {
   note: Note;
@@ -235,15 +234,6 @@ function PublishView(props: PublishViewProps) {
               ) : (
                 <Loading size={14} />
               )
-            ) : monographAnalytics ? (
-              <Button
-                variant="anchor"
-                onClick={() =>
-                  UpgradeDialog.show({ feature: monographAnalytics })
-                }
-              >
-                {strings.upgrade()}
-              </Button>
             ) : null}
           </Flex>
         ) : null}

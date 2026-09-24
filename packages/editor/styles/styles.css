@@ -1095,3 +1095,218 @@ del.diffdel {
     transition: none;
   }
 }
+
+/* Epigrapho: a detected Bible reference. Decoration only — the text is the
+   user's own. */
+.ProseMirror .scripture-reference {
+  color: var(--accent);
+  text-decoration: underline dotted currentColor;
+  text-underline-offset: 2px;
+  cursor: pointer;
+  /* A little more to aim at with a thumb. WCAG 2.5.8 exempts a target sitting
+     inside a sentence, so this is comfort, not compliance: any more would have
+     one line's reference catching taps meant for the line below it. */
+  padding-block: 4px;
+}
+
+/* Epigrapho: a verse pulled from the offline pack, with its attribution. */
+.ProseMirror .scripture-block {
+  margin: 12px 0;
+  padding: 12px 14px;
+  /* A whole border, not a coloured stripe down one side. The serif and the
+     panel tint are what say "this is not your prose"; a stripe would only be
+     decoration, and it would be the loudest thing on the page. */
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background-color: var(--background-secondary);
+}
+
+.ProseMirror .scripture-block-reference {
+  margin: 0 0 4px;
+  /* The three steps of the Brand Kit scale — 16 body, 14 interface, 12
+     caption — in rem, so a block reads the same size wherever it is nested.
+     The em values it used before compounded with whatever contained them. */
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 600;
+  color: var(--paragraph-secondary);
+}
+
+/* The verse is not the note's prose and must not read like it. The serif is
+   what separates them, which is also the separation that survives a reader
+   who cannot tell the two colours apart. */
+.ProseMirror .scripture-block-text {
+  margin: 0;
+  font-family: "Cormorant Garamond", "Source Serif 4", Georgia,
+    "Times New Roman", serif;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.ProseMirror .scripture-block-attribution {
+  margin: 6px 0 0;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  color: var(--paragraph-secondary);
+}
+
+/* Epigrapho: the block's copy control. Small, but a real button — reachable by
+   keyboard, named for a screen reader, and big enough to hit with a thumb. */
+.ProseMirror .scripture-block-copy {
+  margin: 8px 0 0;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background-color: transparent;
+  color: var(--paragraph-secondary);
+  font-family: inherit;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  cursor: pointer;
+}
+
+.ProseMirror .scripture-block-copy:hover {
+  background-color: var(--hover);
+  color: var(--paragraph);
+}
+
+.ProseMirror .scripture-block-copy:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Epigrapho: the verse preview. It is fixed to the viewport and so lives on
+   the body, outside the note, which is why nothing here is scoped to
+   .ProseMirror. Only its top and left are set from script. */
+.scripture-popover {
+  position: fixed;
+  /* Above everything the app itself stacks, including the modal layer: a
+     preview that opens under a dialog is a preview nobody can read. */
+  z-index: 2147483000;
+  box-sizing: border-box;
+  max-width: 320px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background-color: var(--background);
+  color: var(--paragraph);
+  /* Ink Navy at 18%, not var(--backdrop): that token is the scrim a modal
+     paints over the page, and it only worked here by accident. The 1px border
+     is what carries the edge in the dark theme, where this barely shows. */
+  box-shadow: 0 4px 12px rgb(23 34 59 / 0.18);
+}
+
+/* Scripture reads in the serif here too, for the same reason it does in a
+   block: it is not the reader's own prose. */
+.scripture-popover-text {
+  font-family: "Cormorant Garamond", "Source Serif 4", Georgia,
+    "Times New Roman", serif;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.scripture-popover-attribution {
+  margin-top: 6px;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  color: var(--paragraph-secondary);
+}
+
+/* Why the text is not the fresh words of the translation that was asked for.
+   Full-strength colour: it is the line that changes what to trust. */
+.scripture-popover-notice {
+  margin-top: 4px;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-style: italic;
+  color: var(--paragraph);
+}
+
+/* Epigrapho: the reference prompt on a phone. A native dialog, on the body. */
+.scripture-prompt {
+  box-sizing: border-box;
+  width: min(320px, 90vw);
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background-color: var(--background);
+  color: var(--paragraph);
+}
+
+.scripture-prompt::backdrop {
+  background-color: var(--backdrop);
+}
+
+.scripture-prompt-title {
+  margin: 0 0 4px;
+  font-size: 1rem;
+  line-height: 1.5rem;
+}
+
+.scripture-prompt-description {
+  margin: 0 0 12px;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  color: var(--paragraph-secondary);
+}
+
+.scripture-prompt-input {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 44px;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background-color: var(--background);
+  color: var(--paragraph);
+  font-family: inherit;
+  /* 16px exactly: below it, iOS zooms the page the moment the field takes
+     focus and leaves the dialog hanging off the side of the screen. */
+  font-size: 16px;
+}
+
+.scripture-prompt-input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.scripture-prompt-error {
+  margin: 8px 0 0;
+  min-height: 1rem;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  color: var(--error);
+}
+
+.scripture-prompt-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+/* A phone's default button is about twenty pixels tall and wears the system's
+   colours, which next to a styled dialog reads as two interfaces. */
+.scripture-prompt-button {
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background-color: transparent;
+  color: var(--paragraph);
+  font-family: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.scripture-prompt-button[data-primary] {
+  border-color: var(--accent);
+  background-color: var(--accent);
+  color: var(--accentForeground);
+}
+
+.scripture-prompt-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}

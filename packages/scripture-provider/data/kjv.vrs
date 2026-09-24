@@ -1,0 +1,22 @@
+# Versification "KJV tradition"
+# Written for Epigrapho, not shipped by SIL: the King James tradition is a
+# Paratext custom versification, so eBible.org carries it as a custom.vrs in
+# each project rather than as one of the six standard files.
+#
+# It is the English versification with two amendments, both measured against
+# the packs themselves in test/versification.test.ts:
+#   - 3 John has fourteen verses, not fifteen: what English numbers 14 and 15
+#     is one verse here.
+#   - Revelation 12 ends at verse 17, and the sentence English numbers 12:18
+#     opens chapter 13 instead.
+#
+# Used by VBL and KJV. BSB ends Revelation 12 at the same verse but keeps the
+# sentence inside it, so it has its own file. The VBL line is the one
+# eBible.org publishes at sillsdev/machine samples/data/VBL-PT/custom.vrs,
+# word for word.
+#! base = eng
+
+3JN 1:14
+REV 12:17
+
+REV 13:1 = REV 12:18

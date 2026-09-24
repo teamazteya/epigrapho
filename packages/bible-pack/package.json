@@ -1,0 +1,13 @@
+{
+  "name": "@notesnook/bible-pack",
+  "version": "0.0.0",
+  "description": "Epigrapho: offline Bible text packs. Ships VBL (Versión Biblia Libre, CC BY-SA 4.0) and BSB (Berean Standard Bible, public domain).",
+  "type": "module",
+  "private": true,
+  "license": "GPL-3.0-or-later",
+  "scripts": {
+    "build": "node --experimental-strip-types scripts/import-usfm.ts --build ../../apps/web/public ../editor-mobile/public",
+    "import": "node --experimental-strip-types scripts/import-usfm.ts",
+    "test": "node --experimental-strip-types --test test/import-usfm.test.ts"
+  }
+}

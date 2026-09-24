@@ -49,6 +49,7 @@ export function InsertBlock(props: ToolProps) {
       mathblock(editor),
       callout(editor),
       blockquote(editor),
+      scripture(editor),
       image(editor, isMobile),
       attachment(editor),
       isMobile ? embedMobile(editor) : embedDesktop(editor),
@@ -60,6 +61,7 @@ export function InsertBlock(props: ToolProps) {
     <>
       <Button
         ref={buttonRef}
+        data-test-id="insert-block"
         variant="secondary"
         sx={{
           p: 1,
@@ -167,6 +169,14 @@ const callout = (editor: Editor): MenuItem => ({
           .run()
     }))
   }
+});
+
+const scripture = (editor: Editor): MenuItem => ({
+  key: "scripture",
+  type: "button",
+  title: strings.insertScripture(),
+  icon: Icons.scripture,
+  onClick: () => editor.storage.insertScripture?.(editor)
 });
 
 const image = (editor: Editor, isMobile: boolean): MenuItem => ({

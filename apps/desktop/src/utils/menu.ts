@@ -19,15 +19,40 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import { strings } from "@notesnook/intl";
 import { Menu, MenuItem, clipboard, shell } from "electron";
+import { spellingSuggestions } from "./spell-check";
+import { userDictionary } from "./user-dictionary";
+
+/**
+ * Tells the app a word was accepted, so it reaches the account and every
+ * other machine (Fase 7). The menu is built here, where the database is not.
+ */
+function tellTheApp(call: string) {
+  globalThis.window?.webContents
+    .executeJavaScript(`window.epigrapho?.${call}`)
+    .catch(() => undefined);
+}
+
+/** The note open in the editor, or nothing if none is. */
+function noteBeingEdited(): Promise<string> {
+  return (
+    globalThis.window?.webContents
+      .executeJavaScript(
+        'document.querySelector(".active[data-note-id]")?.dataset.noteId ?? ""'
+      )
+      .catch(() => "") ?? Promise.resolve("")
+  );
+}
 
 function setupMenu() {
   if (!globalThis.window) return;
 
-  globalThis.window.webContents.on("context-menu", (_event, params) => {
+  globalThis.window.webContents.on("context-menu", async (_event, params) => {
     const menu = new Menu();
 
-    // Add each spelling suggestion
-    for (const suggestion of params.dictionarySuggestions) {
+    // Chromium fills `params.dictionarySuggestions` from its own dictionary,
+    // which this app turned off (Paso 6.1): the suggestions come from ours,
+    // and they take a message to a worker thread to arrive.
+    for (const suggestion of await spellingSuggestions(params.misspelledWord)) {
       menu.append(
         new MenuItem({
           label: suggestion,
@@ -37,17 +62,54 @@ function setupMenu() {
       );
     }
 
-    // Allow users to add the misspelled word to the dictionary
-    if (params.misspelledWord) {
-      menu.append(
-        new MenuItem({
-          label: strings.addToDictionary(),
-          click: () =>
-            globalThis.window?.webContents.session.addWordToSpellCheckerDictionary(
-              params.misspelledWord
-            )
-        })
-      );
+    // What to do with a word the dictionary does not know (Paso 6.3): keep it
+    // for good, leave it alone until the app closes, or leave it alone inside
+    // this note. Nothing here changes the text.
+    const misspelled = params.misspelledWord;
+    if (misspelled) {
+      const noteId = await noteBeingEdited();
+      // Chromium does not ask again about a word it has already marked, so
+      // the underline would stay until that line is touched. Replacing the
+      // word with itself changes nothing and makes it ask.
+      const askAgain = () =>
+        globalThis.window?.webContents.replaceMisspelling(misspelled);
+
+      // Each of these accepts the word here, so the underline clears without
+      // a round trip, and tells the app, which is what makes it last. The
+      // word goes through JSON so a quote in it cannot end up as code.
+      const word = JSON.stringify(misspelled);
+      for (const [label, accept] of <[string, () => void][]>[
+        [
+          strings.addToDictionary(),
+          () => {
+            userDictionary.add(misspelled);
+            tellTheApp(`addWord(${word})`);
+          }
+        ],
+        [strings.ignoreOnce(), () => userDictionary.ignoreOnce(misspelled)],
+        ...(noteId
+          ? [
+              [
+                strings.ignoreInNote(),
+                () => {
+                  userDictionary.ignoreInNote(misspelled, noteId);
+                  tellTheApp(
+                    `ignoreWordInNote(${word}, ${JSON.stringify(noteId)})`
+                  );
+                }
+              ]
+            ]
+          : [])
+      ])
+        menu.append(
+          new MenuItem({
+            label,
+            click: () => {
+              accept();
+              askAgain();
+            }
+          })
+        );
     }
 
     if (menu.items.length > 0)

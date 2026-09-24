@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Box, Button, Flex, Image, Text } from "@theme-ui/components";
 import {
   Note,
@@ -30,14 +30,11 @@ import {
   Topic,
   DarkMode,
   LightMode,
-  Login,
   Circle,
   Icon,
   Reminders,
   User,
-  Pro,
   Documentation,
-  Logout,
   Reset,
   Rename,
   ExpandSidebar,
@@ -100,11 +97,9 @@ import { showToast } from "../../utils/toast";
 import { strings } from "@notesnook/intl";
 import Tags from "../../views/tags";
 import { Notebooks } from "../../views/notebooks";
-import { UserProfile } from "../../dialogs/settings/components/user-profile";
 import {
   checkFeature,
   createSetDefaultHomepageMenuItem,
-  logout,
   withFeatureCheck
 } from "../../common";
 import { TabItem } from "./tab-item";
@@ -113,13 +108,11 @@ import { CREATE_BUTTON_MAP } from "../../common";
 import { useStore as useNotebookStore } from "../../stores/notebook-store";
 import { useStore as useTagStore } from "../../stores/tag-store";
 import { showSortMenu } from "../group-header";
-import { BuyDialog } from "../../dialogs/buy-dialog";
 import {
   FeatureResult,
   isFeatureAvailable,
   useIsFeatureAvailable
 } from "@notesnook/common";
-import { isUserSubscribed } from "../../hooks/use-is-user-premium";
 import { shouldShowWrapped } from "../../utils/should-show-wrapped";
 import { writeToClipboard } from "../../utils/clipboard";
 
@@ -350,7 +343,7 @@ function NavigationMenu({
                 display: "block"
               }}
             >
-              Notesnook
+              Epigrapho
             </Text>
           </Flex>
           <Flex sx={{ gap: "small", alignItems: "center" }}>
@@ -865,10 +858,6 @@ function NavigationDropdown() {
     (store) => store.setFollowSystemTheme
   );
 
-  const isSubscribed = useMemo(() => isUserSubscribed(user), [user]);
-
-  const notLoggedIn = Boolean(!user || !user.id);
-
   return (
     <Button
       variant="secondary"
@@ -876,15 +865,6 @@ function NavigationDropdown() {
         e.preventDefault();
         Menu.openMenu(
           [
-            {
-              type: "popup",
-              component: () => <UserProfile minimal />,
-              key: "profile"
-            },
-            {
-              type: "separator",
-              key: "sep"
-            },
             {
               type: "button",
               title: strings.toggleDarkLightMode(),
@@ -894,14 +874,6 @@ function NavigationDropdown() {
                 setFollowSystemTheme(false);
                 toggleNightMode();
               }
-            },
-            {
-              type: "button",
-              title: strings.upgradeToPro(),
-              icon: Pro.path,
-              key: "upgrade",
-              onClick: () => BuyDialog.show({}),
-              isHidden: notLoggedIn || isSubscribed
             },
             {
               type: "button",
@@ -918,24 +890,8 @@ function NavigationDropdown() {
               icon: Documentation.path,
               key: "help-and-support",
               onClick: () => {
-                window.open("https://notesnook.com/help/", "_blank");
+                window.open("https://github.com/teamazteya/epigrapho", "_blank");
               }
-            },
-            {
-              type: "button",
-              title: strings.login(),
-              icon: Login.path,
-              key: "login",
-              isHidden: !notLoggedIn,
-              onClick: () => hardNavigate("/login")
-            },
-            {
-              type: "button",
-              title: strings.logout(),
-              icon: Logout.path,
-              key: "logout",
-              isHidden: notLoggedIn,
-              onClick: () => logout()
             }
           ],
           {

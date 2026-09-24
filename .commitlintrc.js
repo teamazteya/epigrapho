@@ -1,14 +1,3 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-
-const { execSync } = require("child_process");
-const { readFileSync } = require("fs");
-
-const authorEmail = execSync(`git config --global --get user.email`)
-  .toString("utf-8")
-  .trim();
-const authors = readFileSync("AUTHORS", "utf-8");
-const isAuthor = authors.includes(`<${authorEmail}>`);
-
 const SCOPES = [
   // for full list of scopes + details see: https://github.com/streetwriters/notesnook/blob/master/CONTRIBUTING.md#commit-guidelines
 
@@ -42,7 +31,10 @@ const SCOPES = [
 
 module.exports = {
   rules: {
-    "signed-off-by": [isAuthor ? 0 : 2, "always", `Signed-off-by:`],
+    // Upstream asks contributors who are not listed in AUTHORS to sign their
+    // commits off, which is how Notesnook collects a DCO on patches sent to
+    // it. Epigrapho is a fork with its own repository and takes no patches
+    // through that route, so the rule has nothing left to enforce here.
     "type-enum": [2, "always", SCOPES],
     "type-empty": [2, "never"]
   }

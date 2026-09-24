@@ -1,0 +1,11 @@
+# Versification "BSB"
+# Written for Epigrapho. The Berean Standard Bible numbers verses like the KJV
+# tradition — fourteen verses in 3 John, seventeen in Revelation 12 — but it
+# differs in where the seventeenth ends: measured, BSB closes 12:17 with "And
+# the dragon stood on the shore of the sea", the sentence English numbers
+# 12:18, while VBL and KJV open chapter 13 with it. So there is no mapping
+# line here: the canonical 12:18 simply lands on this chapter's last verse.
+#! base = eng
+
+3JN 1:14
+REV 12:17

@@ -21,16 +21,16 @@ import Config from "../utils/config";
 import { createBackup, verifyAccount } from "./index";
 import { db } from "./db";
 import { store as appStore } from "../stores/app-store";
-import { Backup, User, Email, Warn, Icon } from "../components/icons";
+import { Backup, Email, Warn, Icon } from "../components/icons";
 import dayjs from "dayjs";
-import { hardNavigate, hashNavigate } from "../navigation";
+import { hashNavigate } from "../navigation";
 import { showToast } from "../utils/toast";
 import { TaskScheduler } from "../utils/task-scheduler";
 import { RecoveryKeyDialog } from "../dialogs/recovery-key-dialog";
 import { strings } from "@notesnook/intl";
 import { SettingsDialog } from "../dialogs/settings";
 
-export type NoticeType = "autoBackupsOff" | "login" | "email" | "recoverykey";
+export type NoticeType = "autoBackupsOff" | "email" | "recoverykey";
 
 export type Notice = {
   type: NoticeType;
@@ -115,11 +115,6 @@ export async function shouldAddRecoveryKeyBackupNotice() {
   return dayjs(recoveryKeyBackupDate).add(30, "d").isBefore(dayjs());
 }
 
-export async function shouldAddLoginNotice() {
-  const user = await db.user.getUser();
-  if (!user) return true;
-}
-
 export async function shouldAddConfirmEmailNotice() {
   const user = await db.user.getUser();
   if (!user) return false;
@@ -143,13 +138,6 @@ export const NoticesData: Record<NoticeType, NoticeData> = {
     action: () => SettingsDialog.show({ activeSection: "backup-export" }),
     dismissable: true,
     icon: Backup
-  },
-  login: {
-    key: "login",
-    title: strings.loginMessageActionText(),
-    subtitle: strings.loginMessage(),
-    action: () => hardNavigate("/login"),
-    icon: User
   },
   email: {
     key: "email",
@@ -178,9 +166,6 @@ export async function resetNotices() {
   }
   if (await shouldAddBackupNotice()) {
     await saveBackup();
-  }
-  if (await shouldAddLoginNotice()) {
-    notices.push({ type: "login", priority: 1 });
   }
   if (await shouldAddConfirmEmailNotice()) {
     notices.push({ type: "email", priority: 4 });

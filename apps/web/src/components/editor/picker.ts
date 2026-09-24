@@ -103,8 +103,7 @@ export async function attachFiles(
 
       try {
         const allowed = await checkFeature("fileSize", {
-          value: file.size,
-          type: "toast"
+          value: file.size
         });
         if (!allowed) {
           throw new Error(strings.fileSizeLimitExceededPleaseUpgrade());

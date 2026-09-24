@@ -39,8 +39,7 @@ import {
   Servers,
   ShieldLock,
   Sync,
-  Inbox,
-  CircleEmpty
+  Inbox
 } from "../../components/icons";
 import NavigationItem from "../../components/navigation-menu/navigation-item";
 import { FlexScrollContainer } from "../../components/scroll-container";
@@ -73,7 +72,6 @@ import {
 } from "./other-settings";
 import { AppearanceSettings } from "./appearance-settings";
 import { debounce, useIsFeatureAvailable, usePromise } from "@notesnook/common";
-import { SubscriptionSettings } from "./subscription-settings";
 import { ScopedThemeProvider } from "../../components/theme-provider";
 import { AppLockSettings } from "./app-lock-settings";
 import { BaseDialogProps, DialogManager } from "../../common/dialog-manager";
@@ -82,7 +80,6 @@ import { strings } from "@notesnook/intl";
 import { mdToHtml } from "../../utils/md";
 import { InboxSettings } from "./inbox-settings";
 import { withFeatureCheck } from "../../common";
-import { NotesnookCircleSettings } from "./notesnook-circle-settings";
 import { hashNavigate } from "../../navigation";
 
 type SettingsDialogProps = BaseDialogProps<false> & {
@@ -96,12 +93,6 @@ const sectionGroups: SectionGroup[] = [
     sections: [
       { key: "profile", title: strings.profile(), icon: Account },
       {
-        key: "subscription",
-        title: strings.subDetails(),
-        icon: Pro,
-        isHidden: () => !useUserStore.getState().isLoggedIn
-      },
-      {
         key: "auth",
         title: strings.authentication(),
         icon: PasswordAndAuth,
@@ -111,12 +102,6 @@ const sectionGroups: SectionGroup[] = [
         key: "sync",
         title: strings.sync(),
         icon: Sync,
-        isHidden: () => !useUserStore.getState().isLoggedIn
-      },
-      {
-        key: "circle",
-        title: "Notesnook Circle",
-        icon: CircleEmpty,
         isHidden: () => !useUserStore.getState().isLoggedIn
       },
       {
@@ -193,10 +178,8 @@ const SettingsGroups = [
   ...LegalSettings,
   ...SupportSettings,
   ...AboutSettings,
-  ...SubscriptionSettings,
   ...ServersSettings,
-  ...InboxSettings,
-  ...NotesnookCircleSettings
+  ...InboxSettings
 ];
 
 // Thoughts:
@@ -671,17 +654,42 @@ export function SelectComponent(props: Omit<DropdownSettingComponent, "type">) {
         onSelectionChanged((e.target as HTMLSelectElement).value)
       }
     >
-      {options.map((option) => (
-        <option
-          key={option.value}
-          value={option.value}
-          disabled={option.disabled}
-        >
-          {option.title}
-        </option>
-      ))}
+      {groupedOptions(options).map(([label, group]) => {
+        const items = group.map((option) => (
+          <option
+            key={option.value}
+            value={option.value}
+            disabled={option.disabled}
+          >
+            {option.title}
+          </option>
+        ));
+        return label ? (
+          <optgroup key={label} label={label}>
+            {items}
+          </optgroup>
+        ) : (
+          items
+        );
+      })}
     </select>
   );
+}
+
+/**
+ * The options under their headings, in the order they were given. A list where
+ * every option is ungrouped comes back as one unlabelled run, which renders
+ * exactly as it did before groups existed.
+ */
+function groupedOptions(options: DropdownSettingComponent["options"]) {
+  const groups = new Map<string, DropdownSettingComponent["options"]>();
+  for (const option of options) {
+    const key = option.group || "";
+    const group = groups.get(key);
+    if (group) group.push(option);
+    else groups.set(key, [option]);
+  }
+  return [...groups];
 }
 
 type NumberInputProps = {

@@ -1,0 +1,30 @@
+{
+  "name": "@notesnook/scripture-provider",
+  "version": "0.0.0",
+  "description": "Epigrapho: reads scripture text. Embedded offline packs (VBL, BSB, KJV) and the online API.Bible layer (NTV, NBLA, NASB).",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "require": {
+      "types": "./dist/index.d.cts",
+      "default": "./dist/index.cjs"
+    },
+    "import": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "private": true,
+  "license": "GPL-3.0-or-later",
+  "scripts": {
+    "build": "tsdown src/index.ts",
+    "build-versification": "node --experimental-strip-types scripts/build-versification.ts && prettier --write src/versification-data.ts",
+    "watch": "npm run build -- --watch",
+    "test": "node --experimental-strip-types --test test/api-bible.test.ts test/cache.test.ts test/versification.test.ts"
+  },
+  "dependencies": {
+    "@notesnook/scripture-parser": "file:../scripture-parser"
+  }
+}

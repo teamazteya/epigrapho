@@ -25,7 +25,6 @@ import {
 } from "../dialogs/add-notebook-dialog";
 import { EmailVerificationDialog } from "../dialogs/email-verification-dialog";
 import { SettingsDialog } from "../dialogs/settings";
-import { BuyDialog } from "../dialogs/buy-dialog";
 import {
   AddReminderDialog,
   EditReminderDialog
@@ -54,12 +53,6 @@ const hashroutes = defineHashRoutes({
   },
   "/tags/create": () => {
     CreateTagDialog.show().then(afterAction);
-  },
-  "/buy": () => {
-    BuyDialog.show({}).then(afterAction);
-  },
-  "/buy/:code": ({ code }: { code: string }) => {
-    BuyDialog.show({ couponCode: code }).then(afterAction);
   },
   "/welcome": () => {
     OnboardingDialog.show({})?.then(afterAction);

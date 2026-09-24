@@ -25,8 +25,9 @@ import { getServiceWorkerVersion } from "./utils/version";
 import { register as registerStreamSaver } from "./utils/stream-saver/mitm";
 import { ThemeDark, ThemeLight, themeToCSS } from "@notesnook/theme";
 import Config from "./utils/config";
-import { setI18nGlobal, Messages } from "@notesnook/intl";
+import { setI18nGlobal } from "@notesnook/intl";
 import { i18n } from "@lingui/core";
+import { activateUiLocale, getUiLocale } from "./common/ui-locale";
 
 const colorScheme = JSON.parse(
   window.localStorage.getItem("colorScheme") || '"light"'
@@ -44,19 +45,21 @@ if (theme) {
   if (stylesheet) stylesheet.innerHTML = css;
 } else stylesheet?.remove();
 
-const locale = import.meta.env.DEV
-  ? import("@notesnook/intl/locales/$pseudo-LOCALE.json")
-  : import("@notesnook/intl/locales/$en.json");
-locale.then(({ default: locale }) => {
-  i18n.load({
-    en: locale.messages as unknown as Messages
-  });
-  i18n.activate("en");
-
+// Epigrapho: the interface language is a preference, so the catalog is chosen
+// before anything renders.
+activateUiLocale(getUiLocale()).then(() => {
   performance.mark("import:root");
   import("./root").then(({ startApp }) => {
     performance.mark("start:app");
     startApp();
+    // Epigrapho A0: fill the offline scripture store once, after the app is up
+    // so the packs never delay the first paint. They are served from the root
+    // of this app; the mobile editor reads the same packs from beside itself.
+    import("@notesnook/scripture-provider").then(({ loadPacks }) =>
+      loadPacks("/").catch((error) =>
+        console.error("could not load the scripture packs", error)
+      )
+    );
   });
 });
 setI18nGlobal(i18n);

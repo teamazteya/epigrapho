@@ -116,7 +116,7 @@ export const AddTagsDialog = DialogManager.register(function AddTagsDialog(
             );
           }}
           onCreateNewItem={async (title) => {
-            if (!(await checkFeature("tags", { type: "toast" }))) return;
+            if (!(await checkFeature("tags"))) return;
 
             const tagId = await db.tags.add({ title });
             if (!tagId) return;

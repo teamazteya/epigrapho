@@ -69,27 +69,27 @@ await fs.cp(path.join(webAppPath, "build"), path.join(root, "build"), {
 });
 
 if (args.variant === "mas") {
-  await exec(`yarn run bundle:mas --outdir=${path.join(root, "build")}`);
+  await exec(`npm run bundle:mas -- --outdir=${path.join(root, "build")}`);
 } else {
-  await exec(`yarn run bundle --outdir=${path.join(root, "build")}`);
+  await exec(`npm run bundle -- --outdir=${path.join(root, "build")}`);
 }
 
 if (!skipTscBuild) {
-  await exec(`yarn run build`);
+  await exec(`npm run build`);
 }
 
 if (args.run) {
   await exec(
-    `yarn electron-builder --dir --${process.arch} --config=electron-builder.config.js`
+    `npx electron-builder --dir --${process.arch} --config=electron-builder.config.js`
   );
   if (process.platform === "win32") {
-    await exec(`.\\output\\win-unpacked\\Notesnook.exe`);
+    await exec(`.\\output\\win-unpacked\\Epigrapho.exe`);
   } else if (process.platform === "darwin") {
     if (process.arch === "arm64")
-      await exec(`./output/mac-arm64/Notesnook.app/Contents/MacOS/Notesnook`);
-    else await exec(`./output/mac/Notesnook.app/Contents/MacOS/Notesnook`);
+      await exec(`./output/mac-arm64/Epigrapho.app/Contents/MacOS/Epigrapho`);
+    else await exec(`./output/mac/Epigrapho.app/Contents/MacOS/Epigrapho`);
   } else {
-    await exec(`./output/linux-unpacked/Notesnook`);
+    await exec(`./output/linux-unpacked/Epigrapho`);
   }
 }
 

@@ -21,13 +21,7 @@ import createStore from "../common/store";
 import BaseStore from "./index";
 import Config from "../utils/config";
 import { desktop } from "../common/desktop-bridge";
-import {
-  THEME_COMPATIBILITY_VERSION,
-  ThemeDark,
-  ThemeDefinition,
-  ThemeLight
-} from "@notesnook/theme";
-import { ThemesRouter } from "../common/themes-router";
+import { ThemeDark, ThemeDefinition, ThemeLight } from "@notesnook/theme";
 
 type ColorScheme = "dark" | "light";
 class ThemeStore extends BaseStore<ThemeStore> {
@@ -110,18 +104,12 @@ function getTheme(colorScheme: ColorScheme) {
 }
 
 async function updateTheme(theme: ThemeDefinition) {
-  const { id, version } = theme;
-  try {
-    const updatedTheme = await ThemesRouter.updateTheme.query({
-      compatibilityVersion: THEME_COMPATIBILITY_VERSION,
-      id,
-      version
-    });
-    if (!updatedTheme) return theme;
-    return updatedTheme;
-  } catch (e) {
-    return theme;
-  }
+  // Notesnook asks its theme server on every start whether the built-in theme
+  // has a newer version. Epigrapho does not: the app starting is nobody's
+  // business but the person using it, and a theme that ships with the app is
+  // as current as the app itself. The themes people install themselves are
+  // still fetched, but only when they go looking for them.
+  return theme;
 }
 
 function changeDesktopTheme(theme: ThemeDefinition, system: boolean) {

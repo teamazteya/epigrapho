@@ -2810,5 +2810,105 @@ Continue without attachments?`,
   offlineMode: () => t`Offline mode`,
   offlineModeDesc: () =>
     t`Using Notesnook without an account will NOT sync your notes across devices and could result in data loss if you lose access to your device or uninstall the app. Make sure to backup your notes regularly.`,
-  alignment: () => t`Alignment`
+  alignment: () => t`Alignment`,
+
+  // Epigrapho: the person's own dictionary (Paso 6.3).
+  ignoreOnce: () => t`Ignore once`,
+  ignoreInNote: () => t`Ignore in this note`,
+  exportDictionary: () => t`Export dictionary`,
+  importDictionary: () => t`Import dictionary`,
+  dictionaryFile: () => t`Dictionary`,
+
+  // Epigrapho: strings that were written into the components instead of the
+  // catalogue, on surfaces this app shows every day (Fase 9).
+  clickToSync: () => t`click to sync`,
+  syncedTimeAgo: (ago: string) => t`Synced ${ago}`,
+  syncedTimeAgoOffline: (ago: string) => t`Synced ${ago} (offline)`,
+  allChangesSynced: () => t`All changes are synced.`,
+  syncingYourNotesNow: () => t`Syncing your notes...`,
+  mergeConflicts: () => t`Merge conflicts`,
+  resolveMergeConflicts: () =>
+    t`Please resolve all merge conflicts and run the sync again.`,
+  syncDisabledShort: () => t`Sync disabled`,
+  confirmEmailToStartSyncing: () =>
+    t`Please confirm your email to start syncing.`,
+  syncFailedShort: () => t`Sync failed`,
+  syncFailedTryAgain: () => t`Sync failed to complete. Please try again.`,
+  youAreOffline: () => t`You are offline.`,
+  syncIsDisabled: () => t`Sync is disabled.`,
+  exportFailed: () => t`Export failed`,
+  exportedNotesCount: (count: number) => t`Exported ${count} notes`,
+  exportCompleted: (errors: number) =>
+    t`Export completed with ${errors} errors.`,
+  createTagNamed: (name: string) => t`Create "${name}" tag`,
+  deletingTags: () => t`Deleting tags`,
+
+  // Epigrapho: the tips and empty states of the desktop app, which were
+  // written into the component instead of the catalogue (Fase 9). Five of
+  // them repeat a message the mobile tip list already has, so they resolve to
+  // the same entry and the same translation.
+  tipExactMatch: () =>
+    t`Wrap a query in double quotes to search for an exact match.`,
+  tipMultiSelect: () =>
+    t`Hold Ctrl/Cmd & click on multiple items to select them.`,
+  tipMonographsShare: () =>
+    t`Monographs enable you to share your notes in a secure and private way.`,
+  tipMonographsEncrypted: () =>
+    t`Monographs can be encrypted with a secret key and shared with anyone.`,
+  tipPublishedEncrypted: () =>
+    t`Published notes can be encrypted. Which means only you and the person you share the password with can read them.`,
+  tipPinNotebooksSideMenu: () =>
+    t`You can pin frequently used Notebooks to the Side Menu to quickly access them.`,
+  tipSubNotebooks: () =>
+    t`A notebook can have unlimited sub-notebooks with unlimited notes.`,
+  tipMoveManyNotes: () =>
+    t`You can multi-select notes and move them to a notebook or a sub-notebook at once.`,
+  tipFavorites: () => t`Mark important notes by adding them to favorites.`,
+  tipPinNote: () =>
+    t`Are you scrolling a lot to find a specific note? Pin it to the top from Note properties.`,
+  tipPinNotebooks: () =>
+    t`Pin your most important Notebooks to the top from Notebook properties.`,
+  tipJoinDiscord: () =>
+    t`We value your feedback so join us on Discord and share your experiences and ideas.`,
+  tipTrashInterval: () =>
+    t`You can adjust how long items live in your trash from Settings -> Trash settings.`,
+  tipReminders: () =>
+    t`You can set daily, weekly or monthly reminders & stay ahead of your tasks.`,
+  tipTags: () => t`You can use #tags to organize your notes.`,
+  noAttachmentsYet: () => t`You have no attachments.`,
+  favoritesAppearHere: () => t`Notes you favorite will appear here.`,
+  noMonographsYet: () => t`You haven't published any notes yet.`,
+  whatAreMonographs: () => t`What are monographs?`,
+  noNotebooksYet: () => t`You haven't created any notebooks.`,
+  noNotesYet: () => t`You have not created any notes yet.`,
+
+  // Epigrapho: Scripture surfaces.
+  insertScripture: () => t`Insert Scripture`,
+  scripturePromptDesc: () => t`Type a reference, for example John 3:16.`,
+  scriptureNotRecognized: (input: string) =>
+    t`"${input}" is not a reference we can read. Try the shape of John 3:16, Rom 8:28-30 or Sal 23.`,
+  scriptureNoTextFor: (translationId: string, input: string) =>
+    t`${translationId} has no text for "${input}". Check the reference, or choose another translation in Settings.`,
+  scriptureLookupFailed: () => t`Could not read the verse. Try again.`,
+  scriptureNoTextForRef: (translationId: string) =>
+    t`${translationId} has no text for this reference.`,
+  copyVerse: () => t`Copy verse`,
+  verseCopied: () => t`Verse copied with its attribution.`,
+  verseCopyFailed: () => t`Could not copy the verse.`,
+  uiLanguage: () => t`Interface language`,
+  uiLanguageDesc: () =>
+    t`The app reloads to apply the change. Your notes are not touched.`,
+  scriptureTranslation: () => t`Main translation`,
+  scriptureTranslationDesc: () =>
+    t`Used by the preview, by the block you insert and by the verse you copy. It does not follow the interface language. Blocks already written keep the translation they were written with.`,
+  scriptureSavedCopy: (translationId: string) =>
+    t`A saved copy. ${translationId} needs a connection to check it against the current text.`,
+  scriptureShowingInstead: (translationId: string) =>
+    t`Showing ${translationId} instead: the translation you chose needs a connection.`,
+  scriptureAvailableOffline: () => t`Works offline`,
+  scriptureOnlineOnly: () => t`Needs a connection`,
+  verseBacklinks: () => t`Notes on the same passage`,
+  noteCitesNoPassages: () =>
+    t`No passages here yet. Write a reference such as John 3:16 and this note will find the others that study it.`,
+  noVerseBacklinks: () => t`No other note cites the passages of this note yet.`
 };

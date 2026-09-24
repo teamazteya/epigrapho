@@ -23,3 +23,10 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 sourcemaps
+
+# Epigrapho: the scripture packs are built from packages/bible-pack, not kept
+# here. The USFM they come from is what is versioned.
+public/vbl.json
+public/bsb.json
+public/kjv.json
+public/pddpt.json

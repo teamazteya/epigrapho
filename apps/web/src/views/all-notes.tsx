@@ -24,6 +24,7 @@ import useNavigate from "../hooks/use-navigate";
 import Placeholder from "../components/placeholders";
 import { useSearch } from "../hooks/use-search";
 import { db } from "../common/db";
+import { lookupScripture } from "../common/scripture-search";
 import { useEditorStore } from "../stores/editor-store";
 import { ListLoader } from "../components/loaders/list-loader";
 
@@ -36,10 +37,13 @@ function Home() {
     "notes",
     async (query, sortOptions) => {
       if (useStore.getState().context) return;
-      return await db.lookup.notesWithHighlighting(
-        query,
-        db.notes.all,
-        sortOptions
+      return (
+        (await lookupScripture(query, db.notes.all, sortOptions)) ??
+        (await db.lookup.notesWithHighlighting(
+          query,
+          db.notes.all,
+          sortOptions
+        ))
       );
     },
     [notes]

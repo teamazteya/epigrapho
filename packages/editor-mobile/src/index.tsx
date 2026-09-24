@@ -25,6 +25,7 @@ import "@notesnook/editor/styles/katex-fonts.mobile.css";
 import "@notesnook/editor/styles/katex.min.css";
 import "@notesnook/editor/styles/styles.css";
 import { setI18nGlobal } from "@notesnook/intl";
+import { loadScripturePacks } from "./common/scripture";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 
@@ -69,6 +70,12 @@ function loadApp() {
       const App = require("./App").default;
       root.render(<App />);
     }
+
+    // Epigrapho (Fase 8): fill the verse store from the packs shipped beside
+    // this page, after the editor is up so they never delay the first paint.
+    loadScripturePacks().catch((error: unknown) =>
+      console.error("could not load the scripture packs", error)
+    );
   });
 }
 globalThis.loadApp = loadApp;

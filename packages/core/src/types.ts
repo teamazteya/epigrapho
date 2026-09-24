@@ -491,6 +491,14 @@ export type SettingItemMap = {
   defaultTag: string | undefined;
   profile: Profile | undefined;
   "vault:lockAfter": number;
+
+  // Epigrapho (Fase 7): the preferences that belong to the person and not to
+  // the machine. They are kept here so they travel with the account and are
+  // encrypted on the way, like every other setting.
+  "epigrapho:uiLocale": string | undefined;
+  "epigrapho:translation": string | undefined;
+  "epigrapho:words": string[];
+  "epigrapho:wordsByNote": Record<string, string[]>;
 } & Record<`groupOptions:${GroupingKey}`, GroupOptions> &
   Record<
     | `groupOptions:notes:notebooks`
@@ -501,6 +509,12 @@ export type SettingItemMap = {
   Record<`toolbarConfig:${ToolbarConfigPlatforms}`, ToolbarConfig | undefined> &
   Record<`sideBarOrder:${SideBarSection}`, string[]> &
   Record<`sideBarHiddenItems:${SideBarHideableSection}`, string[]>;
+
+/** The keys of the settings above that Epigrapho added. */
+export type EpigraphoSettingKey = Extract<
+  keyof SettingItemMap,
+  `epigrapho:${string}`
+>;
 
 export interface SettingItem<
   TKey extends keyof SettingItemMap = keyof SettingItemMap

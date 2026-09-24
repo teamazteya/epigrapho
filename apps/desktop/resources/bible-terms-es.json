@@ -1,0 +1,1268 @@
+{
+  "id": "bible-terms-es",
+  "name": "Términos bíblicos en español",
+  "language": "es",
+  "version": 1,
+  "licence": "GPL-3.0-or-later",
+  "notes": "Lista de palabras, no de texto bíblico: nombres, gentilicios y terminología. Ninguna entrada reproduce una traducción con licencia, y ninguna se aplica sola al texto de una nota.",
+  "sources": {
+    "libros-usfm": {
+      "name": "Nombres de los libros en español, según el estándar USFM/Paratext",
+      "licence": "Lista de nombres; sin texto bíblico."
+    },
+    "nombres-es": {
+      "name": "Nombres propios como se escriben en las traducciones al español de uso corriente",
+      "licence": "Lista de nombres; sin texto bíblico."
+    },
+    "teologia-es": {
+      "name": "Terminología teológica y de estudio bíblico en español",
+      "licence": "Vocabulario común."
+    },
+    "grafias-antiguas": {
+      "name": "Grafías de ediciones anteriores a 1960, conservadas para que no se marquen como error",
+      "licence": "Lista de nombres; sin texto bíblico."
+    }
+  },
+  "entries": [
+    {
+      "word": "Génesis",
+      "status": "preferred",
+      "categories": ["libro"],
+      "sourceId": "libros-usfm"
+    },
+    {
+      "word": "Éxodo",
+      "status": "preferred",
+      "categories": ["libro"],
+      "sourceId": "libros-usfm"
+    },
+    {
+      "word": "Levítico",
+      "status": "preferred",
+      "categories": ["libro"],
+      "sourceId": "libros-usfm"
+    },
+    {
+      "word": "Números",
+      "status": "preferred",
+      "categories": ["libro"],
+      "sourceId": "libros-usfm"
+    },
+    {
+      "word": "Deuteronomio",
+      "status": "preferred",
+      "categories": ["libro"],
+      "sourceId": "libros-usfm"
+    },
+    {
+      "word": "Josué",
+      "status": "preferred",
+      "categories": ["libro", "persona"],
+      "sourceId": "libros-usfm"
+    },
+    {
+      "word": "Jueces",
+      "status": "preferred",
+      "categories": ["libro"],
+      "sourceId": "libros-usfm"
+    },
+    {
+      "word": "Rut",
+      "status": "preferred",
+      "categories": ["libro", "persona"],
+      "sourceId": "libros-usfm"
+    },
+    {
+      "word": "Samuel",
+      "status": "preferred",
+      "categories": ["libro", "persona"],
+      "sourceId": "libros-usfm"
+    },
+    {
+      "word": "Reyes",
+      "status": "preferred",
+      "categories": ["libro"],
+      "sourceId": "libros-usfm"
+    },
+    {
+      "word": "Crónicas",
+      "status": "preferred",
+      "categories": ["libro"],
+      "sourceId": "libros-usfm"
+    },
+    {
+      "word": "Esdras",
+      "status": "preferred",
+      "categories": ["libro", "persona"],
+      "sourceId": "libros-usfm"
+    },
+    {
+      "word": "Nehemías",
+      "status": "preferred",
+      "categories": ["libro", "persona"],
+      "sourceId": "libros-usfm"
+    },
+    {
+      "word": "Ester",
+      "status": "preferred",
+      "categories": ["libro", "persona"],
+      "sourceId": "libros-usfm"
+    },
+    {
+      "word": "Salmos",
+      "status": "preferred",
+      "categories": ["libro"],
+      "sourceId": "libros-usfm"
+    },
+    {
+      "word": "Proverbios",
+      "status": "preferred",
+      "categories": ["libro"],
+      "sourceId": "libros-usfm"
+    },
+    {
+      "word": "Eclesiastés",
+      "status": "preferred",
+      "categories": ["libro"],
+      "sourceId": "libros-usfm"
+    },
+    {
+      "word": "Cantares",
+      "status": "preferred",
+      "categories": ["libro"],
+      "sourceId": "libros-usfm"
+    },
+    {
+      "word": "Isaías",
+      "status": "preferred",
+      "categories": ["libro", "persona"],
+      "sourceId": "libros-usfm"
+    },
+    {
+      "word": "Jeremías",
+      "status": "preferred",
+      "categories": ["libro", "persona"],
+      "sourceId": "libros-usfm"
+    },
+    {
+      "word": "Lamentaciones",
+      "status": "preferred",
+      "categories": ["libro"],
+      "sourceId": "libros-usfm"
+    },
+    {
+      "word": "Ezequiel",
+      "status": "preferred",
+      "categories": ["libro", "persona"],
+      "sourceId": "libros-usfm"
+    },
+    {
+      "word": "Daniel",
+      "status": "preferred",
+      "categories": ["libro", "persona"],
+      "sourceId": "libros-usfm"
+    },
+    {
+      "word": "Oseas",
+      "status": "preferred",
+      "categories": ["libro", "persona"],
+      "sourceId": "libros-usfm"
+    },
+    {
+      "word": "Joel",
+      "status": "preferred",
+      "categories": ["libro", "persona"],
+      "sourceId": "libros-usfm"
+    },
+    {
+      "word": "Amós",
+      "status": "preferred",
+      "categories": ["libro", "persona"],
+      "sourceId": "libros-usfm"
+    },
+    {
+      "word": "Abdías",
+      "status": "preferred",
+      "categories": ["libro", "persona"],
+      "sourceId": "libros-usfm"
+    },
+    {
+      "word": "Jonás",
+      "status": "preferred",
+      "categories": ["libro", "persona"],
+      "sourceId": "libros-usfm"
+    },
+    {
+      "word": "Miqueas",
+      "status": "preferred",
+      "categories": ["libro", "persona"],
+      "sourceId": "libros-usfm"
+    },
+    {
+      "word": "Nahúm",
+      "status": "preferred",
+      "categories": ["libro", "persona"],
+      "sourceId": "libros-usfm"
+    },
+    {
+      "word": "Habacuc",
+      "status": "preferred",
+      "categories": ["libro", "persona"],
+      "sourceId": "libros-usfm"
+    },
+    {
+      "word": "Sofonías",
+      "status": "preferred",
+      "categories": ["libro", "persona"],
+      "sourceId": "libros-usfm"
+    },
+    {
+      "word": "Hageo",
+      "status": "preferred",
+      "categories": ["libro", "persona"],
+      "sourceId": "libros-usfm"
+    },
+    {
+      "word": "Zacarías",
+      "status": "preferred",
+      "categories": ["libro", "persona"],
+      "sourceId": "libros-usfm"
+    },
+    {
+      "word": "Malaquías",
+      "status": "preferred",
+      "categories": ["libro", "persona"],
+      "sourceId": "libros-usfm"
+    },
+    {
+      "word": "Mateo",
+      "status": "preferred",
+      "categories": ["libro", "persona"],
+      "sourceId": "libros-usfm"
+    },
+    {
+      "word": "Marcos",
+      "status": "preferred",
+      "categories": ["libro", "persona"],
+      "sourceId": "libros-usfm"
+    },
+    {
+      "word": "Lucas",
+      "status": "preferred",
+      "categories": ["libro", "persona"],
+      "sourceId": "libros-usfm"
+    },
+    {
+      "word": "Hechos",
+      "status": "preferred",
+      "categories": ["libro"],
+      "sourceId": "libros-usfm"
+    },
+    {
+      "word": "Romanos",
+      "status": "preferred",
+      "categories": ["libro"],
+      "sourceId": "libros-usfm"
+    },
+    {
+      "word": "Corintios",
+      "status": "preferred",
+      "categories": ["libro"],
+      "sourceId": "libros-usfm"
+    },
+    {
+      "word": "Gálatas",
+      "status": "preferred",
+      "categories": ["libro"],
+      "sourceId": "libros-usfm"
+    },
+    {
+      "word": "Efesios",
+      "status": "preferred",
+      "categories": ["libro"],
+      "sourceId": "libros-usfm"
+    },
+    {
+      "word": "Filipenses",
+      "status": "preferred",
+      "categories": ["libro"],
+      "sourceId": "libros-usfm"
+    },
+    {
+      "word": "Colosenses",
+      "status": "preferred",
+      "categories": ["libro"],
+      "sourceId": "libros-usfm"
+    },
+    {
+      "word": "Tesalonicenses",
+      "status": "preferred",
+      "categories": ["libro", "gentilicio"],
+      "sourceId": "libros-usfm"
+    },
+    {
+      "word": "Timoteo",
+      "status": "preferred",
+      "categories": ["libro", "persona"],
+      "sourceId": "libros-usfm"
+    },
+    {
+      "word": "Tito",
+      "status": "preferred",
+      "categories": ["libro", "persona"],
+      "sourceId": "libros-usfm"
+    },
+    {
+      "word": "Filemón",
+      "status": "preferred",
+      "categories": ["libro", "persona"],
+      "sourceId": "libros-usfm"
+    },
+    {
+      "word": "Hebreos",
+      "status": "preferred",
+      "categories": ["libro", "gentilicio"],
+      "sourceId": "libros-usfm"
+    },
+    {
+      "word": "Santiago",
+      "status": "preferred",
+      "categories": ["libro", "persona"],
+      "sourceId": "libros-usfm"
+    },
+    {
+      "word": "Judas",
+      "status": "preferred",
+      "categories": ["libro", "persona"],
+      "sourceId": "libros-usfm"
+    },
+    {
+      "word": "Apocalipsis",
+      "status": "preferred",
+      "categories": ["libro"],
+      "sourceId": "libros-usfm"
+    },
+    {
+      "word": "Abraham",
+      "status": "preferred",
+      "categories": ["persona"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Sara",
+      "status": "preferred",
+      "categories": ["persona"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Isaac",
+      "status": "preferred",
+      "categories": ["persona"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Jacob",
+      "status": "preferred",
+      "categories": ["persona"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Esaú",
+      "status": "preferred",
+      "categories": ["persona"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Moisés",
+      "status": "preferred",
+      "categories": ["persona"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Aarón",
+      "status": "preferred",
+      "categories": ["persona"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Caleb",
+      "status": "preferred",
+      "categories": ["persona"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Débora",
+      "status": "preferred",
+      "categories": ["persona"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Gedeón",
+      "status": "preferred",
+      "categories": ["persona"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Sansón",
+      "status": "preferred",
+      "categories": ["persona"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Booz",
+      "status": "preferred",
+      "categories": ["persona"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Rahab",
+      "status": "preferred",
+      "categories": ["persona"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Saúl",
+      "status": "preferred",
+      "categories": ["persona"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Betsabé",
+      "status": "preferred",
+      "categories": ["persona"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Absalón",
+      "status": "preferred",
+      "categories": ["persona"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Salomón",
+      "status": "preferred",
+      "categories": ["persona"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Jeroboam",
+      "status": "preferred",
+      "categories": ["persona"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Acab",
+      "status": "preferred",
+      "categories": ["persona"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Jezabel",
+      "status": "preferred",
+      "categories": ["persona"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Elías",
+      "status": "preferred",
+      "categories": ["persona"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Eliseo",
+      "status": "preferred",
+      "categories": ["persona"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Ezequías",
+      "status": "preferred",
+      "categories": ["persona"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Josías",
+      "status": "preferred",
+      "categories": ["persona"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Nabucodonosor",
+      "status": "preferred",
+      "categories": ["persona"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Zorobabel",
+      "status": "preferred",
+      "categories": ["persona"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Melquisedec",
+      "status": "preferred",
+      "categories": ["persona"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Efraín",
+      "status": "preferred",
+      "categories": ["persona", "lugar"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Neftalí",
+      "status": "preferred",
+      "categories": ["persona"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Finees",
+      "status": "preferred",
+      "categories": ["persona"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Marta",
+      "status": "preferred",
+      "categories": ["persona"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Lázaro",
+      "status": "preferred",
+      "categories": ["persona"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Nicodemo",
+      "status": "preferred",
+      "categories": ["persona"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Zaqueo",
+      "status": "preferred",
+      "categories": ["persona"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Caifás",
+      "status": "preferred",
+      "categories": ["persona"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Herodes",
+      "status": "preferred",
+      "categories": ["persona"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Pilato",
+      "status": "preferred",
+      "categories": ["persona"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Bernabé",
+      "status": "preferred",
+      "categories": ["persona"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Silas",
+      "status": "preferred",
+      "categories": ["persona"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Apolos",
+      "status": "preferred",
+      "categories": ["persona"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Esteban",
+      "status": "preferred",
+      "categories": ["persona"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Matías",
+      "status": "preferred",
+      "categories": ["persona"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Priscila",
+      "status": "preferred",
+      "categories": ["persona"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Onésimo",
+      "status": "preferred",
+      "categories": ["persona"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Jerusalén",
+      "status": "preferred",
+      "categories": ["lugar"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Belén",
+      "status": "preferred",
+      "categories": ["lugar"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Nazaret",
+      "status": "preferred",
+      "categories": ["lugar"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Galilea",
+      "status": "preferred",
+      "categories": ["lugar"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Judea",
+      "status": "preferred",
+      "categories": ["lugar"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Samaria",
+      "status": "preferred",
+      "categories": ["lugar"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Capernaúm",
+      "status": "preferred",
+      "categories": ["lugar"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Betania",
+      "status": "preferred",
+      "categories": ["lugar"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Getsemaní",
+      "status": "preferred",
+      "categories": ["lugar"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Gólgota",
+      "status": "preferred",
+      "categories": ["lugar"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Sinaí",
+      "status": "preferred",
+      "categories": ["lugar"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Horeb",
+      "status": "preferred",
+      "categories": ["lugar"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Canaán",
+      "status": "preferred",
+      "categories": ["lugar"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Babilonia",
+      "status": "preferred",
+      "categories": ["lugar"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Nínive",
+      "status": "preferred",
+      "categories": ["lugar"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Damasco",
+      "status": "preferred",
+      "categories": ["lugar"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Antioquía",
+      "status": "preferred",
+      "categories": ["lugar"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Corinto",
+      "status": "preferred",
+      "categories": ["lugar"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Éfeso",
+      "status": "preferred",
+      "categories": ["lugar"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Filipos",
+      "status": "preferred",
+      "categories": ["lugar"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Tesalónica",
+      "status": "preferred",
+      "categories": ["lugar"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Colosas",
+      "status": "preferred",
+      "categories": ["lugar"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Patmos",
+      "status": "preferred",
+      "categories": ["lugar"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Cesarea",
+      "status": "preferred",
+      "categories": ["lugar"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Jericó",
+      "status": "preferred",
+      "categories": ["lugar"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Hebrón",
+      "status": "preferred",
+      "categories": ["lugar"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Emaús",
+      "status": "preferred",
+      "categories": ["lugar"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Sión",
+      "status": "preferred",
+      "categories": ["lugar"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "israelita",
+      "status": "preferred",
+      "categories": ["gentilicio"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "samaritano",
+      "status": "preferred",
+      "categories": ["gentilicio"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "filisteo",
+      "status": "preferred",
+      "categories": ["gentilicio"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "amalecita",
+      "status": "preferred",
+      "categories": ["gentilicio"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "amonita",
+      "status": "preferred",
+      "categories": ["gentilicio"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "moabita",
+      "status": "preferred",
+      "categories": ["gentilicio"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "edomita",
+      "status": "preferred",
+      "categories": ["gentilicio"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "cananeo",
+      "status": "preferred",
+      "categories": ["gentilicio"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "jebuseo",
+      "status": "preferred",
+      "categories": ["gentilicio"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "heteo",
+      "status": "preferred",
+      "categories": ["gentilicio"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "fariseo",
+      "status": "preferred",
+      "categories": ["gentilicio"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "saduceo",
+      "status": "preferred",
+      "categories": ["gentilicio"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "esenio",
+      "status": "preferred",
+      "categories": ["gentilicio"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "levita",
+      "status": "preferred",
+      "categories": ["gentilicio"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "nazareno",
+      "status": "preferred",
+      "categories": ["gentilicio"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "galileo",
+      "status": "preferred",
+      "categories": ["gentilicio"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Yahvé",
+      "status": "preferred",
+      "categories": ["nombre-divino"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Yahweh",
+      "status": "variant",
+      "categories": ["nombre-divino"],
+      "sourceId": "nombres-es",
+      "preferred": "Yahvé"
+    },
+    {
+      "word": "YHWH",
+      "status": "variant",
+      "categories": ["nombre-divino"],
+      "sourceId": "nombres-es",
+      "preferred": "Yahvé"
+    },
+    {
+      "word": "Jehová",
+      "status": "accepted",
+      "categories": ["nombre-divino"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Adonái",
+      "status": "accepted",
+      "categories": ["nombre-divino"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Elohim",
+      "status": "accepted",
+      "categories": ["nombre-divino"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Shaddai",
+      "status": "accepted",
+      "categories": ["nombre-divino"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Emanuel",
+      "status": "preferred",
+      "categories": ["nombre-divino"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Mesías",
+      "status": "preferred",
+      "categories": ["nombre-divino", "teología"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Jesucristo",
+      "status": "preferred",
+      "categories": ["nombre-divino"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Cafarnaúm",
+      "status": "variant",
+      "categories": ["lugar"],
+      "sourceId": "nombres-es",
+      "preferred": "Capernaúm"
+    },
+    {
+      "word": "Nazareth",
+      "status": "variant",
+      "categories": ["lugar"],
+      "sourceId": "nombres-es",
+      "preferred": "Nazaret"
+    },
+    {
+      "word": "Belcebú",
+      "status": "preferred",
+      "categories": ["persona"],
+      "sourceId": "nombres-es"
+    },
+    {
+      "word": "Beelzebú",
+      "status": "variant",
+      "categories": ["persona"],
+      "sourceId": "nombres-es",
+      "preferred": "Belcebú"
+    },
+    {
+      "word": "Ephraim",
+      "status": "deprecated",
+      "categories": ["persona", "lugar"],
+      "sourceId": "grafias-antiguas",
+      "preferred": "Efraín"
+    },
+    {
+      "word": "Nephtalí",
+      "status": "deprecated",
+      "categories": ["persona"],
+      "sourceId": "grafias-antiguas",
+      "preferred": "Neftalí"
+    },
+    {
+      "word": "Sophonías",
+      "status": "deprecated",
+      "categories": ["libro", "persona"],
+      "sourceId": "grafias-antiguas",
+      "preferred": "Sofonías"
+    },
+    {
+      "word": "Phinees",
+      "status": "deprecated",
+      "categories": ["persona"],
+      "sourceId": "grafias-antiguas",
+      "preferred": "Finees"
+    },
+    {
+      "word": "Gethsemaní",
+      "status": "deprecated",
+      "categories": ["lugar"],
+      "sourceId": "grafias-antiguas",
+      "preferred": "Getsemaní"
+    },
+    {
+      "word": "soteriología",
+      "status": "preferred",
+      "categories": ["teología"],
+      "sourceId": "teologia-es"
+    },
+    {
+      "word": "escatología",
+      "status": "preferred",
+      "categories": ["teología"],
+      "sourceId": "teologia-es"
+    },
+    {
+      "word": "eclesiología",
+      "status": "preferred",
+      "categories": ["teología"],
+      "sourceId": "teologia-es"
+    },
+    {
+      "word": "cristología",
+      "status": "preferred",
+      "categories": ["teología"],
+      "sourceId": "teologia-es"
+    },
+    {
+      "word": "pneumatología",
+      "status": "preferred",
+      "categories": ["teología"],
+      "sourceId": "teologia-es"
+    },
+    {
+      "word": "hamartiología",
+      "status": "preferred",
+      "categories": ["teología"],
+      "sourceId": "teologia-es"
+    },
+    {
+      "word": "expiación",
+      "status": "preferred",
+      "categories": ["teología"],
+      "sourceId": "teologia-es"
+    },
+    {
+      "word": "propiciación",
+      "status": "preferred",
+      "categories": ["teología"],
+      "sourceId": "teologia-es"
+    },
+    {
+      "word": "justificación",
+      "status": "preferred",
+      "categories": ["teología"],
+      "sourceId": "teologia-es"
+    },
+    {
+      "word": "santificación",
+      "status": "preferred",
+      "categories": ["teología"],
+      "sourceId": "teologia-es"
+    },
+    {
+      "word": "glorificación",
+      "status": "preferred",
+      "categories": ["teología"],
+      "sourceId": "teologia-es"
+    },
+    {
+      "word": "redención",
+      "status": "preferred",
+      "categories": ["teología"],
+      "sourceId": "teologia-es"
+    },
+    {
+      "word": "regeneración",
+      "status": "preferred",
+      "categories": ["teología"],
+      "sourceId": "teologia-es"
+    },
+    {
+      "word": "imputación",
+      "status": "preferred",
+      "categories": ["teología"],
+      "sourceId": "teologia-es"
+    },
+    {
+      "word": "encarnación",
+      "status": "preferred",
+      "categories": ["teología"],
+      "sourceId": "teologia-es"
+    },
+    {
+      "word": "kenosis",
+      "status": "preferred",
+      "categories": ["teología"],
+      "sourceId": "teologia-es"
+    },
+    {
+      "word": "parusía",
+      "status": "preferred",
+      "categories": ["teología"],
+      "sourceId": "teologia-es"
+    },
+    {
+      "word": "teofanía",
+      "status": "preferred",
+      "categories": ["teología"],
+      "sourceId": "teologia-es"
+    },
+    {
+      "word": "exégesis",
+      "status": "preferred",
+      "categories": ["teología"],
+      "sourceId": "teologia-es"
+    },
+    {
+      "word": "eiségesis",
+      "status": "preferred",
+      "categories": ["teología"],
+      "sourceId": "teologia-es"
+    },
+    {
+      "word": "hermenéutica",
+      "status": "preferred",
+      "categories": ["teología"],
+      "sourceId": "teologia-es"
+    },
+    {
+      "word": "apologética",
+      "status": "preferred",
+      "categories": ["teología"],
+      "sourceId": "teologia-es"
+    },
+    {
+      "word": "Pentateuco",
+      "status": "preferred",
+      "categories": ["teología"],
+      "sourceId": "teologia-es"
+    },
+    {
+      "word": "sinóptico",
+      "status": "preferred",
+      "categories": ["teología"],
+      "sourceId": "teologia-es"
+    },
+    {
+      "word": "deuterocanónico",
+      "status": "preferred",
+      "categories": ["teología"],
+      "sourceId": "teologia-es"
+    },
+    {
+      "word": "canonicidad",
+      "status": "preferred",
+      "categories": ["teología"],
+      "sourceId": "teologia-es"
+    },
+    {
+      "word": "inerrancia",
+      "status": "preferred",
+      "categories": ["teología"],
+      "sourceId": "teologia-es"
+    },
+    {
+      "word": "infalibilidad",
+      "status": "preferred",
+      "categories": ["teología"],
+      "sourceId": "teologia-es"
+    },
+    {
+      "word": "dispensacionalismo",
+      "status": "preferred",
+      "categories": ["teología"],
+      "sourceId": "teologia-es"
+    },
+    {
+      "word": "arminianismo",
+      "status": "preferred",
+      "categories": ["teología"],
+      "sourceId": "teologia-es"
+    },
+    {
+      "word": "calvinismo",
+      "status": "preferred",
+      "categories": ["teología"],
+      "sourceId": "teologia-es"
+    },
+    {
+      "word": "trinitario",
+      "status": "preferred",
+      "categories": ["teología"],
+      "sourceId": "teologia-es"
+    },
+    {
+      "word": "Trinidad",
+      "status": "preferred",
+      "categories": ["teología"],
+      "sourceId": "teologia-es"
+    },
+    {
+      "word": "mesiánico",
+      "status": "preferred",
+      "categories": ["teología"],
+      "sourceId": "teologia-es"
+    },
+    {
+      "word": "tipología",
+      "status": "preferred",
+      "categories": ["teología"],
+      "sourceId": "teologia-es"
+    },
+    {
+      "word": "quiasmo",
+      "status": "preferred",
+      "categories": ["teología"],
+      "sourceId": "teologia-es"
+    },
+    {
+      "word": "perícopa",
+      "status": "preferred",
+      "categories": ["teología"],
+      "sourceId": "teologia-es"
+    },
+    {
+      "word": "Septuaginta",
+      "status": "preferred",
+      "categories": ["teología"],
+      "sourceId": "teologia-es"
+    },
+    {
+      "word": "masorético",
+      "status": "preferred",
+      "categories": ["teología"],
+      "sourceId": "teologia-es"
+    },
+    {
+      "word": "Vulgata",
+      "status": "preferred",
+      "categories": ["teología"],
+      "sourceId": "teologia-es"
+    },
+    {
+      "word": "apócrifo",
+      "status": "preferred",
+      "categories": ["teología"],
+      "sourceId": "teologia-es"
+    },
+    {
+      "word": "midrás",
+      "status": "preferred",
+      "categories": ["teología"],
+      "sourceId": "teologia-es"
+    },
+    {
+      "word": "targum",
+      "status": "preferred",
+      "categories": ["teología"],
+      "sourceId": "teologia-es"
+    },
+    {
+      "word": "Shemá",
+      "status": "preferred",
+      "categories": ["teología"],
+      "sourceId": "teologia-es"
+    },
+    {
+      "word": "versificación",
+      "status": "preferred",
+      "categories": ["teología"],
+      "sourceId": "teologia-es"
+    }
+  ]
+}

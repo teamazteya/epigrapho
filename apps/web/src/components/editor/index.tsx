@@ -70,6 +70,7 @@ import { Freeze } from "react-freeze";
 import { UnlockView } from "../unlock";
 import DiffViewer from "../diff-viewer";
 import TableOfContents from "./table-of-contents";
+import Backlinks from "./backlinks";
 import { scrollIntoViewById } from "@notesnook/editor";
 import { IEditor } from "./types";
 import { EditorActionBar } from "./action-bar";
@@ -132,6 +133,9 @@ export default function TabsView() {
     (store) => store.arePropertiesVisible
   );
   const isTOCVisible = useEditorStore((store) => store.isTOCVisible);
+  const areBacklinksVisible = useEditorStore(
+    (store) => store.areBacklinksVisible
+  );
   const [dropRef, overlayRef] = useDragOverlay();
 
   return (
@@ -226,6 +230,11 @@ export default function TabsView() {
           {isTOCVisible && activeSession ? (
             <Pane id="table-of-contents-pane" initialSize={300} minSize={300}>
               <TableOfContents sessionId={activeSession.id} />
+            </Pane>
+          ) : null}
+          {areBacklinksVisible && activeSession ? (
+            <Pane id="backlinks-pane" initialSize={300} minSize={300}>
+              <Backlinks sessionId={activeSession.id} />
             </Pane>
           ) : null}
           {arePropertiesVisible &&
@@ -346,6 +355,9 @@ function EditorView({
     <Flex
       ref={root}
       id="editorContainer"
+      // Epigrapho: which note is being written. The desktop spell checker
+      // reads it to know where a word was told to be ignored (Paso 6.3).
+      data-note-id={"note" in session ? session.note?.id : undefined}
       sx={{
         position: "relative",
         alignSelf: "stretch",

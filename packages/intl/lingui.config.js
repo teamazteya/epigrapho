@@ -19,11 +19,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /** @type {import('@lingui/conf').LinguiConfig} */
 module.exports = {
-  locales: ["en", "pseudo-LOCALE"],
+  locales: ["en", "es-MX", "en-US", "pseudo-LOCALE"],
   sourceLocale: "en",
   pseudoLocale: "pseudo-LOCALE",
   fallbackLocales: {
-    "pseudo-LOCALE": "en"
+    "pseudo-LOCALE": "en",
+    // Untranslated es-MX messages fall back to English instead of rendering
+    // as empty strings.
+    "es-MX": "en",
+    // Epigrapho: en-US is the UI locale a person picks; "en" is the source the
+    // messages are written in. Everything en-US does not restate is taken from
+    // it at compile time, so an English UI never shows a Spanish string.
+    "en-US": "en"
   },
   catalogs: [
     {

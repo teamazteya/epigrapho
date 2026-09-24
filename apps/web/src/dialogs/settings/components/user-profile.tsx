@@ -104,36 +104,9 @@ export function UserProfile({ minimal }: Props) {
 
   const { title, trial } = getSubscriptionInfo(user);
 
-  if (!user || !user.id)
-    return (
-      <Flex
-        sx={{
-          borderRadius: "default",
-          alignItems: "center",
-          bg: "var(--background-secondary)",
-          p: 1,
-          mb: minimal ? 0 : 4,
-          gap: 1
-        }}
-      >
-        <Flex
-          variant="columnCenter"
-          sx={{
-            bg: "shade",
-            size: minimal ? 30 : 40,
-            borderRadius: 80
-          }}
-        >
-          <UserIcon size={minimal ? 15 : 20} />
-        </Flex>
-        <Flex sx={{ flexDirection: "column" }}>
-          <Text variant={minimal ? "body" : "subtitle"}>
-            {strings.loginMessage()}
-          </Text>
-          <Text variant={"subBody"}>{strings.loginMessageActionText()}</Text>
-        </Flex>
-      </Flex>
-    );
+  // Epigrapho has no accounts, so there is nobody to invite to sign in: the
+  // block that used to ask for it simply has nothing to say here.
+  if (!user || !user.id) return null;
 
   return (
     <Flex

@@ -110,51 +110,51 @@ export const useTip = (
 
 const tips: Tip[] = [
   {
-    text: `Wrap a query in double quotes to search for an exact match.`,
+    text: strings.tipExactMatch(),
     contexts: ["search"]
   },
   {
-    text: "Hold Ctrl/Cmd & click on multiple items to select them.",
+    text: strings.tipMultiSelect(),
     contexts: ["notes", "notebooks", "tags"]
   },
   {
-    text: "Monographs enable you to share your notes in a secure and private way.",
+    text: strings.tipMonographsShare(),
     contexts: ["monographs"]
   },
   {
-    text: "Monographs can be encrypted with a secret key and shared with anyone.",
+    text: strings.tipMonographsEncrypted(),
     contexts: ["monographs"]
   },
   {
-    text: "Published notes can be encrypted. Which means only you and the person you share the password with can read them.",
+    text: strings.tipPublishedEncrypted(),
     contexts: ["monographs"]
   },
   {
-    text: "You can pin frequently used Notebooks to the Side Menu to quickly access them.",
+    text: strings.tipPinNotebooksSideMenu(),
     contexts: ["notebooks", "notebooks"]
   },
   {
-    text: "A notebook can have unlimited sub-notebooks with unlimited notes.",
+    text: strings.tipSubNotebooks(),
     contexts: ["notebooks"]
   },
   {
-    text: "You can multi-select notes and move them to a notebook or a sub-notebook at once.",
+    text: strings.tipMoveManyNotes(),
     contexts: ["notebooks"]
   },
   {
-    text: "Mark important notes by adding them to favorites.",
+    text: strings.tipFavorites(),
     contexts: ["notes", "favorites"]
   },
   {
-    text: "Are you scrolling a lot to find a specific note? Pin it to the top from Note properties.",
+    text: strings.tipPinNote(),
     contexts: ["notes"]
   },
   {
-    text: "Pin your most important Notebooks to the top from Notebook properties.",
+    text: strings.tipPinNotebooks(),
     contexts: ["notebooks"]
   },
   {
-    text: "We value your feedback so join us on Discord and share your experiences and ideas.",
+    text: strings.tipJoinDiscord(),
     contexts: ["notes", "notebooks", "tags"],
     button: {
       title: strings.joinCommunity(),
@@ -164,20 +164,20 @@ const tips: Tip[] = [
     }
   },
   {
-    text: "You can adjust how long items live in your trash from Settings -> Trash settings.",
+    text: strings.tipTrashInterval(),
     contexts: ["trash"]
   }
 ];
 
 const DEFAULT_TIPS: Record<TipContext, Omit<Tip, "contexts">> = {
   attachments: {
-    text: "You have no attachments."
+    text: strings.noAttachmentsYet()
   },
-  favorites: { text: "Notes you favorite will appear here." },
+  favorites: { text: strings.favoritesAppearHere() },
   monographs: {
-    text: "You haven't published any notes yet.",
+    text: strings.noMonographsYet(),
     button: {
-      title: "What are monographs?",
+      title: strings.whatAreMonographs(),
       icon: ArrowTopRight,
       onClick() {
         window.open(
@@ -188,22 +188,22 @@ const DEFAULT_TIPS: Record<TipContext, Omit<Tip, "contexts">> = {
     }
   },
   notebooks: {
-    text: "You haven't created any notebooks.",
+    text: strings.noNotebooksYet(),
     button: { ...CREATE_BUTTON_MAP.notebooks, icon: Plus }
   },
   notes: {
-    text: "You have not created any notes yet.",
+    text: strings.noNotesYet(),
     button: {
       ...CREATE_BUTTON_MAP.notes,
       icon: Plus
     }
   },
   reminders: {
-    text: "You can set daily, weekly or monthly reminders & stay ahead of your tasks.",
+    text: strings.tipReminders(),
     button: { ...CREATE_BUTTON_MAP.reminders, icon: Plus }
   },
   tags: {
-    text: "You can use #tags to organize your notes.",
+    text: strings.tipTags(),
     button: {
       ...CREATE_BUTTON_MAP.tags,
       icon: Plus

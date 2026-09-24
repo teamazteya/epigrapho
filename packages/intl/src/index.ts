@@ -18,5 +18,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 export type { Messages } from "@lingui/core";
+export { i18n } from "@lingui/core";
 export { strings } from "./strings";
 export { setI18nGlobal } from "./setup";

@@ -51,6 +51,7 @@ import {
 import { isCipher } from "@notesnook/core";
 import { AppEventManager, AppEvents } from "../common/app-events";
 import Vault from "../common/vault";
+import { indexNote } from "../common/reference-index";
 import { Mutex } from "async-mutex";
 import { useEditorManager } from "../components/editor/manager";
 import { Context } from "../components/list-container/types";
@@ -215,6 +216,8 @@ class EditorStore extends BaseStore<EditorStore> {
   arePropertiesVisible = false;
   documentPreview?: DocumentPreview;
   isTOCVisible = Config.get("editor:toc", false);
+  // Epigrapho: the verse backlinks pane (PRD §31.10, Paso 5.2).
+  areBacklinksVisible = Config.get("editor:backlinks", false);
   editorMargins = Config.get("editor:margins", true);
   history: string[] = [];
 
@@ -1041,6 +1044,15 @@ class EditorStore extends BaseStore<EditorStore> {
         const note = noteId && (await db.notes.note(noteId));
         if (!note) throw new Error("Note not saved.");
 
+        // Epigrapho: record what the note cites (Paso 5.1). It goes here
+        // rather than next to the editor's save call because only here is the
+        // note's real id known: a note being written for the first time is
+        // still carrying a session id at that point. A locked note is left
+        // out on purpose — what a locked note cites is part of what locking
+        // it was meant to hide.
+        if (partial.content && !isLockedSession(currentSession))
+          indexNote(note.id, partial.content.data);
+
         if (currentSession.type === "new") {
           const context = useNoteStore.getState().context;
           await addNotebook(note, context);
@@ -1241,6 +1253,7 @@ class EditorStore extends BaseStore<EditorStore> {
         toggleState !== undefined ? toggleState : !state.arePropertiesVisible;
     });
     this.toggleTableOfContents(false);
+    this.toggleBacklinks(false);
   };
 
   toggleTableOfContents = (toggleState?: boolean) => {
@@ -1251,7 +1264,22 @@ class EditorStore extends BaseStore<EditorStore> {
       isTOCVisible: isTOCVisibleState,
       arePropertiesVisible: isTOCVisibleState ? false : arePropertiesVisible
     });
+    if (isTOCVisibleState) this.toggleBacklinks(false);
     Config.set("editor:toc", isTOCVisibleState);
+  };
+
+  // Epigrapho: the panes share the same strip of screen, so opening one puts
+  // the others away, the way properties and the table of contents already do.
+  toggleBacklinks = (toggleState?: boolean) => {
+    const { areBacklinksVisible } = this.get();
+    const next = toggleState !== undefined ? toggleState : !areBacklinksVisible;
+    if (next === areBacklinksVisible) return;
+    this.set({ areBacklinksVisible: next });
+    if (next) {
+      this.set({ arePropertiesVisible: false, isTOCVisible: false });
+      Config.set("editor:toc", false);
+    }
+    Config.set("editor:backlinks", next);
   };
 
   toggleEditorMargins = (toggleState?: boolean) => {

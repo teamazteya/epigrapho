@@ -262,9 +262,7 @@ export const AttachFilesDialog = DialogManager.register(
             showDivider={fileStates.length > 1}
             showCompressionToggle={isCompressionOptional}
             onToggleCompress={async () => {
-              if (
-                !(await checkFeature("fullQualityImages", { type: "toast" }))
-              ) {
+              if (!(await checkFeature("fullQualityImages"))) {
                 return;
               }
 

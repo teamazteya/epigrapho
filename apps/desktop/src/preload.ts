@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /* eslint-disable no-var */
 
 import { ELECTRON_TRPC_CHANNEL } from "electron-trpc/main";
-import { ipcRenderer, contextBridge } from "electron";
+import { ipcRenderer, contextBridge, webFrame } from "electron";
 
 declare global {
   var os: () => "mas" | typeof process.platform;
@@ -34,6 +34,37 @@ const electronTRPC = {
 };
 
 const os = () => (MAC_APP_STORE ? "mas" : process.platform);
+
+// The preload runs inside the page, but this package is typed for the main
+// process, where there is no DOM. This is the whole of the DOM it touches.
+declare const document: {
+  querySelector(selectors: string): { dataset: Record<string, string> } | null;
+};
+
+/**
+ * Epigrapho: spell checking is ours, not Chromium's (see utils/spell-check.ts).
+ *
+ * Chromium hands us the words it is about to underline and waits for the list
+ * of the ones that are wrong. The answer is asked of the main process, which
+ * asks a worker thread, so neither the thread that draws the editor nor the
+ * one that runs the window ever reads a dictionary.
+ */
+webFrame.setSpellCheckProvider("es-MX", {
+  spellCheck: (words, callback) =>
+    ipcRenderer
+      // The note being written travels with the words, because a word can be
+      // ignored inside one note and still be an error everywhere else
+      // (Paso 6.3). The editor writes the id on the element it marks active.
+      .invoke(
+        "epigrapho:spellcheck",
+        words,
+        document.querySelector(".active[data-note-id]")?.dataset.noteId
+      )
+      // A spell checker that fails is a spell checker that says nothing is
+      // misspelled, never one that leaves the editor waiting.
+      .then(callback)
+      .catch(() => callback([]))
+});
 
 contextBridge.exposeInMainWorld("electronTRPC", electronTRPC);
 contextBridge.exposeInMainWorld("os", os);

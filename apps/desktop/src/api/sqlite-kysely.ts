@@ -157,6 +157,27 @@ class SQLite {
     return await this.exec(sql, parameters);
   }
 
+  /**
+   * Undoes a transaction that the window which opened it can no longer
+   * finish.
+   *
+   * The connection outlives the window: a reload — changing the interface
+   * language does one, and so does restoring a backup — gets a brand new page
+   * talking to the same handle. If the page that went away was between `begin`
+   * and `commit`, nobody is left to close that transaction, and the `PRAGMA`s
+   * the next page runs while it starts up fail on it ("Safety level may not be
+   * changed inside a transaction"), which shows up as the error screen.
+   *
+   * Rolling back is the honest answer: the work was never committed, and no
+   * one can commit it now.
+   */
+  rollbackAbandonedTransaction() {
+    if (!this.sqlite?.inTransaction) return false;
+    console.warn("rolling back a transaction left open by a previous window");
+    this.sqlite.exec("ROLLBACK");
+    return true;
+  }
+
   async close() {
     if (!this.sqlite) return;
 
@@ -250,7 +271,13 @@ export const sqliteRouter = t.router({
     .input((v) => v)
     .mutation(async ({ input }) => {
       const { filePath } = input as { filePath: string };
-      if (databases[filePath]) return filePath;
+      const opened = databases[filePath];
+      if (opened) {
+        // Reusing the connection means inheriting whatever the previous
+        // window left behind.
+        opened.rollbackAbandonedTransaction();
+        return filePath;
+      }
       const sqlite = new SQLite();
       await sqlite.open(filePath);
       databases[filePath] = sqlite;
