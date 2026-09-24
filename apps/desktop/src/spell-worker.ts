@@ -47,8 +47,10 @@ const load = (language: string) =>
 // upgrade if a Spanish word that happens to be English slips through.
 const speller = load("es");
 const english = load("en");
+// A token with no letters ("8:28", "3,16", "2026") is a number, and neither
+// dictionary has numbers: without this every verse reference was underlined.
 const correct = (word: string) =>
-  speller.correct(word) || english.correct(word);
+  !/\p{L}/u.test(word) || speller.correct(word) || english.correct(word);
 
 /**
  * The biblical Resource Pack (PRD §31.11, Paso 6.2).

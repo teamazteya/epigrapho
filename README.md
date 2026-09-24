@@ -14,6 +14,10 @@
 <a href="https://github.com/teamazteya/epigrapho/issues/new/choose">Reportar un problema</a>
 </p>
 
+<p align="center">
+<img src="./assets/screenshots/01-editor.png" alt="Una nota de estudio con referencias detectadas y un bloque de Hebreos 8:10" width="900" />
+</p>
+
 ## Panorama
 
 Epigrapho es una app de notas para quien estudia la Biblia y escribe mientras lo hace: estudio personal, preparación de enseñanza, notas de seminario. En ella una referencia bíblica es un objeto, no un texto suelto. Al escribir «Juan 3:16» (o «Juan 3,16», o «John 3:16») la app la reconoce, la guarda en formato USFM (`JHN.3.16`) y muestra el versículo al pasar el cursor, sin salir de la nota. Después puedes encontrar todas las notas que citan ese mismo pasaje.
@@ -52,6 +56,15 @@ Epigrapho la hace Azteya. Está construida sobre [Notesnook](https://github.com/
 - **Traducciones en línea:** NTV, NBLA y NASB se piden a API.Bible. Solo se envía la referencia; el texto de tus notas nunca sale del equipo.
 - **Corrector ortográfico sin conexión** en español e inglés, con un paquete de términos bíblicos y tu propio diccionario.
 - **Importa tus notas** de Notesnook, Evernote, Google Keep, Simplenote, Joplin, Markdown y más.
+
+## Capturas
+
+|                                                                                                            |                                                                                                |
+| :--------------------------------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------------: |
+| <img src="./assets/screenshots/02-vista-previa.png" alt="Vista previa del versículo al pasar el cursor" /> | <img src="./assets/screenshots/03-backlinks.png" alt="Panel de notas sobre el mismo pasaje" /> |
+|                               Vista previa del versículo al pasar el cursor                                |                                Notas que citan el mismo pasaje                                 |
+|              <img src="./assets/screenshots/04-busqueda.png" alt="Búsqueda por referencia" />              |            <img src="./assets/screenshots/05-tema-oscuro.png" alt="Tema oscuro" />             |
+|                    Búsqueda por pasaje: «Hebreos 8:10» encuentra las notas que lo citan                    |                                          Tema oscuro                                           |
 
 ## Instalación
 

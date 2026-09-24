@@ -337,7 +337,7 @@ function GroupHeader(props: GroupHeaderProps) {
           return {
             type: "button",
             key: groupTitle,
-            title: groupTitle,
+            title: strings.groupTitle(groupTitle),
             onClick: () => onJump(index),
             checked: group.title === title
           } as MenuItem;
@@ -386,7 +386,7 @@ function GroupHeader(props: GroupHeaderProps) {
           color: title === "Conflicted" ? "error" : "accent"
         }}
       >
-        {title.toUpperCase()}
+        {strings.groupTitle(title).toUpperCase()}
       </Text>
 
       {index === 0 && (

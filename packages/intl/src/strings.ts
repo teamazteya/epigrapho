@@ -521,6 +521,17 @@ $day$: Current day (eg. Monday)`,
   redo: () => t`Redo`,
   createYourAccount: () => t`Create your account`,
   pinned: () => t`Pinned`,
+  groupTitle: (title: string) =>
+    ({
+      Recent: t`Recent`,
+      "Last week": t`Last week`,
+      Older: t`Older`,
+      Pinned: t`Pinned`,
+      Conflicted: t`Conflicted`,
+      Active: t`Active`,
+      Inactive: t`Inactive`,
+      All: t`All`
+    }[title] ?? title),
   editNotebook: () => doActions.edit.notebook(1),
   newNotebook: () => t`New notebook`,
   newInternalLink: () => t`Link to note`,

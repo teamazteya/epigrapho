@@ -116,6 +116,9 @@ try {
   await page.keyboard.type(ENGLISH_RIGHT, { delay: 25 });
   await page.keyboard.press("Enter");
   await page.keyboard.type(ENGLISH_WRONG, { delay: 25 });
+  // A verse number is not a word either dictionary knows, and not an error.
+  await page.keyboard.press("Enter");
+  await page.keyboard.type("8:28", { delay: 25 });
   // The dictionary is read once, on the first question; the first answer is
   // the slow one.
   await page.waitForTimeout(4000);
@@ -136,6 +139,11 @@ try {
   console.log("inglés:", JSON.stringify({ englishRight, englishWrong }));
   assert.equal(englishRight.word, "");
   assert.equal(englishWrong.word, ENGLISH_WRONG);
+
+  // 1c. numbers are left alone.
+  const verse = await wordAt(".active .ProseMirror p:nth-of-type(5)");
+  console.log("número de versículo:", JSON.stringify(verse));
+  assert.equal(verse.word, "");
 
   // 2. a long note keeps typing responsive.
   await page.locator(".active .ProseMirror").click();
