@@ -571,7 +571,9 @@ export function Editor(props: EditorProps) {
         spellcheck={spellcheck}
         content={content}
         downloadOptions={{
-          corsHost: Config.get("corsProxy", "https://cors.notesnook.com")
+          // Epigrapho: no proxy unless the person sets one; upstream's sent
+          // every embedded link through a Notesnook server.
+          corsHost: Config.get("corsProxy", "")
         }}
         onLoad={(editor) => {
           editor = editor || useEditorManager.getState().getEditor(id)?.editor;

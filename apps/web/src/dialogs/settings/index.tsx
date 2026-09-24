@@ -240,7 +240,10 @@ export const SettingsDialog = DialogManager.register(function SettingsDialog(
         >
           {activeSettings.length > 0 ? (
             activeSettings.map((group) => (
-              <SettingsGroupComponent item={group} />
+              <SettingsGroupComponent
+                key={`${group.section}:${group.key}`}
+                item={group}
+              />
             ))
           ) : (
             <Text variant="body" sx={{ color: "paragraph-secondary" }}>
@@ -634,7 +637,21 @@ function SettingItem(props: { item: Setting }) {
 
 export function SelectComponent(props: Omit<DropdownSettingComponent, "type">) {
   const { onSelectionChanged, options } = props;
-  const selectedOption = usePromise(() => props.selectedOption(), [props]);
+  // Epigrapho: the list is controlled, and nothing re-renders it when a
+  // setting is stored outside a store (the translation, the interface
+  // language), so it snapped back to the old value. It now shows the pick at
+  // once and reads the stored value back when the change is done: a refused
+  // pick or an action list ("-") returns to what was stored.
+  const [picked, setPicked] = useState<string>();
+  const [reads, setReads] = useState(0);
+  const selectedOption = usePromise(
+    () =>
+      Promise.resolve(props.selectedOption()).finally(() =>
+        setPicked(undefined)
+      ),
+    [props, reads]
+  );
+  const stored = "value" in selectedOption ? selectedOption.value : undefined;
 
   return (
     <select
@@ -647,12 +664,16 @@ export function SelectComponent(props: Omit<DropdownSettingComponent, "type">) {
         padding: "5px",
         overflow: "hidden"
       }}
-      value={
-        selectedOption.status === "fulfilled" ? selectedOption.value : undefined
-      }
-      onChange={(e) =>
-        onSelectionChanged((e.target as HTMLSelectElement).value)
-      }
+      value={picked ?? stored}
+      onChange={async (e) => {
+        const value = (e.target as HTMLSelectElement).value;
+        setPicked(value);
+        try {
+          await onSelectionChanged(value);
+        } finally {
+          setReads((count) => count + 1);
+        }
+      }}
     >
       {groupedOptions(options).map(([label, group]) => {
         const items = group.map((option) => (

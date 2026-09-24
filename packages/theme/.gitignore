@@ -155,4 +155,7 @@ thumb
 sketch
 
 **/themes/
+# Epigrapho: the built-in themes are the brand palette, versioned here rather
+# than downloaded from upstream at build time.
+!/src/theme-engine/themes/
 # End of https://www.toptal.com/developers/gitignore/api/react,node

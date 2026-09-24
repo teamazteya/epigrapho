@@ -27,7 +27,7 @@ export async function getContentFromData(type: ContentType, data: string) {
     }
     default:
       throw new Error(
-        `Unknown content type: "${type}". Please report this error at support@streetwriters.co.`
+        `Unknown content type: "${type}". Please report this error at support@azteya.tech.`
       );
   }
 }

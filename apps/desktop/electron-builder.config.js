@@ -172,33 +172,35 @@ module.exports = {
     deleteAppDataOnUninstall: true
   },
   linux: {
+    // Epigrapho: AppImage runs on any distribution; deb is Debian and Ubuntu,
+    // rpm is Fedora, pacman is Arch and CachyOS. They need Linux to be
+    // built: .github/workflows/epigrapho.installers.yml does it on Ubuntu.
     target: [
-      {
-        target: "AppImage",
-        arch: ["x64", "arm64"]
-      },
-      {
-        target: "snap",
-        arch: ["x64", "arm64"]
-      }
+      { target: "AppImage", arch: ["x64"] },
+      { target: "deb", arch: ["x64"] },
+      { target: "rpm", arch: ["x64"] },
+      { target: "pacman", arch: ["x64"] }
     ],
+    maintainer: "Azteya <support@azteya.tech>",
+    vendor: "Azteya",
+    synopsis: "Notas privadas que entienden referencias bíblicas",
     category: "Office",
     icon: "assets/icons/app.icns",
     description: "Tus notas y la Escritura, en privado",
     executableName: linuxExecutableName,
-    mimeTypes: ["x-scheme-handler/nn"],
+    mimeTypes: ["x-scheme-handler/epigrapho"],
     desktop: {
       desktopActions: {
         "new-note": {
-          Name: "New note",
+          Name: "Nueva nota",
           Exec: `${linuxExecutableName} new note`
         },
         "new-notebook": {
-          Name: "New notebook",
+          Name: "Nueva libreta",
           Exec: `${linuxExecutableName} new notebook`
         },
         "new-reminder": {
-          Name: "New reminder",
+          Name: "Nuevo recordatorio",
           Exec: `${linuxExecutableName} new reminder`
         }
       }
@@ -207,26 +209,26 @@ module.exports = {
   toolsets: {
     appimage: "1.0.2"
   },
-  snapcraft: {
-    base: "core24",
-    core24: {
-      confinement: "strict",
-      autoStart: false
-    }
-  },
   extraResources: ["app-update.yml", "./assets/**"],
   extraMetadata: {
-    main: path.join(buildRoot, "build", "electron.js")
+    main: path.join(buildRoot, "build", "electron.js"),
+    // Epigrapho: the packaged name, which also names the updater's cache
+    // folder on disk. The workspace keeps its internal @notesnook/* names.
+    name: "epigrapho-desktop",
+    // Lets Linux desktops match the running window to its launcher and icon.
+    desktopName: "epigrapho.desktop"
   },
   directories: {
     buildResources: "assets",
     output: outputDir
   },
+  // Epigrapho: the updater reads its releases from here. Pointing it at
+  // upstream would offer every Notesnook release as an update to this app.
   publish: [
     {
       provider: "github",
-      repo: "notesnook",
-      owner: "streetwriters",
+      repo: "epigrapho",
+      owner: "teamazteya",
       channel: isBeta ? "beta" : "latest"
     }
   ]

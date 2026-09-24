@@ -69,6 +69,25 @@ test("Juan 3:16-18 es un rango dentro del capitulo", () => {
   assert.equal(reference.endVerse, 18);
 });
 
+// "Juan 3,16" is chapter and verse in Spanish, not chapters 3 and 16. The
+// list readings of a comma stay as they were.
+test("la coma entre capitulo y versiculo se lee como dos puntos", () => {
+  const refs = (text: string) => parseReferences(text).map(formatRef);
+  assert.deepEqual(refs("Juan 3,16"), ["JHN.3.16"]);
+  assert.deepEqual(refs("Jn 3,16-18; 4,1"), ["JHN.3.16-JHN.3.18", "JHN.4.1"]);
+  assert.deepEqual(refs("1 Co 13,4-7"), ["1CO.13.4-1CO.13.7"]);
+  assert.deepEqual(refs("Hoy leí Juan 3,16, y luego Mateo 5,3."), [
+    "JHN.3.16",
+    "MAT.5.3"
+  ]);
+  // The reference keeps pointing at what the person wrote.
+  assert.deepEqual(parseReferences("Lee Juan 3,16 hoy")[0].indices, [4, 13]);
+  // After a colon, a comma lists verses; after a space, it lists chapters.
+  assert.deepEqual(refs("Juan 3:16,18"), ["JHN.3.16", "JHN.3.18"]);
+  assert.deepEqual(refs("Romanos 8:28, 31"), ["ROM.8.28", "ROM.8.31"]);
+  assert.deepEqual(refs("Juan 3:16"), ["JHN.3.16"]);
+});
+
 // A0 ends with both languages recognised inside one note (Fase 8, puntos 2-3).
 test("espanol e ingles conviven en el mismo texto", () => {
   const text = "Escribi Juan 3:16 y John 3:16 aqui.";

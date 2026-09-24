@@ -65,7 +65,7 @@ const features: Record<FeatureKeys, Feature> = {
   },
   highlights: {
     title: appVersion.isBeta
-      ? "Welcome to Notesnook Beta!"
+      ? "Welcome to Epigrapho Beta!"
       : "✨ Highlights ✨",
     subtitle: appVersion.isBeta
       ? `v${appVersion.clean}-beta`
@@ -118,6 +118,15 @@ const features: Record<FeatureKeys, Feature> = {
     }
   }
 };
+
+/**
+ * Epigrapho: whether a feature dialog has anything to show. Asking first keeps
+ * the dialog from mounting only to close itself, which covered the window for
+ * a moment on every start and swallowed the first clicks.
+ */
+export function hasFeatureToShow(featureName: FeatureKeys) {
+  return !!features[featureName].shouldShow?.();
+}
 
 type FeatureDialogProps = BaseDialogProps<boolean> & {
   featureName: FeatureKeys;

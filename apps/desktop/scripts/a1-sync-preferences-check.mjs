@@ -30,7 +30,7 @@ const ADDED = "Zarandálico";
 /** Where this profile keeps its settings file and its backups. */
 const settingsFile = (profile) => path.join(profile, "UserData", "config.json");
 const backupsDirectory = (profile) =>
-  path.join(profile, "Documents", "Notesnook", "backups");
+  path.join(profile, "Documents", "Epigrapho", "backups");
 
 async function newProfile(name, settings) {
   const profile = await mkdtemp(

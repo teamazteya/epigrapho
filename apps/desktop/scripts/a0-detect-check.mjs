@@ -120,6 +120,21 @@ try {
     JSON.stringify(edited.marks.map((m) => m.text))
   );
 
+  // "Juan 3,16" is chapter and verse, the way much of the Spanish-speaking
+  // world writes it, not chapters 3 and 16.
+  await page.keyboard.type(" Luego Juan 3,16.");
+  await page.waitForFunction(
+    () =>
+      document.querySelectorAll(".active .ProseMirror span[data-scripture-ref]")
+        .length === 4,
+    undefined,
+    { timeout: 5000 }
+  );
+  const comma = (await readBlock()).marks[3];
+  console.log("con coma:", JSON.stringify(comma.text), comma.ref);
+  assert.equal(comma.text, "Juan 3,16");
+  assert.equal(comma.ref, "JHN.3.16");
+
   console.log(
     "GREEN: referencias detectadas con debounce y sin tocar el texto."
   );

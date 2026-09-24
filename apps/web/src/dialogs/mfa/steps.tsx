@@ -588,7 +588,7 @@ function BackupRecoveryCodes(props: TwoFactorEnabledProps) {
         action: async () => {
           if (!recoveryCodesRef.current) return;
           await exportToPDF(
-            "Notesnook 2FA Recovery Codes",
+            "Epigrapho 2FA Recovery Codes",
             recoveryCodesRef.current.outerHTML
           );
         }

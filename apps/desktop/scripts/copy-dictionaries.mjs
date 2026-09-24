@@ -16,14 +16,15 @@ const target = path.join(root, "build", "dictionaries");
 
 // dictionary-es exports only its entry point, so the folder is found through
 // that rather than through a subpath the package does not expose.
-const source = path.dirname(require.resolve("dictionary-es"));
-
 await mkdir(target, { recursive: true });
-for (const [from, to] of [
-  ["index.aff", "es.aff"],
-  ["index.dic", "es.dic"]
-])
-  await copyFile(path.join(source, from), path.join(target, to));
+for (const language of ["es", "en"]) {
+  const source = path.dirname(require.resolve(`dictionary-${language}`));
+  for (const extension of ["aff", "dic"])
+    await copyFile(
+      path.join(source, `index.${extension}`),
+      path.join(target, `${language}.${extension}`)
+    );
+}
 
 // The biblical Resource Pack travels the same road: the worker reads it at
 // startup and adds every term to the dictionary (Paso 6.2).

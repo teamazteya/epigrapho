@@ -23,12 +23,10 @@ import { config } from "./config";
 async function configureAutoUpdater() {
   const releaseTrack =
     config.releaseTrack === "stable" ? "latest" : config.releaseTrack;
-  autoUpdater.setFeedURL({
-    provider: "generic",
-    url: `https://notesnook.com/api/v1/releases/${process.platform}/${releaseTrack}`,
-    useMultipleRangeRequest: false,
-    channel: releaseTrack
-  });
+  // Epigrapho: releases come from the feed electron-builder writes into the
+  // app (app-update.yml, the project's own GitHub releases). Upstream set its
+  // own server here, which would have offered Notesnook as an update.
+  autoUpdater.channel = releaseTrack;
 
   autoUpdater.autoDownload = config.automaticUpdates;
   autoUpdater.allowDowngrade =

@@ -34,10 +34,21 @@ import nspell from "nspell";
  * the two threads that a person can feel only ever send and receive words.
  */
 const dictionaries = path.join(__dirname, "dictionaries");
-const speller = nspell({
-  aff: readFileSync(path.join(dictionaries, "es.aff")),
-  dic: readFileSync(path.join(dictionaries, "es.dic"))
-});
+const load = (language: string) =>
+  nspell({
+    aff: readFileSync(path.join(dictionaries, `${language}.aff`)),
+    dic: readFileSync(path.join(dictionaries, `${language}.dic`))
+  });
+// Spanish first: the biblical pack is Spanish, and it is what the app is
+// written for. English sits beside it because notes quote English
+// translations (BSB, KJV) and people write in both. A word either dictionary
+// knows is not an error.
+// ponytail: both are always on; a per-person choice of languages is the
+// upgrade if a Spanish word that happens to be English slips through.
+const speller = load("es");
+const english = load("en");
+const correct = (word: string) =>
+  speller.correct(word) || english.correct(word);
 
 /**
  * The biblical Resource Pack (PRD §31.11, Paso 6.2).
@@ -78,7 +89,10 @@ for (const entry of pack.entries) {
 
 function suggest(word: string): string[] {
   const suggestions: string[] = [];
-  for (const suggestion of speller.suggest(word)) {
+  for (const suggestion of [
+    ...speller.suggest(word),
+    ...english.suggest(word)
+  ]) {
     const term = terms.get(suggestion);
     // An old spelling points at the current one instead of at itself; a
     // variant keeps its place but lets the preferred form go first.
@@ -96,7 +110,7 @@ type Request = { id: number; words?: string[]; suggest?: string };
 parentPort?.on("message", ({ id, words, suggest: word }: Request) => {
   parentPort?.postMessage({
     id,
-    misspelled: words?.filter((each) => !speller.correct(each)) ?? [],
+    misspelled: words?.filter((each) => !correct(each)) ?? [],
     suggestions: word ? suggest(word) : []
   });
 });

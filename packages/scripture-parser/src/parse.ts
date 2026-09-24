@@ -170,6 +170,25 @@ function toCanonical(entity: BcvEntity): CanonicalReference | undefined {
   return reference;
 }
 
+/**
+ * "Juan 3,16" is how much of the Spanish-speaking world writes chapter and
+ * verse, and the parser reads a comma as a list ("chapters 3 and 16"). A comma
+ * squeezed between two numbers, with no colon before them, is turned into a
+ * colon before parsing. It is one character for one, so every index the parser
+ * reports still points at the person's own text.
+ *
+ * Left alone on purpose: "Romanos 8, 9" (a space after the comma is a list)
+ * and "Juan 3:16,17" (after a colon the comma lists verses).
+ *
+ * ponytail: "Génesis 1,2" meaning chapters 1 and 2 now reads as 1:2. That is
+ * the price of the Spanish convention; a per-person setting is the upgrade if
+ * anyone writes chapter lists that way.
+ */
+const CHAPTER_COMMA_VERSE = /(^|[^\d:.,])(\d{1,3}),(\d{1,3})(?!\d)/g;
+function withColons(text: string) {
+  return text.replace(CHAPTER_COMMA_VERSE, "$1$2:$3");
+}
+
 const span = (reference: CanonicalReference) =>
   reference.indices[1] - reference.indices[0];
 
@@ -186,9 +205,10 @@ export function parseReferences(
 ): CanonicalReference[] {
   const found: CanonicalReference[] = [];
 
+  const readable = withColons(text);
   for (const locale of locales) {
     const roots = parserFor(locale)
-      .parse(text)
+      .parse(readable)
       .parsed_entities() as BcvEntity[];
     for (const root of roots)
       for (const entity of root.entities ?? [root]) {

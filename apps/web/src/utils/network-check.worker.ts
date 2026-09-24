@@ -19,11 +19,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import { expose } from "comlink";
 
 const module = {
-  async waitForInternet() {
+  // Epigrapho: asks the sync server the person configured, not a fixed one.
+  async waitForInternet(host: string) {
     let retries = 3;
     while (retries-- > 0) {
       try {
-        const response = await fetch("https://api.notesnook.com/health");
+        const response = await fetch(`${host}/health`);
         if (response.ok) return true;
       } catch {
         // ignore

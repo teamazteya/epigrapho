@@ -1,71 +1,49 @@
 <p align="center">
-<img style="align:center;" src="./resources/icon.png" alt="Notesnook Logo" width="100" />
+<img src="./assets/brand/epigrapho-logo.png" alt="Epigrapho" width="100" />
 </p>
 
-<h1 align="center">Notesnook</h1>
-<h3 align="center">An end-to-end encrypted note taking alternative to Evernote.</h3>
-<p align="center">
-<a href="https://notesnook.com/">Website</a> | <a href="https://notesnook.com/about">About us</a> | <a href="https://notesnook.com/roadmap">Roadmap</a> | <a href="https://notesnook.com/downloads">Downloads</a> | <a href="https://twitter.com/@notesnook">Twitter</a> | <a href="https://discord.gg/5davZnhw3V">Discord</a>
-</p>
+<h1 align="center">Epigrapho</h1>
+<h3 align="center">Notas privadas que entienden referencias bíblicas.</h3>
 
-## Overview
+## Qué es
 
-Notesnook is a free (as in speech) & open-source note-taking app focused on user privacy & ease of use. To ensure zero knowledge principles, Notesnook encrypts everything on your device using `XChaCha20-Poly1305` & `Argon2`.
+Epigrapho es una app de notas local y cifrada en la que una referencia bíblica es un objeto, no un texto suelto. Al escribir «Juan 3:16» (o «Juan 3,16», o «John 3:16») la app la reconoce, la guarda en formato USFM (`JHN.3.16`) y muestra el versículo al pasar el cursor.
 
-Notesnook is our **proof** that privacy does _not_ (always) have to come at the cost of convenience. We aim to provide users peace of mind & 100% confidence that their notes are safe and secure. The decision to go fully open source is one of the most crucial steps towards that.
+- **Traducciones sin conexión:** VBL (CC BY-SA 4.0), BSB, KJV y PdDpt (CC BY 4.0) vienen dentro de la app.
+- **Traducciones en línea:** NTV, NBLA y NASB se piden a API.Bible con una llave que vive fuera del repositorio y solo la lee el proceso principal. Ningún texto de tus notas sale del equipo.
+- **Referencias:** marcas, bloques de Escritura, backlinks entre notas que citan el mismo pasaje y búsqueda por pasaje.
+- **Corrector ortográfico sin conexión:** español e inglés, con un paquete de términos bíblicos y tu propio diccionario.
+- **Sin cuentas ni suscripciones:** todo lo que la app puede hacer por sí sola está disponible.
 
-This repository contains all the code required to build & use the Notesnook web, desktop & mobile clients. If you are looking for a full feature list or screenshots, please check the [website](https://notesnook.com/).
+## Desarrollo
 
-## Developer guide
+Requisitos: Node 22.23.2 y npm.
 
-### Technologies & languages
+```bash
+npm ci --ignore-scripts
+npm run bootstrap -- --scope=web
+npm run bootstrap -- --scope=desktop
+npm run start:desktop
+```
 
-Notesnook is built using the following technologies:
+Instalador de Windows, macOS o Linux (lo mismo que hace `.github/workflows/epigrapho.installers.yml`):
 
-1. JavaScript/Typescript — this repo is in a hybrid state. A lot of the newer code is being written in Typescript & the old code is slowly being ported over.
-2. React — the whole front-end across all platforms is built using React.
-3. React Native — For mobile apps we are using React Native
-4. Electron — For desktop app
-5. NPM — listed here because we **don't** use Yarn or PNPM or XYZ across any of our projects.
+```bash
+cd apps/desktop
+node scripts/build.mjs --rebuild
+npm exec --no -- electron-builder install-app-deps
+npx electron-builder --config=electron-builder.config.js --publish=never
+```
 
-> **Note: Each project in the monorepo contains its own architecture details which you can refer to.**
+Los paquetes de Linux (AppImage, `.deb` para Debian y Ubuntu, `.rpm` para Fedora, `.pacman` para Arch y CachyOS) se hacen en Linux con los mismos pasos, después de instalar `rpm` y `libarchive-tools`; el workflow lo hace en Ubuntu.
 
-### Monorepo structure
+Las verificaciones de extremo a extremo están en `apps/desktop/scripts/a0-*.mjs` y `a1-*.mjs`; se ejecutan con `npm run start:desktop` corriendo.
 
-| Name                       | Path                                               | Description                                                          |
-| -------------------------- | -------------------------------------------------- | -------------------------------------------------------------------- |
-| `@notesnook/web`           | [/apps/web](/apps/web)                             | Web client                                                           |
-| `@notesnook/desktop`       | [/apps/desktop](/apps/desktop)                     | Desktop client                                                       |
-| `@notesnook/mobile`        | [/apps/mobile](/apps/mobile)                       | Android/iOS clients                                                  |
-| `@notesnook/web-clipper`   | [/extensions/web-clipper](/extensions/web-clipper) | Web clipper                                                          |
-| `@notesnook/core`          | [/packages/core](/packages/core)                   | Shared core between all platforms                                    |
-| `@notesnook/crypto`        | [/packages/crypto](/packages/crypto)               | Cryptography library wrapper around libsodium                        |
-| `@notesnook/clipper`       | [/packages/clipper](/packages/clipper)             | Web clipper core handling everything related to actual page clipping |
-| `@notesnook/editor`        | [/packages/editor](/packages/editor)               | Notesnook editor + all extensions                                    |
-| `@notesnook/editor-mobile` | [/packages/editor-mobile](/packages/editor-mobile) | A very thin wrapper around `@notesnook/editor` for mobile clients    |
-| `@notesnook/logger`        | [/packages/logger](/packages/logger)               | Simple & pluggable logger                                            |
-| `@notesnook/sodium`        | [/packages/sodium](/packages/sodium)               | Wrapper around libsodium to support Node.js & Browser                |
-| `@notesnook/streamable-fs` | [/packages/streamable-fs](/packages/streamable-fs) | Streaming interface around an IndexedDB based file system            |
-| `@notesnook/theme`         | [/packages/theme](/packages/theme)                 | The core theme used in web & desktop clients                         |
+## Soporte
 
-### Contributing guidelines
+- Correo: support@azteya.tech
+- Reportes y sugerencias: [issues](https://github.com/teamazteya/epigrapho/issues/new)
 
-If you are interested in contributing to Notesnook, I highly recommend checking out the [contributing guidelines](/CONTRIBUTING.md). You'll find all the relevant information such as [style guideline](/CONTRIBUTING.md#style-guidelines), [how to make a PR](/CONTRIBUTING.md#opening--submitting-a-pull-request), [how to commit](/CONTRIBUTING.md#commit-guidelines) etc., there.
+## Licencia
 
-### Support & help
-
-You can reach out to us via:
-
-1. [Email](mailto:support@streetwriters.co)
-2. [Discord](https://discord.gg/5davZnhw3V)
-3. [Twitter](https://twitter.com/notesnook)
-4. [Create an issue](https://github.com/streetwriters/notesnook/issues/new)
-
-We take all queries, issues and bug reports that you might have. Feel free to ask.
-
-## Additional Resources
-
-- [Migrating & Importing your data from other apps — Importer](https://notesnook.com/help/importing-notes)
-- [Privacy policy](https://notesnook.com/privacy) & [Terms of service](https://notesnook.com/terms)
-- [Verify Notesnook encryption claims yourself — Vericrypt](https://vericrypt.notesnook.com/)
-- [Why Notesnook requires an email address?](https://blog.notesnook.com/why-notesnook-requires-an-email-address/)
+GPL-3.0-or-later. Epigrapho es una versión modificada de [Notesnook](https://github.com/streetwriters/notesnook) (© Streetwriters), distribuida bajo la misma licencia; ver [LICENSE](./LICENSE) y [AUTHORS](./AUTHORS).

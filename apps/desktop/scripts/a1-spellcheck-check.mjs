@@ -13,6 +13,8 @@ import { profilesRoot } from "./profiles-root.mjs";
 const root = fileURLToPath(new URL("../", import.meta.url));
 const WRONG = "Tesalonisenses";
 const RIGHT = "Tesalonicenses";
+const ENGLISH_RIGHT = "everlasting";
+const ENGLISH_WRONG = "wrold";
 
 const profile = await mkdtemp(path.join(profilesRoot(), "epigrapho-spell-"));
 const app = await _electron.launch({
@@ -109,6 +111,11 @@ try {
   await page.keyboard.type(WRONG, { delay: 25 });
   await page.keyboard.press("Enter");
   await page.keyboard.type(RIGHT, { delay: 25 });
+  // English sits beside Spanish: notes quote BSB and KJV.
+  await page.keyboard.press("Enter");
+  await page.keyboard.type(ENGLISH_RIGHT, { delay: 25 });
+  await page.keyboard.press("Enter");
+  await page.keyboard.type(ENGLISH_WRONG, { delay: 25 });
   // The dictionary is read once, on the first question; the first answer is
   // the slow one.
   await page.waitForTimeout(4000);
@@ -122,6 +129,13 @@ try {
   //    answered, not a provider that says yes or no to everything.
   assert.equal(wrong.word, WRONG);
   assert.equal(right.word, "");
+
+  // 1b. the same holds in English.
+  const englishRight = await wordAt(".active .ProseMirror p:nth-of-type(3)");
+  const englishWrong = await wordAt(".active .ProseMirror p:nth-of-type(4)");
+  console.log("inglés:", JSON.stringify({ englishRight, englishWrong }));
+  assert.equal(englishRight.word, "");
+  assert.equal(englishWrong.word, ENGLISH_WRONG);
 
   // 2. a long note keeps typing responsive.
   await page.locator(".active .ProseMirror").click();

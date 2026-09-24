@@ -37,8 +37,11 @@ type FlexibleIcon<TFormat extends Formats> = TFormat extends "ico"
   ? string
   : NativeImage;
 
+// Epigrapho: in development the assets sit beside build/, wherever the app
+// was launched from. Reading them from the working directory made a launch
+// from anywhere else fail in createWindow before the menu was set up.
 const RESOURCES_DIR = isDevelopment()
-  ? process.cwd()
+  ? path.join(__dirname, "..")
   : process.platform === "darwin"
   ? path.normalize(path.join(path.dirname(process.execPath), "..", "Resources"))
   : path.join(path.dirname(process.execPath), "resources");

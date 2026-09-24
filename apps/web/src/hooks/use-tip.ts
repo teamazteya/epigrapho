@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import { useEffect, useRef, useState } from "react";
 import { CREATE_BUTTON_MAP } from "../common";
-import { ArrowTopRight, Icon, Plus } from "../components/icons";
+import { Icon, Plus } from "../components/icons";
 import Config from "../utils/config";
 import { strings } from "@notesnook/intl";
 
@@ -154,16 +154,6 @@ const tips: Tip[] = [
     contexts: ["notebooks"]
   },
   {
-    text: strings.tipJoinDiscord(),
-    contexts: ["notes", "notebooks", "tags"],
-    button: {
-      title: strings.joinCommunity(),
-      icon: ArrowTopRight,
-      onClick: () =>
-        window.open("https://discord.gg/notesnook-796015620436787241", "_blank")
-    }
-  },
-  {
     text: strings.tipTrashInterval(),
     contexts: ["trash"]
   }
@@ -175,17 +165,7 @@ const DEFAULT_TIPS: Record<TipContext, Omit<Tip, "contexts">> = {
   },
   favorites: { text: strings.favoritesAppearHere() },
   monographs: {
-    text: strings.noMonographsYet(),
-    button: {
-      title: strings.whatAreMonographs(),
-      icon: ArrowTopRight,
-      onClick() {
-        window.open(
-          "https://notesnook.com/help/publish-notes-with-monographs",
-          "_blank"
-        );
-      }
-    }
+    text: strings.noMonographsYet()
   },
   notebooks: {
     text: strings.noNotebooksYet(),

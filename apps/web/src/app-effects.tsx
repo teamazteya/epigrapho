@@ -36,7 +36,7 @@ import { registerKeyMap } from "./common/key-map";
 import { updateStatus, removeStatus, getStatus } from "./hooks/use-status";
 import { hashNavigate, navigate } from "./navigation";
 import { desktop } from "./common/desktop-bridge";
-import { FeatureDialog } from "./dialogs/feature-dialog";
+import { FeatureDialog, hasFeatureToShow } from "./dialogs/feature-dialog";
 import { logger } from "./utils/logger";
 import { showToast } from "./utils/toast";
 import { strings } from "@notesnook/intl";
@@ -66,7 +66,8 @@ export default function AppEffects() {
         await initUser();
         // await resetNotices();
 
-        await FeatureDialog.show({ featureName: "highlights" });
+        if (hasFeatureToShow("highlights"))
+          await FeatureDialog.show({ featureName: "highlights" });
         await scheduleBackups();
         await scheduleFullBackups();
         await scheduleExpiredNotesDeletion();

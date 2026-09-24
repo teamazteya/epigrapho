@@ -24,8 +24,14 @@ import {
 } from "@notesnook-importer/core";
 import { Flex, Text } from "@theme-ui/components";
 
+/**
+ * Notesnook is not an importer provider: its backups share Epigrapho's format,
+ * so they go through the same restore as Epigrapho's own.
+ */
+export const NOTESNOOK = "notesnook";
+
 type ProviderSelectorProps = {
-  onProviderChanged: (provider: IProvider) => void;
+  onProviderChanged: (provider: IProvider | typeof NOTESNOOK) => void;
 };
 
 export function ProviderSelector(props: ProviderSelectorProps) {
@@ -47,7 +53,7 @@ export function ProviderSelector(props: ProviderSelectorProps) {
         >
           Can&apos;t find your notes app in the list?{" "}
           <a
-            href="https://github.com/streetwriters/notesnook-importer/issues/new"
+            href="https://github.com/teamazteya/epigrapho/issues/new"
             target="_blank"
           >
             Send us a request.
@@ -66,11 +72,14 @@ export function ProviderSelector(props: ProviderSelectorProps) {
         }}
         onChange={(e) => {
           if (e.target.value === "") return;
+          if (e.target.value === NOTESNOOK)
+            return props.onProviderChanged(NOTESNOOK);
           const providerName: Providers = e.target.value as Providers;
           props.onProviderChanged(ProviderFactory.getProvider(providerName));
         }}
       >
         <option value="">Select notes app</option>
+        <option value={NOTESNOOK}>Notesnook</option>
         {ProviderFactory.getAvailableProviders().map((provider) => (
           <option key={provider} value={provider}>
             {ProviderFactory.getProvider(provider as Providers).name}

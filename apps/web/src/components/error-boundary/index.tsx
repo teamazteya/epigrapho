@@ -199,7 +199,7 @@ export function ErrorComponent({ error, resetErrorBoundary }: FallbackProps) {
                 variant="secondary"
                 sx={{ alignSelf: "start", px: 30, mt: 1 }}
                 onClick={async () => {
-                  const mailto = new URL("mailto:support@streetwriters.co");
+                  const mailto = new URL("mailto:support@azteya.tech");
                   mailto.searchParams.set(
                     "body",
                     `${errorToString(error)}

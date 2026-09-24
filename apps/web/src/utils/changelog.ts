@@ -21,7 +21,7 @@ export async function getChangelog(tag: string) {
   try {
     if (!tag) return "No changelog found.";
 
-    const url = `https://api.github.com/repos/streetwriters/notesnook/releases/tags/v${tag}`;
+    const url = `https://api.github.com/repos/teamazteya/epigrapho/releases/tags/v${tag}`;
     const response = await fetch(url, {
       headers: { Accept: "application/json" }
     });

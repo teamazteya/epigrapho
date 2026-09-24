@@ -232,7 +232,12 @@ try {
 
   // ---- and now the same profile, opened again ----
   session = await open();
-  await session.page.getByText(TITLE).first().click();
+  // The note in the list, not its tab: the app may have reopened the note on
+  // its own, and the tab's title sits under the editor's toolbar.
+  await session.page
+    .locator('[data-test-id="title"]', { hasText: TITLE })
+    .first()
+    .click();
   await session.page.locator(".active .ProseMirror").waitFor();
   await session.page.waitForTimeout(5000);
 

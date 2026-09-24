@@ -149,7 +149,7 @@ test("KJV: el pack cubre los 66 libros", () => {
 // is 31086 + 16.
 test("KJV: trae los versos del texto recibido", () => {
   assert.equal(kjv.length, 31102);
-  assert.match(atKjv("JHN", 5, 4).text, /^For an angel went down/);
+  assert.match(atKjv("JHN", 5, 4)?.text ?? "", /^For an angel went down/);
 });
 
 test("KJV: los calderones no llegan al texto", () => {

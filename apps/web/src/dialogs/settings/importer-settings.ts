@@ -18,13 +18,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import { SettingsGroup } from "./types";
+import { strings } from "@notesnook/intl";
 import { Importer } from "../../components/importer";
 
 export const ImporterSettings: SettingsGroup[] = [
   {
     key: "importer",
     section: "importer",
-    header: "Notesnook Importer",
+    header: strings.notesnookImporter(),
     settings: [
       {
         key: "import-notes",

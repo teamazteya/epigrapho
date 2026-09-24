@@ -461,7 +461,7 @@ const features = {
   }),
   notesnookCircle: createFeature({
     id: "notesnookCircle",
-    title: "Notesnook Circle",
+    title: "Circle",
     availability: {
       free: createLimit(false),
       essential: createLimit(true),

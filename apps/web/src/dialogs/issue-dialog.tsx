@@ -21,16 +21,13 @@ import { Flex, Link, Text } from "@theme-ui/components";
 import Field from "../components/field";
 import Dialog from "../components/dialog";
 import { useState } from "react";
-import { writeText } from "clipboard-polyfill";
-import { store as userstore } from "../stores/user-store";
 
 import { ErrorText } from "../components/error-text";
-import { Debug, IssueReportResponse } from "@notesnook/core";
-import { ConfirmDialog } from "./confirm";
 import { BaseDialogProps, DialogManager } from "../common/dialog-manager";
 import { strings } from "@notesnook/intl";
 import { getDeviceInfo } from "../utils/platform";
-import { getSubscriptionInfo } from "./settings/components/user-profile";
+
+const ISSUES_URL = "https://github.com/teamazteya/epigrapho/issues";
 
 const PLACEHOLDERS = {
   title: strings.issueTitlePlaceholder(),
@@ -75,17 +72,14 @@ export const IssueDialog = DialogManager.register(function IssueDialog(
             );
 
             if (!requestData.title.trim() || !requestData.body.trim()) return;
-            requestData.body = BODY_TEMPLATE(requestData.body);
-            const response = await Debug.report({
-              title: requestData.title,
-              body: requestData.body,
-              userId: userstore.get().user?.id
-            });
-            if (!response) throw new Error("Could not submit bug report.");
-            if ("error" in response) throw new Error(response.error);
-
+            // Epigrapho: there is no issue server behind this app. The report
+            // opens as a new issue on the project, filled in, and the person
+            // decides there whether to send it.
+            const url = new URL(`${ISSUES_URL}/new`);
+            url.searchParams.set("title", requestData.title);
+            url.searchParams.set("body", BODY_TEMPLATE(requestData.body));
+            window.open(url, "_blank");
             props.onClose(true);
-            await showIssueReportedDialog(response);
           } catch (e) {
             if (e instanceof Error) setError(e.message);
           } finally {
@@ -125,25 +119,12 @@ export const IssueDialog = DialogManager.register(function IssueDialog(
           sx={{ borderRadius: "default" }}
         >
           {strings.issueNotice[0]()}{" "}
-          <Link
-            href="https://github.com/streetwriters/notesnook/issues"
-            title="github.com/streetwriters/notesnook/issues"
-            target="_blank"
-          >
-            github.com/streetwriters/notesnook/issues
+          <Link href={ISSUES_URL} title={ISSUES_URL} target="_blank">
+            {ISSUES_URL.replace("https://", "")}
           </Link>
-          {strings.issueNotice[1]()}{" "}
-          <Link
-            href="https://discord.gg/zQBK97EE22"
-            title={strings.issueNotice[2]()}
-            target="_blank"
-          >
-            {strings.issueNotice[2]()}
-          </Link>
-          /
         </Text>
         <Text variant="subBody" mt={1}>
-          {getDeviceInfo([`Plan: ${getSubscriptionInfo().title}`])
+          {getDeviceInfo()
             .split("\n")
             .map((t) => (
               <>
@@ -158,43 +139,8 @@ export const IssueDialog = DialogManager.register(function IssueDialog(
   );
 });
 
-function showIssueReportedDialog(response: IssueReportResponse) {
-  if ("error" in response) return;
-
-  switch (response.type) {
-    case "email": {
-      return ConfirmDialog.show({
-        title: strings.yourSupportRequestHasBeenForwarded(),
-        message: strings.supportEmailMessage()
-      });
-    }
-    case "discussion": {
-      const url = response.url;
-      return ConfirmDialog.show({
-        title: strings.thankYouForFeedback(),
-        positiveButtonText: strings.copyLink(),
-        message: strings.featureRequestMessage(url)
-      }).then((result) => {
-        result && writeText(url);
-      });
-    }
-    case "issue": {
-      const url = response.url;
-      return ConfirmDialog.show({
-        title: strings.thankYouForReporting(),
-        positiveButtonText: strings.copyLink(),
-        message: strings.bugReportMessage(url)
-      }).then((result) => {
-        result && writeText(url);
-      });
-    }
-  }
-}
-
 const BODY_TEMPLATE = (body: string) => {
-  const info = `**Device information:**\n${getDeviceInfo([
-    `Plan: ${getSubscriptionInfo().title}`
-  ])}`;
+  const info = `**Device information:**\n${getDeviceInfo()}`;
   if (!body) return info;
   return `${body}\n\n${info}`;
 };

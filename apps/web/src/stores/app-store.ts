@@ -135,6 +135,9 @@ class AppStore extends BaseStore<AppStore> {
       if (status === "offline") {
         await this.abortSync("offline");
       } else {
+        // Epigrapho: with no account there is nothing to sync, so coming back
+        // online asks no server anything.
+        if (!(await db.user.getUser())) return;
         // a slight delay to make sure sockets are open and can be connected
         // to. Otherwise, this fails miserably.
         await networkCheck.waitForInternet();

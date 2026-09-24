@@ -35,7 +35,7 @@
     }
   },
   "homepage": "https://github.com/teamazteya/epigrapho",
-  "repository": "https://github.com/streetwriters/notesnook",
+  "repository": "https://github.com/teamazteya/epigrapho",
   "license": "GPL-3.0-or-later",
   "dependencies": {
     "@lingui/core": "5.1.2",
@@ -45,6 +45,7 @@
     "@trpc/client": "10.45.2",
     "@trpc/server": "10.45.2",
     "better-sqlite3-multiple-ciphers": "^12.4.1",
+    "dictionary-en": "^4.0.0",
     "dictionary-es": "^4.0.0",
     "electron-trpc": "0.7.1",
     "electron-updater": "^6.6.2",

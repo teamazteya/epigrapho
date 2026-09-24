@@ -32,7 +32,6 @@ import {
   attributionOf,
   formatReference,
   getTranslation,
-  loadScripturePacks,
   resolveVerse
 } from "../common/scripture";
 import { askForScripture } from "../common/scripture-prompt";

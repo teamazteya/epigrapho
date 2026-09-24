@@ -1,4 +1,5 @@
-# Builds the Epigrapho desktop installers for Windows and macOS.
+# Builds the Epigrapho desktop installers for Windows, macOS and Linux
+# (AppImage, deb for Debian and Ubuntu, rpm for Fedora, pacman for Arch).
 #
 # macOS is the reason this exists: a .dmg can only be produced on macOS, and
 # GitHub's macOS runners are the way to get one without owning a Mac.
@@ -33,6 +34,13 @@ jobs:
             artifacts: |
               apps/desktop/output/*.dmg
               apps/desktop/output/*.zip
+          - os: ubuntu-24.04
+            name: Linux
+            artifacts: |
+              apps/desktop/output/*.AppImage
+              apps/desktop/output/*.deb
+              apps/desktop/output/*.rpm
+              apps/desktop/output/*.pacman
 
     steps:
       - uses: actions/checkout@v5
@@ -44,6 +52,11 @@ jobs:
 
       # --ignore-scripts keeps the native modules from being built twice: the
       # desktop build rebuilds them for Electron's own ABI further down.
+      # rpmbuild makes the .rpm and bsdtar the Arch package.
+      - name: Install the Linux packaging tools
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y rpm libarchive-tools
+
       - name: Install packages
         run: |
           npm ci --ignore-scripts --prefer-offline --no-audit

@@ -18,6 +18,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 export const PATHS = {
-  backupsDirectory: "documents/Notesnook/backups",
+  backupsDirectory: "documents/Epigrapho/backups",
   logsDirectory: "logs/"
 };

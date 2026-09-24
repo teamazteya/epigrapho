@@ -47,7 +47,7 @@ export function ImportErrors(props: ImportErrorsProps) {
           sx={{ alignSelf: "start", mt: 2 }}
           onClick={() =>
             window.open(
-              "https://github.com/streetwriters/notesnook-importer/issues/new",
+              "https://github.com/teamazteya/epigrapho/issues/new",
               "_blank"
             )
           }

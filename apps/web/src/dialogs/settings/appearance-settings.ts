@@ -54,7 +54,7 @@ export const AppearanceSettings: SettingsGroup[] = [
     ]
   },
   {
-    key: "theme",
+    key: "window",
     section: "appearance",
     header: strings.general(),
     isHidden: () => !IS_DESKTOP_APP,

@@ -17,17 +17,21 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { Flex } from "@theme-ui/components";
+import { Button, Flex, Text } from "@theme-ui/components";
 import { useState } from "react";
-import { ProviderSelector } from "./components/provider-selector";
+import { strings } from "@notesnook/intl";
+import { NOTESNOOK, ProviderSelector } from "./components/provider-selector";
 import { FileProviderHandler } from "./components/file-provider-handler";
 import { ImportResult } from "./components/import-result";
 import { IProvider } from "@notesnook-importer/core";
 import { NetworkProviderHandler } from "./components/network-provider-handler";
 import { TransformResult } from "./types";
+import { importBackup } from "../../common";
 
 export function Importer() {
-  const [selectedProvider, setSelectedProvider] = useState<IProvider>();
+  const [selectedProvider, setSelectedProvider] = useState<
+    IProvider | typeof NOTESNOOK
+  >();
   const [transformResult, setTransformResult] = useState<TransformResult>();
   const [instanceKey, setInstanceKey] = useState<string>(`${Math.random()}`);
 
@@ -47,7 +51,16 @@ export function Importer() {
             setTransformResult(undefined);
           }}
         />
-        {selectedProvider ? (
+        {selectedProvider === NOTESNOOK ? (
+          <Flex sx={{ flexDirection: "column", alignItems: "start", gap: 2 }}>
+            <Text variant="body" sx={{ color: "paragraph" }}>
+              {strings.importFromNotesnook()}
+            </Text>
+            <Button variant="accent" onClick={() => importBackup()}>
+              {strings.selectBackupFile()}
+            </Button>
+          </Flex>
+        ) : selectedProvider ? (
           <>
             {selectedProvider.type === "file" ? (
               <FileProviderHandler
@@ -64,7 +77,9 @@ export function Importer() {
             ) : null}
           </>
         ) : null}
-        {transformResult && selectedProvider ? (
+        {transformResult &&
+        selectedProvider &&
+        selectedProvider !== NOTESNOOK ? (
           <>
             <ImportResult
               result={transformResult}

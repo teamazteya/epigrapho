@@ -70,6 +70,11 @@ async function chooseTranslation(translationId) {
     .locator("option")
     .evaluateAll((options) => options.map((option) => option.value));
   await select.selectOption(translationId);
+  // The list shows the pick at once and still shows it once stored: it used to
+  // snap back to the old translation, so the person saw no change at all.
+  assert.equal(await select.inputValue(), translationId);
+  await page.waitForTimeout(1000);
+  assert.equal(await select.inputValue(), translationId);
   // Nothing reloads on its own here, and closing the dialog by hand is racy,
   // so the clean hash reload doubles as proof the choice was persisted.
   // The hash is what keeps the dialog open, so moving off it is enough most

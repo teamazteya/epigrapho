@@ -158,7 +158,7 @@ export const strings = {
   create: () => t`Create`,
   lock: () => t`Lock`,
   analyticsPermissionText: {
-    0: () => t`Help improve Notesnook by sending completely anonymized`,
+    0: () => t`Help improve Epigrapho by sending completely anonymized`,
     1: () => t`private analytics and bug reports.`
   },
   deletedOn: (date: string) => t`Deleted on ${date}`,
@@ -269,10 +269,10 @@ export const strings = {
   monographSelfDestructHeading: () => t`Self destruct`,
   monographSelfDestructDesc: () =>
     t`Published note link will be automatically deleted once it is viewed by someone.`,
-  monographLearnMore: () => t`Learn more about Notesnook Monograph`,
-  rateAppHeading: () => t`Do you enjoy using Notesnook?`,
+  monographLearnMore: () => t`Learn more about Epigrapho Monograph`,
+  rateAppHeading: () => t`Do you enjoy using Epigrapho?`,
   rateAppDesc: () =>
-    t`It took us a year to bring Notesnook to life. Share your experience and suggestions to help us improve it.`,
+    t`Share your experience and suggestions to help us improve Epigrapho.`,
   recoveryKeySavedConfirmation: () =>
     t`Tap twice to confirm you have saved the recovery key.`,
   noBlocksLinked: () => t`No blocks linked`,
@@ -473,10 +473,10 @@ $day$: Current day (eg. Monday)`,
   issueDesc: () =>
     t`We are sorry, it seems that the app crashed due to an error. You can submit a bug report below so we can fix this asap.`,
   issueDesc2: () =>
-    t`Let us know if you have faced any issue/bug while using Notesnook. We will try to fix it as soon as possible.`,
+    t`Let us know if you have faced any issue/bug while using Epigrapho. We will try to fix it as soon as possible.`,
   migrationSaveBackup: () => t`Save a backup of your notes`,
   migrationSaveBackupDesc: () =>
-    t`Thank you for updating Notesnook! We will be applying some minor changes for a better note taking experience.`,
+    t`Thank you for updating Epigrapho! We will be applying some minor changes for a better note taking experience.`,
   moveNotebook: (count: number, title: string) =>
     plural(count, {
       one: `Moving ${title}`,
@@ -691,34 +691,33 @@ $day$: Current day (eg. Monday)`,
   subscriptionProviderInfo: {
     0: {
       type: "Streetwriters",
-      title: () => t`Subscription awarded from Streetwriters`,
-      desc: () =>
-        t`You were awarded a subscription to Notesnook Pro by Streetwriters.`
+      title: () => t`Subscription awarded from Azteya`,
+      desc: () => t`You were awarded a subscription to Epigrapho Pro by Azteya.`
     },
     1: {
       type: "iOS",
       title: () => t`Subscribed on iOS`,
       desc: () =>
-        t`You subscribed to Notesnook Pro on iOS using Apple In App Purchase. You can cancel anytime with your iTunes Account settings.`,
+        t`You subscribed to Epigrapho Pro on iOS using Apple In App Purchase. You can cancel anytime with your iTunes Account settings.`,
       icon: "ios"
     },
     2: {
       type: "Android",
       title: () => t`Subscribed on Android`,
       desc: () =>
-        t`You subscribed to Notesnook Pro on Android Phone/Tablet using Google In App Purchase.`,
+        t`You subscribed to Epigrapho Pro on Android Phone/Tablet using Google In App Purchase.`,
       icon: "android"
     },
     3: {
       type: "Web",
       title: () => t`Subscribed on Web`,
-      desc: () => t`You subscribed to Notesnook Pro on the Web/Desktop App.`,
+      desc: () => t`You subscribed to Epigrapho Pro on the Web/Desktop App.`,
       icon: "web"
     },
     4: {
       type: "Gift card",
       title: () => t`Subscribed using gift card`,
-      desc: () => t`You subscribed to Notesnook Pro using a gift card.`
+      desc: () => t`You subscribed to Epigrapho Pro using a gift card.`
     }
   },
   dark: () => t`Dark`,
@@ -829,13 +828,7 @@ $day$: Current day (eg. Monday)`,
         () => t`privileged few`
       ],
       body: () =>
-        t`Your privacy matters to us, no matter who you are. In a world where everyone is trying to spy on you, Notesnook encrypts all your data before it leaves your device. With Notesnook no one can ever sell your data again.`
-    },
-    {
-      tesimonial: () =>
-        t`You simply cannot get any better of a note taking app than @notesnook. The UI is clean and slick, it is feature rich, encrypted, reasonably priced (esp. for students & educators) & open source`,
-      link: "https://twitter.com/andrewsayer/status/1637817220113002503",
-      user: "@andrewsayer on Twitter"
+        t`Your privacy matters to us, no matter who you are. In a world where everyone is trying to spy on you, Epigrapho encrypts all your data before it leaves your device. With Epigrapho no one can ever sell your data again.`
     }
   ],
   shortcutCreated: () => actions.created.shortcut(1),
@@ -986,14 +979,14 @@ $day$: Current day (eg. Monday)`,
   mfaAuthAppSelector: () => t`Don't have access to your authenticator app?`,
   mfaEmailTitle: () => t`Setup using email`,
   mfaEmailDesc: () =>
-    t`Notesnook will send you a 2FA code on your email when prompted`,
+    t`Epigrapho will send you a 2FA code on your email when prompted`,
   mfaEmailSubtitle: () =>
     t`Please confirm your identity by entering the authentication code sent to your email address.`,
   mfaEmailInstructions: () => t`It may take a minute to receive your code.`,
   mfaEmailSelector: () => t`Don't have access to your email address?`,
   mfaSmsTitle: () => t`Setup using SMS`,
   mfaSmsDesc: () =>
-    t`Notesnook will send you an SMS with a 2FA code when prompted`,
+    t`Epigrapho will send you an SMS with a 2FA code when prompted`,
   mfaSmsSubtitle: (phoneNumber?: string) =>
     t`Please confirm your identity by entering the authentication code sent to ${
       phoneNumber ? phoneNumber : "your registered phone number."
@@ -1065,13 +1058,13 @@ $day$: Current day (eg. Monday)`,
   subscriptionNotActivated: () => t`Subscription not activated?`,
   loadingSubscription: () => t`Loading subscription details`,
   loadingSubscriptionDesc: () => t`Please wait while we load your subscription`,
-  notesnookPro: () => t`Notesnook Pro`,
+  notesnookPro: () => t`Epigrapho Pro`,
   subscribedOnVerify: (date: string) =>
-    t`You subscribed to Notesnook Pro on ${date}. Verify this subscription?`,
+    t`You subscribed to Epigrapho Pro on ${date}. Verify this subscription?`,
   verifySubscription: () => t`Verify subscription`,
   subscriptionVerifyWait: () =>
     t`Please wait while we verify your subscription`,
-  verifySubDesc: () => t`Verify your subscription to Notesnook Pro`,
+  verifySubDesc: () => t`Verify your subscription to Epigrapho Pro`,
   logoutWarnin: () =>
     t`Logging out will clear all data stored on THIS DEVICE. Make sure you have synced all your changes before logging out.`,
   logoutError: () => t`Error logging out`,
@@ -1100,16 +1093,16 @@ $day$: Current day (eg. Monday)`,
     [
       t`Use this if changes from other devices are not appearing on this device. This will overwrite the data on this device with the latest data from the server.`,
       "",
-      t`This must only be used for troubleshooting. Using it regularly for sync is not recommended and will lead to unexpected data loss and other issues. If you are having persistent issues with sync, please report them to us at support@streetwriters.co.`
+      t`This must only be used for troubleshooting. Using it regularly for sync is not recommended and will lead to unexpected data loss and other issues. If you are having persistent issues with sync, please report them to us at support@azteya.tech.`
     ].join("\n"),
   forceSyncNotice: () =>
-    `This must only be used for troubleshooting. Using this regularly for sync is not recommended and will lead to unexpected data loss and other issues. If you are having persistent issues with sync, please report them to us at support@streetwriters.co.`,
+    `This must only be used for troubleshooting. Using this regularly for sync is not recommended and will lead to unexpected data loss and other issues. If you are having persistent issues with sync, please report them to us at support@azteya.tech.`,
   forcePushChanges: () => t`Force push changes`,
   forcePushChangesDesc: () =>
     [
       t`Use this if changes made on this device are not appearing on other devices. This will overwrite the data on the server with the data from this device.`,
       "",
-      t`This must only be used for troubleshooting. Using it regularly for sync is not recommended and will lead to unexpected data loss and other issues. If you are having persistent issues with sync, please report them to us at support@streetwriters.co.`
+      t`This must only be used for troubleshooting. Using it regularly for sync is not recommended and will lead to unexpected data loss and other issues. If you are having persistent issues with sync, please report them to us at support@azteya.tech.`
     ].join("\n"),
   start: () => t`Start`,
   customization: () => t`Customization`,
@@ -1163,7 +1156,7 @@ $day$: Current day (eg. Monday)`,
   privacyAndSecurity: () => t`Privacy & security`,
   telemetry: () => t`Telemetry`,
   telemetryDesc: () =>
-    t`Contribute towards a better Notesnook. All tracking information is anonymous.`,
+    t`Contribute towards a better Epigrapho. All tracking information is anonymous.`,
   marketingEmails: () => t`Marketing emails`,
   marketingEmailsDesc: () =>
     t`We will send you occasional promotional offers & product updates on your email (sent once every month).`,
@@ -1261,10 +1254,10 @@ $day$: Current day (eg. Monday)`,
     t`Faced an issue or have a suggestion? Click here to create a bug report`,
   emailSupport: () => t`Email support`,
   emailSupportDesc: () =>
-    t`Contact us directly via support@streetwriters.co for any help or support`,
+    t`Contact us directly via support@azteya.tech for any help or support`,
   documentation: () => t`Documentation`,
   documentationDesc: () =>
-    t`Read the documentation to learn more about Notesnook`,
+    t`Read the documentation to learn more about Epigrapho`,
   debugging: () => t`Debugging`,
   debuggingDesc: () =>
     t`Get helpful debug info about the app to help us find bugs.`,
@@ -1276,9 +1269,9 @@ $day$: Current day (eg. Monday)`,
     t`Join our Telegram group to chat with other users and the team`,
   joinMastodon: () => t`Follow us on Mastodon`,
   joinMastodonDesc: () =>
-    t`Follow us on Mastodon for updates and news about Notesnook`,
+    t`Follow us on Mastodon for updates and news about Epigrapho`,
   followOnX: () => t`Follow us on X`,
-  followOnXDesc: () => t`Follow us on X for updates and news about Notesnook`,
+  followOnXDesc: () => t`Follow us on X for updates and news about Epigrapho`,
   joinDiscord: () => t`Join our Discord server`,
   joinDiscordDesc: () =>
     t`Join our Discord server to chat with other users and the team`,
@@ -1287,22 +1280,22 @@ $day$: Current day (eg. Monday)`,
   privacyPolicy: () => t`Privacy policy`,
   privacyPolicyDesc: () => t`Read the privacy policy`,
   licenses: () => t`Open source licenses`,
-  ossLibs: () => t`Open source libraries used in Notesnook`,
+  ossLibs: () => t`Open source libraries used in Epigrapho`,
   about: () => t`About`,
   downloadOnDesktop: () => t`Download on desktop`,
   downloadOnDesktopDesc: () =>
-    t`Get Notesnook app on your desktop and access all notes`,
+    t`Get Epigrapho app on your desktop and access all notes`,
   roadmap: () => t`Roadmap`,
-  roadmapDesc: () => t`See what the future of Notesnook is going to be like.`,
+  roadmapDesc: () => t`See what the future of Epigrapho is going to be like.`,
   checkForUpdates: () => t`Check for updates`,
-  checkForUpdatesDesc: () => t`Check for new version of Notesnook`,
+  checkForUpdatesDesc: () => t`Check for new version of Epigrapho`,
   autoUpdateCheck: () => t`Check for updates automatically`,
   autoUpdateCheckDesc: () =>
     t`Check for new version of the app available on app launch`,
   appVersion: () => t`App version`,
   defaultSound: () => t`Default sound`,
   subNotSupported: () =>
-    t`This version of Notesnook app does not support in-app purchases. Kindly login on the Notesnook web app to make the purchase.`,
+    t`This version of Epigrapho app does not support in-app purchases. Kindly login on the Epigrapho web app to make the purchase.`,
   goToWebApp: () => t`Go to web app`,
   subOnWeb: () => t`Subscribed on web`,
   openInBrowserToManageSub: () => t`Open in browser to manage subscription`,
@@ -1356,8 +1349,8 @@ $day$: Current day (eg. Monday)`,
   rateAppMessage: () => t`We would love to know what you think!`,
   rateAppActionText: (platform: string) =>
     platform === "ios"
-      ? t`Rate Notesnook on App Store`
-      : t`Rate Notesnook on Play Store`,
+      ? t`Rate Epigrapho on App Store`
+      : t`Rate Epigrapho on Play Store`,
   recoveryKeyMessage: () => t`Keep your data safe`,
   recoveryKeyMessageActionText: () => t`Save your account recovery key`,
   loginMessage: () => t`You are not logged in`,
@@ -1366,7 +1359,7 @@ $day$: Current day (eg. Monday)`,
   syncDisabledActionText: () => t`Please confirm your email to sync notes`,
   autoBackupsOffMessage: () => t`Automatic backups are off`,
   autoBackupsOffActionText: () =>
-    t`Get Notesnook Pro to enable automatic backups`,
+    t`Get Epigrapho Pro to enable automatic backups`,
   newUpdateMessage: () => t`New update available`,
   newUpdateActionText: () => t`Tap here to update to the latest version`,
   updateNow: () => t`Update now`,
@@ -1378,16 +1371,16 @@ $day$: Current day (eg. Monday)`,
   disable: () => t`Disable`,
   notificationsDisabled: () => t`Notifications disabled`,
   notificationsDisabledDesc: () =>
-    t`Reminders cannot be set because notifications have been disabled from app settings. If you want to keep receiving reminder notifications, enable notifications for Notesnook from app settings.`,
+    t`Reminders cannot be set because notifications have been disabled from app settings. If you want to keep receiving reminder notifications, enable notifications for Epigrapho from app settings.`,
   openSettings: () => t`Open settings`,
   close: () => t`Close`,
-  getNotesnookPro: () => t`Get Notesnook Pro`,
-  colorsProMessage: () => t`Unlock more colors with Notesnook Pro`,
+  getEpigraphoPro: () => t`Get Epigrapho Pro`,
+  colorsProMessage: () => t`Unlock more colors with Epigrapho Pro`,
   exportProMessage: () =>
-    t`Export notes as PDF, Markdown and HTML with Notesnook Pro`,
-  tagsProMessage: () => t`Create unlimited tags with Notesnook Pro`,
-  notebookProMessage: () => t`Create unlimited notebooks with Notesnook Pro`,
-  vaultProMessage: () => t`Create unlimited vaults with Notesnook Pro`,
+    t`Export notes as PDF, Markdown and HTML with Epigrapho Pro`,
+  tagsProMessage: () => t`Create unlimited tags with Epigrapho Pro`,
+  notebookProMessage: () => t`Create unlimited notebooks with Epigrapho Pro`,
+  vaultProMessage: () => t`Create unlimited vaults with Epigrapho Pro`,
   emailConfirmationLinkSent: () =>
     t`We have sent you an email confirmation link. Please check your email inbox. If you cannot find the email, check your spam folder.`,
   confirmEmailTroubleshoot: () =>
@@ -1587,7 +1580,7 @@ For example:
   noteTitle: () => t`Note title`,
   changesNotSaved: () => t`Your changes could not be saved`,
   savingNoteTakingTooLong: () =>
-    t`Saving this note is taking too long. Copy your changes and restart the app to prevent data loss. If the problem persists, please report it to us at support@streetwriters.co.`,
+    t`Saving this note is taking too long. Copy your changes and restart the app to prevent data loss. If the problem persists, please report it to us at support@azteya.tech.`,
   changesNotSavedDesc: () =>
     t`It seems that your changes could not be saved. What to do next:`,
   changesNotSavedStep1: () =>
@@ -1605,7 +1598,7 @@ For example:
   exportedNotesLocked: () =>
     t`Some exported notes are locked, Unlock to export them`,
   selectFolderForBackupFilesDesc: () =>
-    t`Select folder where Notesnook backup files are stored to view and restore them from the app`,
+    t`Select folder where Epigrapho backup files are stored to view and restore them from the app`,
   selectBackupFolder: () => t`Select folder with backup files`,
   selectBackupFileDesc: () =>
     t`Select a backup file from your device to restore backup`,
@@ -1683,9 +1676,9 @@ For example:
     t`This error usually means the search index is corrupted.`,
   searchIndexCorruptFix: () =>
     t`This error can be fixed by rebuilding the search index. This action won't result in any kind of data loss.`,
-  installNotesnook: () => t`Install Notesnook`,
-  installNotesnookDesc: (platform: string) =>
-    t`For a more integrated user experience, try out Notesnook for ${platform}`,
+  installEpigrapho: () => t`Install Epigrapho`,
+  installEpigraphoDesc: (platform: string) =>
+    t`For a more integrated user experience, try out Epigrapho for ${platform}`,
   nativeFeatures: () => [
     t`Native high-performance encryption`,
     t`Automatic backups`,
@@ -1766,7 +1759,7 @@ For example:
   importerHelpText: () => [
     t`Please refer to the`,
     t`import guide`,
-    t`for help regarding how to use the Notesnook Importer.`
+    t`for help regarding how to use the importer.`
   ],
   dropFilesHere: () => t`Drop the files here`,
   dragAndDropFiles: () => t`Drag & drop files here, or click to select files`,
@@ -1780,16 +1773,16 @@ For example:
   yourFullName: () => t`Your full name`,
   memberSince: (date: string) => t`Member since ${date}`,
   betaLoginNotice: () =>
-    t`You are logging into the beta version of Notesnook. Switching between beta &amp; stable versions can cause weird issues including data loss. It is recommended that you do not use both simultaneously.`,
+    t`You are logging into the beta version of Epigrapho. Switching between beta &amp; stable versions can cause weird issues including data loss. It is recommended that you do not use both simultaneously.`,
   loggingIn: () => t`Logging you in`,
   pleaseWaitLogin: () => t`Please wait while you are authenticated.`,
   emailConfirmed: () => t`Your email has been confirmed.`,
   confirmEmailThankyou: () =>
     t`Thank you for choosing end-to-end encrypted note taking. Now you can sync your notes to unlimited devices.`,
-  shareWithFriends: () => t`Share Notesnook with friends!`,
+  shareWithFriends: () => t`Share Epigrapho with friends!`,
   tagPromoWinText: () => [
     t`Use`,
-    t`#notesnook`,
+    t`#epigrapho`,
     t`and get a chance to win free promo codes.`
   ],
   shareWithFriendsDesc: () => t`Because where's the fun in nookin' alone?`,
@@ -1803,7 +1796,7 @@ For example:
     t`Your data recovery key is basically a hashed version of your password (plus some random salt). It can be used to decrypt your data for re-encryption.`,
   backupFileMethod: () => t`Use a backup file`,
   backupFileMethodDesc: () =>
-    t`If you don't have a recovery key, you can recover your data by restoring a Notesnook data backup file (.nnbackup).`,
+    t`If you don't have a recovery key, you can recover your data by restoring a Epigrapho data backup file (.nnbackup).`,
   clearDataAndResetMethod: () => t`Clear data & reset account`,
   clearDataAndResetMethodDesc: () =>
     t`EXTREMELY DANGEROUS! This action is irreversible. All your data including notes, notebooks, attachments & settings will be deleted. This is a full account reset. Proceed with caution.`,
@@ -1882,7 +1875,7 @@ All attachments will be downloaded & cached again on access.
 
 ---
 
-**Only use this for troubleshooting purposes. If you are having persistent issues, it is recommended that you reach out to us via support@streetwriters.co so we can help you resolve it permanently.**`,
+**Only use this for troubleshooting purposes. If you are having persistent issues, it is recommended that you reach out to us via support@azteya.tech so we can help you resolve it permanently.**`,
   cacheCleared: () => t`Attachments cache cleared!`,
   gettingEncryptionKey: () => t`Getting encryption key...`,
   keyBackedUp: () => t`I have saved my key`,
@@ -1938,13 +1931,13 @@ All attachments will be downloaded & cached again on access.
   failedToCopyNote: () => t`Failed to copy note`,
   upgradeToProToUseFeature: (feature = "default") => {
     const features = {
-      color: t`Upgrade to Notesnook Pro to add colors.`,
-      tags: t`Upgrade to Notesnook Pro to create more tags.`,
-      notebook: t` Upgrade to Notesnook Pro to add more notebooks.`,
-      vault: t` Upgrade to Notesnook Pro to use the notes vault.`,
-      customPresets: t` Upgrade to Notesnook Pro to use custom toolbar presets.`,
-      customizeToolbar: t` Upgrade to Notesnook Pro to customize the toolbar.`,
-      default: t` Upgrade to Notesnook Pro to use this feature.`
+      color: t`Upgrade to Epigrapho Pro to add colors.`,
+      tags: t`Upgrade to Epigrapho Pro to create more tags.`,
+      notebook: t` Upgrade to Epigrapho Pro to add more notebooks.`,
+      vault: t` Upgrade to Epigrapho Pro to use the notes vault.`,
+      customPresets: t` Upgrade to Epigrapho Pro to use custom toolbar presets.`,
+      customizeToolbar: t` Upgrade to Epigrapho Pro to customize the toolbar.`,
+      default: t` Upgrade to Epigrapho Pro to use this feature.`
     };
     return features[feature as keyof typeof features];
   },
@@ -2059,9 +2052,9 @@ All attachments will be downloaded & cached again on access.
 
 Please note that we will respond to your bug report on the link above. **We recommend that you save the above link for later reference.**
 
-If your issue is critical (e.g. notes not syncing, crashes etc.), please [join our Discord community](https://go.notesnook.com/discord) for one-to-one support.`,
+If your issue is critical (e.g. notes not syncing, crashes etc.), please email us at support@azteya.tech for one-to-one support.`,
   supportEmailMessage: () =>
-    t`Your support request has been forwarded to our support team. We will get back to you via email as soon as possible. If you don't receive an email from us within 24-48 hours, please send us an email directly at support@notesnook.com.`,
+    t`Your support request has been forwarded to our support team. We will get back to you via email as soon as possible. If you don't receive an email from us within 24-48 hours, please send us an email directly at support@azteya.tech.`,
   featureRequestMessage: (
     url: string
   ) => t`You can track your feature request at [${url}](${url}).
@@ -2076,13 +2069,13 @@ Please note that we will respond to your feature request on the link above. **We
     t`You can change the theme at any time from Settings or the side menu.`,
   crossPlatformEncrypted: () => t`Cross platform & 100% encrypted`,
   encryptsEverything: () =>
-    t`Notesnook encrypts everything offline before syncing to your other devices. This means that no one can read your notes except you. Not even us.`,
+    t`Epigrapho encrypts everything offline before syncing to your other devices. This means that no one can read your notes except you. Not even us.`,
   joinTheCause: () => t`Join the cause`,
   meetPrivacyMinded: () =>
     t`Meet other privacy-minded people & talk to us directly about your concerns, issues and suggestions.`,
   nextLevelPrivateNoteTaking: () =>
     t`Experience the next level of private note taking"`,
-  welcomeToNotesnookPro: () => t`Welcome to Notesnook Pro`,
+  welcomeToEpigraphoPro: () => t`Welcome to Epigrapho Pro`,
   thankYouPrivacy: () =>
     t`Thank you. You are the proof that privacy always comes first.`,
   weAreAlwaysListening: () =>
@@ -2122,10 +2115,10 @@ Please note that we will respond to your feature request on the link above. **We
   desktopIntegration: () => t`Desktop integration`,
   autoStartOnSystemStartup: () => t`Auto start on system startup`,
   autoStartDescription: () =>
-    t`If true, Notesnook will automatically start up when you turn on & login to your system.`,
+    t`If true, Epigrapho will automatically start up when you turn on & login to your system.`,
   startMinimized: () => t`Start minimized`,
   startMinimizedDescription: () =>
-    t`If true, Notesnook will start minimized to either the system tray or your system taskbar/dock. This setting only works with Auto start on system startup is enabled.`,
+    t`If true, Epigrapho will start minimized to either the system tray or your system taskbar/dock. This setting only works with Auto start on system startup is enabled.`,
   minimizeToSystemTray: () => t`Minimize to system tray`,
   minimizeToSystemTrayDescription: () =>
     t`Pressing "—" will hide the app in your system tray.`,
@@ -2151,7 +2144,9 @@ Please note that we will respond to your feature request on the link above. **We
   serversConfiguration: () => t`Servers configuration`,
   importExport: () => t`Import & export`,
   backupExport: () => t`Backup & export`,
-  notesnookImporter: () => t`Notesnook Importer`,
+  notesnookImporter: () => t`Importer`,
+  importFromNotesnook: () =>
+    t`In Notesnook, open Settings > Backup & export and create a backup. Then select the .nnbackupz file here. Notes, notebooks, tags and reminders come across; attachments do not.`,
   securityPrivacy: () => t`Security & privacy`,
   privacy: () => t`Privacy`,
   other: () => t`Other`,
@@ -2160,15 +2155,15 @@ Please note that we will respond to your feature request on the link above. **We
   installUpdate: () => t`Install update`,
   sourceCode: () => t`Source code`,
   sourceCodeDescription: () =>
-    t`All the source code for Notesnook is available & open for everyone on GitHub.`,
+    t`All the source code for Epigrapho is available & open for everyone on GitHub.`,
   viewSourceCode: () => t`View source code`,
   checkRoadmap: () => t`Check roadmap`,
   availableOnIOS: () => t`Available on iOS`,
   availableOnIOSAndAndroid: () => t`Available on iOS & Android`,
   availableOnIOSDescription: () =>
-    t`Get Notesnook app on your iPhone and access all your notes on the go.`,
+    t`Get Epigrapho app on your iPhone and access all your notes on the go.`,
   availableOnIOSAndAndroidDescription: () =>
-    t`Get Notesnook app on your iPhone or Android device and access all your notes on the go.`,
+    t`Get Epigrapho app on your iPhone or Android device and access all your notes on the go.`,
   joinCommunity: () => t`Join community`,
   license: () => t`License`,
   licenseDescription: () => t`GNU GENERAL PUBLIC LICENSE Version 3`,
@@ -2183,12 +2178,12 @@ Please note that we will respond to your feature request on the link above. **We
   advanced: () => t`Advanced`,
   useCustomDns: () => t`Use custom DNS`,
   customDnsDescription: () =>
-    t`Notesnook uses the following DNS providers:
+    t`Epigrapho uses the following DNS providers:
 
 1. Cloudflare DNS
 2. Quad9
 
-This can sometimes bypass local ISP blockages on Notesnook traffic. Disable this if you want the app to use system's DNS settings.`,
+This can sometimes bypass local ISP blockages on Epigrapho traffic. Disable this if you want the app to use system's DNS settings.`,
   changeProxy: () => t`Change proxy`,
   proxy: () => t`Proxy`,
   proxyDescription: () =>
@@ -2227,7 +2222,7 @@ Use this if changes made on this device are not appearing on other devices. This
 Force pull:
 Use this if changes from other devices are not appearing on this device. This will overwrite the data on this device with the latest data from the server.
 
-**These must only be used for troubleshooting. Using them regularly for sync is not recommended and will lead to unexpected data loss and other issues. If you are having persistent issues with sync, please report them to us at support@streetwriters.co.**`,
+**These must only be used for troubleshooting. Using them regularly for sync is not recommended and will lead to unexpected data loss and other issues. If you are having persistent issues with sync, please report them to us at support@azteya.tech.**`,
   checkingAttachments: () => `Checking attachments`,
   orderId: () => t`Order ID`,
   amount: () => t`Amount`,
@@ -2262,7 +2257,7 @@ Use this if changes from other devices are not appearing on this device. This wi
   pasteAndMatchStyle: () => t`Paste and match style`,
   pasteWithoutFormatting: () => t`Paste without formatting`,
   configure: () => t`Configure`,
-  usingOfficialInstance: () => t`Using official Notesnook instance`,
+  usingOfficialInstance: () => t`Using official Epigrapho instance`,
   usingInstance: (instance: string, version: string) =>
     t`Using ${instance} (v${version})`,
 
@@ -2416,7 +2411,7 @@ Use this if changes from other devices are not appearing on this device. This wi
   failed: () => t`Failed`,
   cacheClearedDesc: () => t`All cached attachments have been cleared.`,
   restoreBackupConfirm: () => t`Restore backup?`,
-  serversConfigurationDesc: () => t`Configure server URLs for Notesnook`,
+  serversConfigurationDesc: () => t`Configure server URLs for Epigrapho`,
   prioritySupport: () => t`Get Priority support`,
   boostProductivityNotebook: () =>
     t`Boost your productivity with Notebooks and organize your notes.`,
@@ -2468,7 +2463,7 @@ Use this if changes from other devices are not appearing on this device. This wi
   recents: () => t`Recents`,
   removeFromRecents: () => t`Remove from recents`,
   releaseTrack: () => t`Release track`,
-  releaseTrackDesc: () => t`Select the release track for Notesnook.`,
+  releaseTrackDesc: () => t`Select the release track for Epigrapho.`,
   stable: () => t`Stable`,
   beta: () => t`Beta`,
   zoom: () => t`Zoom`,
@@ -2552,7 +2547,7 @@ Use this if changes from other devices are not appearing on this device. This wi
   exploreAllPlans: () => t`Explore all plans`,
   tryPlanForFree: (plan: string) => t`Try ${plan} for free`,
   plan: (plan: string) => t`${plan} plan`,
-  notesnookPlans: [() => t`Notesnook`, () => t`Plans`],
+  notesnookPlans: [() => t`Epigrapho`, () => t`Plans`],
   readyToTakeNextStep: () =>
     t`Ready to take the next step on your private note taking journey?`,
   percentOff: (discount: string) => `${discount}% off`,
@@ -2596,7 +2591,7 @@ Use this if changes from other devices are not appearing on this device. This wi
   unlimited: () => t`Unlimited`,
   fiveYearPlan: () => t`5 year plan (One time purchase)`,
   educationPlan: () => t`Education plan`,
-  welcomeToPlan: (plan: string) => t`Welcome to Notesnook ${plan}`,
+  welcomeToPlan: (plan: string) => t`Welcome to Epigrapho ${plan}`,
   thankYouForPurchase: () => t`Thank you for the purchase`,
   changePlan: () => t`Change plan`,
   contactSupportToChangePlan: () =>
@@ -2610,19 +2605,18 @@ Use this if changes from other devices are not appearing on this device. This wi
     t`Your current subscription does not allow changing plans`,
   upgradeToRedeem: () => t`Upgrade to redeem`,
   redeemCode: () => t`Redeem code`,
-  notesnookCircle: () => t`Notesnook Circle`,
+  notesnookCircle: () => t`Epigrapho Circle`,
   notesnookCircleDesc: () =>
-    t`Notesnook Circle brings together trusted partners who share our commitment to privacy, transparency, and user freedom.`,
+    t`Epigrapho Circle brings together trusted partners who share our commitment to privacy, transparency, and user freedom.`,
   trialUserCircleNotice: () =>
-    `Notesnook Circle is reserved for members with an active subscription. You'll get full access after your trial period is over and your subscription is confirmed.`,
+    `Epigrapho Circle is reserved for members with an active subscription. You'll get full access after your trial period is over and your subscription is confirmed.`,
   freeUserCircleNotice: () =>
-    t`The Notesnook Circle is exclusive to subscribers. Please consider subscribing to gain access to Notesnook Circle and enjoy additional benefits.`,
+    t`The Epigrapho Circle is exclusive to subscribers. Please consider subscribing to gain access to Epigrapho Circle and enjoy additional benefits.`,
   finishPurchaseInBrowser: () => t`Finish your purchase in the browser.`,
   goBack: () => t`Go back`,
   clickToDirectlyClaimPromo: () =>
     t`Click here to directly claim the promotion.`,
-  loginToUploadAttachments: () =>
-    t`Login to upload attachments. [Read more](https://notesnook.com/help/faqs/login-to-upload-attachments)`,
+  loginToUploadAttachments: () => t`Login to upload attachments.`,
   views: () => t`Views`,
   clickToUpdate: () => t`Click to update`,
   noPassword: () => t`No password`,
@@ -2655,7 +2649,7 @@ Use this if changes from other devices are not appearing on this device. This wi
   confirmationEmailSent: () => t`Confirmation email sent`,
   inboxAPI: () => t`Inbox API`,
   inboxAPIDesc: () =>
-    t`Share things to Notesnook from anywhere using the Inbox API`,
+    t`Share things to Epigrapho from anywhere using the Inbox API`,
   enableInboxAPI: () => t`Enable Inbox API`,
   enableInboxAPIDesc: () => t`Enable/Disable Inbox API`,
   manageInboxKeys: () => t`Inbox PGP Keys`,
@@ -2736,10 +2730,10 @@ Use this if changes from other devices are not appearing on this device. This wi
   titleIsRequired: () => t`Title is required`,
   nameIsRequired: () => t`Name is required.`,
   currentPasswordRequired: () => t`Current password required`,
-  loginToRestoreAttachments: () => t`Login required to restore attachments`,
+  loginToRestoreAttachments: () => t`Attachments can't be restored`,
   loginToRestoreAttachmentsDesc: () =>
-    t`You need to login to restore attachments from a backup file. [Read more](https://notesnook.com/help/faqs/login-to-restore-attachments-in-backup).
-  
+    t`Epigrapho can't restore the attachments in a backup file yet.
+
 Continue without attachments?`,
   pleaseLoginToDownloadAttachments: () =>
     t`Please login to download attachments.`,
@@ -2771,7 +2765,7 @@ Continue without attachments?`,
   openingLocalFileDesc: (filePath: string) =>
     t`Are you sure you want to open this file: ${filePath}?`,
   cantOpenFileLinksInBrowsers: () =>
-    t`File links cannot be opened in browsers. Please use the Notesnook desktop app.`,
+    t`File links cannot be opened in browsers. Please use the Epigrapho desktop app.`,
   expiryDateMustBeInTheFuture: () => t`Expiry date must be in the future`,
   expiryDateCannotBeMoreThan1YearInTheFuture: () =>
     t`Expiry date cannot be more than 1 year in the future`,
@@ -2809,7 +2803,7 @@ Continue without attachments?`,
   versionDeleted: () => actions.deleted.version(1),
   offlineMode: () => t`Offline mode`,
   offlineModeDesc: () =>
-    t`Using Notesnook without an account will NOT sync your notes across devices and could result in data loss if you lose access to your device or uninstall the app. Make sure to backup your notes regularly.`,
+    t`Using Epigrapho without an account will NOT sync your notes across devices and could result in data loss if you lose access to your device or uninstall the app. Make sure to backup your notes regularly.`,
   alignment: () => t`Alignment`,
 
   // Epigrapho: the person's own dictionary (Paso 6.3).
