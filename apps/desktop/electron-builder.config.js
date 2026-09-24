@@ -102,7 +102,8 @@ module.exports = {
   protocols: [{ name: "Epigrapho", schemes: ["epigrapho"] }],
   mac: {
     bundleVersion: "240",
-    minimumSystemVersion: "10.12.0",
+    // Electron 37 runs on macOS 11 and later.
+    minimumSystemVersion: "11.0",
     target: [
       {
         target: "dmg",

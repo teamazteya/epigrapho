@@ -50,18 +50,32 @@ jobs:
           node-version: 22.23.2
           cache: npm
 
-      # --ignore-scripts keeps the native modules from being built twice: the
-      # desktop build rebuilds them for Electron's own ABI further down.
       # rpmbuild makes the .rpm and bsdtar the Arch package.
       - name: Install the Linux packaging tools
         if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y rpm libarchive-tools
 
+      # --ignore-scripts keeps the native modules from being built twice: the
+      # desktop build rebuilds them for Electron's own ABI further down.
       - name: Install packages
         run: |
           npm ci --ignore-scripts --prefer-offline --no-audit
           npm run bootstrap -- --scope=web
           npm run bootstrap -- --scope=desktop
+
+      # The runner is Apple Silicon, so npm only installs the arm64 SQLite
+      # extensions; the Intel build would ship without them and search would
+      # not work there. Their x64 builds are fetched at the locked versions.
+      - name: Add the Intel SQLite extensions
+        if: runner.os == 'macOS'
+        working-directory: ./apps/desktop
+        run: |
+          for name in sqlite-better-trigram-darwin-x64 sqlite3-fts5-html-darwin-x64; do
+            version=$(node -p "require('./package-lock.json').packages['node_modules/$name'].version")
+            mkdir -p "node_modules/$name"
+            curl -sfL "$(npm view "$name@$version" dist.tarball)" | tar xz --strip-components=1 -C "node_modules/$name"
+            ls "node_modules/$name"
+          done
 
       - name: Build the app
         working-directory: ./apps/desktop
