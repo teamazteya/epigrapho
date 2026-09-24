@@ -1,7 +1,7 @@
 {
   "name": "@notesnook/desktop",
   "productName": "Epigrapho",
-  "description": "Your private note taking space",
+  "description": "Private notes that read Bible references",
   "version": "3.4.8",
   "appAppleId": "1544027013",
   "private": true,
@@ -34,7 +34,7 @@
       }
     }
   },
-  "homepage": "https://notesnook.com/",
+  "homepage": "https://github.com/teamazteya/epigrapho",
   "repository": "https://github.com/streetwriters/notesnook",
   "license": "GPL-3.0-or-later",
   "dependencies": {
@@ -92,8 +92,7 @@
     "test": "playwright test --tsconfig __tests__/tsconfig.json --project notesnook-desktop"
   },
   "author": {
-    "name": "Streetwriters (Private) Limited",
-    "email": "support@streetwriters.co",
-    "url": "https://streetwriters.co"
+    "name": "Epigrapho",
+    "url": "https://github.com/teamazteya/epigrapho"
   }
 }

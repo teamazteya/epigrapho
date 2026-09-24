@@ -44,7 +44,10 @@ const isBeta = pkg.version.includes("-beta");
 module.exports = {
   appId: appId,
   productName: productName,
-  copyright: `Copyright © ${year} Streetwriters (Private) Limited`,
+  // Epigrapho is a fork: the years of work it is built on are Streetwriters',
+  // and everything added on top is the fork's own. Both belong in the line
+  // Windows shows in the file properties.
+  copyright: `Copyright © ${year} Streetwriters (Private) Limited and the Epigrapho contributors`,
   artifactName: "epigrapho_${os}_${arch}.${ext}",
   generateUpdatesFilesForAllChannels: true,
   asar: true,
