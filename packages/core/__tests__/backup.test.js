@@ -17,6 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+import { strings } from "@notesnook/intl";
 import {
   TEST_NOTE,
   databaseTest,
@@ -123,5 +124,7 @@ test("import tempered backup", () =>
     await db.storage().clear();
     const backup = JSON.parse(exp[1].data);
     backup.data += "hello";
-    await expect(db.backup.import(backup)).rejects.toThrow(/tempered/);
+    await expect(db.backup.import(backup)).rejects.toThrow(
+      strings.backupTampered()
+    );
   }));

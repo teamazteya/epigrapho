@@ -156,8 +156,8 @@ export const BehaviourSettings: SettingsGroup[] = [
               useSettingStore.getState().setDayFormat(value as DayFormat),
             selectedOption: () => useSettingStore.getState().dayFormat,
             options: [
-              { value: "short", title: "Short (Mon, Tue)" },
-              { value: "long", title: "Long (Monday, Tuesday)" }
+              { value: "short", title: strings.dayFormatShort() },
+              { value: "long", title: strings.dayFormatLong() }
             ]
           }
         ]
@@ -176,8 +176,8 @@ export const BehaviourSettings: SettingsGroup[] = [
               useSettingStore.getState().setWeekFormat(value as WeekFormat),
             selectedOption: () => useSettingStore.getState().weekFormat,
             options: [
-              { value: "Sun", title: "Sunday" },
-              { value: "Mon", title: "Monday" }
+              { value: "Sun", title: strings.weekDayNames[0]() },
+              { value: "Mon", title: strings.weekDayNames[1]() }
             ]
           }
         ]

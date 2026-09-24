@@ -38,7 +38,7 @@ import { bringToFront } from "./utils/bring-to-front";
 import { bridge } from "./api/bridge";
 import { setupDesktopIntegration } from "./utils/desktop-integration";
 import { disableCustomDns, enableCustomDns } from "./utils/custom-dns";
-import { Messages, setI18nGlobal, i18n } from "@notesnook/intl";
+import { Messages, setI18nGlobal, i18n, strings } from "@notesnook/intl";
 import { PATHS } from "./constants";
 import { normalizePathString } from "./utils/resolve-path";
 
@@ -324,11 +324,10 @@ async function migrateBackupDirectory() {
   } catch (e) {
     console.error("Failed to migrate backup directory", e);
     const pressedButton = dialog.showMessageBoxSync(globalThis.window, {
-      message:
-        "Failed to migrate backup directory. It has been reset to default.",
-      title: "Backup Directory Migration Failed",
+      message: strings.backupDirMigrationFailedDesc(),
+      title: strings.backupDirMigrationFailed(),
       type: "error",
-      buttons: ["Set backup directory", "Ignore"]
+      buttons: [strings.setBackupDirectory(), strings.ignore()]
     });
     if (pressedButton === 0) {
       await api.integration.selectBackupDirectory();

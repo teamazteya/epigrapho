@@ -40,13 +40,13 @@ export const AppLockSettings: SettingsGroup[] = [
   {
     key: "app-lock",
     section: "app-lock",
-    header: "App lock",
+    header: strings.appLock(),
     onStateChange: (listener) =>
       useKeyStore.subscribe((s) => s.credentials, listener),
     settings: [
       {
         key: "enable-app-lock",
-        title: "Enable app lock",
+        title: strings.enableAppLock(),
         onStateChange: (listener) =>
           useKeyStore.subscribe((s) => s.credentials, listener),
         featureId: "appLock",
@@ -75,9 +75,8 @@ export const AppLockSettings: SettingsGroup[] = [
       },
       {
         key: "lock-app-after",
-        title: "Lock app after",
-        description:
-          "How long should the app wait to lock itself after going into the background or going idle?",
+        title: strings.lockAppAfter(),
+        description: strings.lockAppAfterDesc(),
         isHidden: () => useKeyStore.getState().activeCredentials().length <= 0,
         onStateChange: (listener) =>
           useKeyStore.subscribe((s) => s.secrets.lockAfter, listener),
@@ -85,19 +84,17 @@ export const AppLockSettings: SettingsGroup[] = [
           {
             type: "dropdown",
             options: [
-              { title: "Immediately", value: 0 },
-              { title: "1 minute", value: 1 },
-              { title: "5 minutes", value: 5 },
-              { title: "10 minutes", value: 10 },
-              { title: "15 minutes", value: 15 },
-              { title: "30 minutes", value: 30 },
-              { title: "45 minutes", value: 45 },
-              { title: "1 hour", value: 60 },
-              { title: "Never", value: -1 }
+              { title: strings.immediately(), value: 0 },
+              ...[1, 5, 10, 15, 30, 45].map((minutes) => ({
+                title: strings.minutes(minutes),
+                value: minutes
+              })),
+              { title: strings.hours(1), value: 60 },
+              { title: strings.never(), value: -1 }
             ],
             onSelectionChanged: async (value) => {
               if (!(await authenticateAppLock())) {
-                showToast("error", "Failed to authenticate.");
+                showToast("error", strings.failedToAuthenticate());
                 return;
               }
               useKeyStore.getState().setValue("lockAfter", parseInt(value));

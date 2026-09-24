@@ -85,7 +85,7 @@ function StatusBar() {
               color: "paragraph",
               height: "100%"
             }}
-            title={"Open command palette"}
+            title={strings.commandPalette()}
           >
             <ConsoleLine size={12} />
           </Button>
@@ -134,7 +134,7 @@ function StatusBar() {
                 color: "paragraph",
                 height: "100%"
               }}
-              title={"Lock app"}
+              title={strings.lockApp()}
               data-test-id="lock-app"
             >
               <CellphoneLock size={12} />

@@ -23,6 +23,7 @@ import {
   Providers
 } from "@notesnook-importer/core";
 import { Flex, Text } from "@theme-ui/components";
+import { strings } from "@notesnook/intl";
 
 /**
  * Notesnook is not an importer provider: its backups share Epigrapho's format,
@@ -45,18 +46,18 @@ export function ProviderSelector(props: ProviderSelectorProps) {
       }}
     >
       <Flex sx={{ flexDirection: "column", flex: 1 }}>
-        <Text variant="subtitle">Select a notes app to import from</Text>
+        <Text variant="subtitle">{strings.importerSelectApp()}</Text>
         <Text
           variant="body"
           as="div"
           sx={{ mt: 1, color: "paragraph", whiteSpace: "pre-wrap" }}
         >
-          Can&apos;t find your notes app in the list?{" "}
+          {strings.importerAppMissing()}{" "}
           <a
             href="https://github.com/teamazteya/epigrapho/issues/new"
             target="_blank"
           >
-            Send us a request.
+            {strings.importerRequestApp()}
           </a>
         </Text>
       </Flex>
@@ -78,11 +79,13 @@ export function ProviderSelector(props: ProviderSelectorProps) {
           props.onProviderChanged(ProviderFactory.getProvider(providerName));
         }}
       >
-        <option value="">Select notes app</option>
+        <option value="">{strings.importerSelectAppPlaceholder()}</option>
         <option value={NOTESNOOK}>Notesnook</option>
         {ProviderFactory.getAvailableProviders().map((provider) => (
           <option key={provider} value={provider}>
-            {ProviderFactory.getProvider(provider as Providers).name}
+            {strings.importerAppName(
+              ProviderFactory.getProvider(provider as Providers).name
+            )}
           </option>
         ))}
       </select>

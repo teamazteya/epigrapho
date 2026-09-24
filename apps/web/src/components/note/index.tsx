@@ -345,7 +345,7 @@ const formats = [
   },
   {
     type: "txt",
-    title: "Text",
+    title: strings.plainText(),
     icon: Plaintext
   }
 ] as const;
@@ -567,8 +567,8 @@ export const noteMenuItems: (
           {
             type: "button",
             key: "copy-as-text",
-            tooltip: strings.copyAs("Text"),
-            title: "Text",
+            tooltip: strings.copyAs(strings.plainText()),
+            title: strings.plainText(),
             icon: Plaintext.path,
             onClick: () => copyNote(note.id, "txt")
           },
@@ -656,7 +656,7 @@ export const noteMenuItems: (
                 onClick: async () => {
                   await db.notes.setExpiryDate(null, ...ids);
                   store.refresh();
-                  showToast("success", "Expiry date removed");
+                  showToast("success", strings.expiryDateRemoved());
                 },
                 icon: Close.path
               }

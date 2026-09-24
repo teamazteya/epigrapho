@@ -17,6 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+import { strings } from "@notesnook/intl";
 import ListContainer from "../components/list-container";
 import { useStore, store } from "../stores/tag-store";
 import Placeholder from "../components/placeholders";
@@ -72,7 +73,7 @@ function Tags() {
       <Input
         ref={inputRef}
         variant="clean"
-        placeholder="Filter tags..."
+        placeholder={strings.filterTags()}
         sx={{ borderTop: "1px solid var(--border)", mx: 0 }}
         onChange={debounce(async (e) => {
           const query = e.target.value.trim();

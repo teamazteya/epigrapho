@@ -33,6 +33,11 @@ page.on("request", (request) => {
     requests.push(request.url());
 });
 
+/** Lines of `text` still in English, which the Spanish interface should not have. */
+const ENGLISH =
+  /\b(the|your|you|and|with|enable|disable|select|never|minutes?|hours?|failed|please|click|lock|restore|short|long|sunday|monday|text|files?)\b/i;
+const english = (text) => text.split("\n").filter((line) => ENGLISH.test(line));
+
 /** Lines of `text` that name upstream. */
 const upstream = (text) =>
   text
@@ -51,6 +56,7 @@ try {
     '[data-test-id="settings-navigation-menu"] [data-test-id="navigation-item"]'
   );
   const count = await sections.count();
+  const inEnglish = {};
   for (let index = 0; index < count; index++) {
     const name = (await sections.nth(index).innerText()).trim();
     await sections.nth(index).click();
@@ -60,7 +66,12 @@ try {
       await page.locator(".ReactModal__Content").innerText()
     );
     if (lines.length) found[name] = lines;
+    const untranslated = english(
+      await page.locator(".ReactModal__Content").innerText()
+    );
+    if (untranslated.length) inEnglish[name] = untranslated;
   }
+  console.log("en inglés:", JSON.stringify(inEnglish, null, 1));
   console.log(`secciones leídas: ${count}`);
 
   // Notesnook's backups share Epigrapho's format, so picking it in the
@@ -78,6 +89,41 @@ try {
     .waitFor();
   console.log("importador: Notesnook ofrece restaurar su respaldo");
 
+  // The rest of the importer speaks Spanish too; upstream never translated it.
+  await page
+    .locator("select")
+    .filter({ hasText: "Notesnook" })
+    .selectOption("md");
+  await page.getByText("Elige los archivos de Markdown").waitFor();
+  const importer = await page.locator(".ReactModal__Content").innerText();
+  const importerEnglish = english(importer);
+  console.log("importador en inglés:", JSON.stringify(importerEnglish));
+  assert.deepEqual(importerEnglish, []);
+
+  // Beyond Settings: the keyboard shortcuts and a new reminder, with its
+  // weekly repeat so the day names show.
+  await page.keyboard.press("Escape");
+  await page.locator(".ReactModal__Content").waitFor({ state: "detached" });
+  await page.keyboard.press("Control+/");
+  await page.getByText("Atajos de teclado").first().waitFor();
+  const shortcuts = english(
+    await page.locator(".ReactModal__Content").innerText()
+  );
+  await page.keyboard.press("Escape");
+  await page.locator(".ReactModal__Content").waitFor({ state: "detached" });
+  await page.evaluate(() => (window.location.hash = "/reminders/create"));
+  await page.getByText("Repetir", { exact: true }).click();
+  await page.getByText("Semanal", { exact: true }).click();
+  await page.getByText("lun", { exact: true }).click();
+  const reminder = english(
+    await page.locator(".ReactModal__Content").innerText()
+  );
+  console.log(
+    "atajos y recordatorio en inglés:",
+    JSON.stringify({ shortcuts, reminder })
+  );
+  assert.deepEqual({ shortcuts, reminder }, { shortcuts: [], reminder: [] });
+
   const named = Object.fromEntries(
     Object.entries(found).filter(([, lines]) => lines.length)
   );
@@ -85,6 +131,7 @@ try {
   console.log("peticiones:", JSON.stringify(requests));
   assert.ok(count > 10, "Ajustes no mostró sus secciones");
   assert.deepEqual(named, {});
+  assert.deepEqual(inEnglish, {});
   assert.deepEqual(requests, []);
 
   console.log(

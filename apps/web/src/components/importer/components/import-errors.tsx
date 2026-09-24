@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import { Button, Flex, Text } from "@theme-ui/components";
+import { strings } from "@notesnook/intl";
 import Accordion from "../../accordion";
 
 type ImportErrorsProps = {
@@ -28,7 +29,7 @@ export function ImportErrors(props: ImportErrorsProps) {
   return (
     <Accordion
       isClosed={false}
-      title={`${props.errors.length} errors occured`}
+      title={strings.errorsOccured(props.errors.length)}
       sx={{ bg: "background-error", borderRadius: "default", mt: 2 }}
       color="paragraph-error"
     >
@@ -52,7 +53,7 @@ export function ImportErrors(props: ImportErrorsProps) {
             )
           }
         >
-          Send us a bug report
+          {strings.importerSendBugReport()}
         </Button>
       </Flex>
     </Accordion>

@@ -195,10 +195,10 @@ export const tagMenuItems: (
           await writeToClipboard({
             "text/plain": tag.id
           });
-          showToast("success", "Tag ID copied to clipboard");
+          showToast("success", strings.idCopied());
         } catch (e) {
           console.error(e);
-          showToast("error", "Failed to copy Tag ID");
+          showToast("error", strings.idCopyFailed());
         }
       },
       isHidden: !settingStore.get().isInboxEnabled

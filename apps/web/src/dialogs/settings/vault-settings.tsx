@@ -54,22 +54,29 @@ export const VaultSettings: SettingsGroup[] = [
         description: strings.lockVaultAfterDesc(),
         isHidden: () => !useAppStore.getState().isVaultCreated,
         onStateChange: (listener) => {
-          const unsub1 = useAppStore.subscribe((s) => s.vaultLockAfter, listener);
-          const unsub2 = useAppStore.subscribe((s) => s.isVaultCreated, listener);
-          return () => { unsub1(); unsub2(); };
+          const unsub1 = useAppStore.subscribe(
+            (s) => s.vaultLockAfter,
+            listener
+          );
+          const unsub2 = useAppStore.subscribe(
+            (s) => s.isVaultCreated,
+            listener
+          );
+          return () => {
+            unsub1();
+            unsub2();
+          };
         },
         components: [
           {
             type: "dropdown",
             options: [
-              { title: "1 minute", value: 1000 * 60 * 1 },
-              { title: "5 minutes", value: 1000 * 60 * 5 },
-              { title: "10 minutes", value: 1000 * 60 * 10 },
-              { title: "15 minutes", value: 1000 * 60 * 15 },
-              { title: "30 minutes", value: 1000 * 60 * 30 },
-              { title: "45 minutes", value: 1000 * 60 * 45 },
-              { title: "1 hour", value: 1000 * 60 * 60 },
-              { title: "Never", value: -1 }
+              ...[1, 5, 10, 15, 30, 45].map((minutes) => ({
+                title: strings.minutes(minutes),
+                value: 1000 * 60 * minutes
+              })),
+              { title: strings.hours(1), value: 1000 * 60 * 60 },
+              { title: strings.never(), value: -1 }
             ],
             onSelectionChanged: async (value) => {
               await useAppStore.getState().setVaultLockAfter(parseInt(value));

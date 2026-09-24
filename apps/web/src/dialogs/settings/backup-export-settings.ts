@@ -65,7 +65,7 @@ export const BackupExportSettings: SettingsGroup[] = [
         components: [
           {
             type: "button",
-            title: "Restore",
+            title: strings.restore(),
             action: async () => {
               if (await importBackup()) {
                 await useAppStore.getState().refresh();
@@ -207,7 +207,7 @@ export const BackupExportSettings: SettingsGroup[] = [
             type: "dropdown",
             options: [
               { value: "-", title: strings.exportAs() },
-              { value: "txt", title: "Text" },
+              { value: "txt", title: strings.plainText() },
               { value: "md", title: "Markdown" },
               {
                 value: "md-frontmatter",

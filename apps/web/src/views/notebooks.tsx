@@ -175,7 +175,7 @@ export function Notebooks() {
       <Input
         ref={inputRef}
         variant="clean"
-        placeholder="Filter notebooks..."
+        placeholder={strings.filterNotebooks()}
         sx={{ borderTop: "1px solid var(--border)", mx: 0 }}
         onChange={debounce(async (e) => {
           const query = e.target.value.trim();

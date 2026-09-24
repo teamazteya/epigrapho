@@ -94,7 +94,7 @@ export function FileProviderHandler(props: FileProviderHandlerProps) {
           logs.current.push({
             type: "info",
             date: Date.now(),
-            text: `Pushing ${data.title} into database`
+            text: strings.importerSavingNote(data.title)
           });
 
           const errors = await importNote(data);
@@ -102,7 +102,7 @@ export function FileProviderHandler(props: FileProviderHandlerProps) {
             logs.current.push({
               type: "error",
               date: Date.now(),
-              text: `Error importing ${data.title}: ${error}`
+              text: strings.importerNoteFailed(data.title, `${error}`)
             })
           );
         },
@@ -165,14 +165,17 @@ export function FileProviderHandler(props: FileProviderHandlerProps) {
     return (
       <Flex sx={{ flexDirection: "column", alignItems: "stretch" }}>
         <Text variant="subtitle">
-          Processing {filesProgress.done} of {filesProgress.total} file(s)
+          {strings.importerProcessingFiles(
+            filesProgress.done,
+            filesProgress.total
+          )}
         </Text>
         <Text variant="body" sx={{ mt: 4, textAlign: "center" }}>
-          Found {totalNoteCount} notes
+          {strings.importerFoundNotes(totalNoteCount)}
         </Text>
         {logs.current.length > 0 && (
           <Accordion
-            title="Logs"
+            title={strings.importerLogs()}
             isClosed={false}
             sx={{
               border: "1px solid var(--border)",
@@ -215,16 +218,9 @@ export function FileProviderHandler(props: FileProviderHandlerProps) {
 
   return (
     <Flex sx={{ flexDirection: "column", alignItems: "stretch" }}>
-      <Text variant="subtitle">Select {provider.name} files</Text>
-      <Text
-        variant="body"
-        as={"div"}
-        sx={{ mt: 1, color: "paragraph", whiteSpace: "pre-wrap" }}
-      >
-        Check out our step-by-step guide on{" "}
-        <a href={provider.helpLink} target="_blank" rel="noreferrer">
-          how to import from {provider?.name}.
-        </a>
+      {/* Epigrapho: the step-by-step guide lived on Notesnook's help site. */}
+      <Text variant="subtitle">
+        {strings.importerSelectFiles(strings.importerAppName(provider.name))}
       </Text>
       <Flex
         {...getRootProps()}
@@ -243,22 +239,21 @@ export function FileProviderHandler(props: FileProviderHandlerProps) {
       >
         <Input {...getInputProps()} />
         <Text variant="body" sx={{ textAlign: "center" }}>
-          {isDragActive
-            ? "Drop the files here"
-            : "Drag & drop files here, or click to select files"}
+          {isDragActive ? strings.dropFilesHere() : strings.dragAndDropFiles()}
           <br />
           <Text variant="subBody">
-            Only {provider?.supportedExtensions.join(", ")} files are supported.{" "}
-            {provider?.supportedExtensions.includes(".zip") ? null : (
-              <>
-                You can also select .zip files containing{" "}
-                {provider?.supportedExtensions.join(", ")} files.
-              </>
-            )}
+            {strings.importerOnlyExtensions(
+              provider.supportedExtensions.join(", ")
+            )}{" "}
+            {provider.supportedExtensions.includes(".zip")
+              ? null
+              : strings.importerZipAlso(
+                  provider.supportedExtensions.join(", ")
+                )}
             <br />
-            {provider.examples ? (
-              <>For example, {provider.examples.join(", ")}</>
-            ) : null}
+            {provider.examples
+              ? strings.importerExamples(provider.examples.join(", "))
+              : null}
           </Text>
         </Text>
       </Flex>
@@ -266,9 +261,7 @@ export function FileProviderHandler(props: FileProviderHandlerProps) {
       {files.length > 0 ? (
         <Accordion
           isClosed
-          title={`${files.length} ${
-            files.length > 1 ? "files" : "file"
-          } selected`}
+          title={strings.importerFilesSelected(files.length)}
           sx={{
             border: "1px solid var(--border)",
             mt: 2,
@@ -298,7 +291,7 @@ export function FileProviderHandler(props: FileProviderHandlerProps) {
                     return _files;
                   });
                 }}
-                title="Click to remove"
+                title={strings.clickToRemove()}
               >
                 <Text variant="body">{file.name}</Text>
                 <Text variant="body">{formatBytes(file.size)}</Text>
@@ -320,9 +313,9 @@ export function FileProviderHandler(props: FileProviderHandlerProps) {
               p: 1
             }}
           >
-            Please make sure you have at least{" "}
-            {formatBytes(files.reduce((prev, file) => prev + file.size, 0))} of
-            free space before proceeding.
+            {strings.importerFreeSpace(
+              formatBytes(files.reduce((prev, file) => prev + file.size, 0))
+            )}
           </Text>
           {provider.requiresNetwork ? (
             <Text
@@ -335,9 +328,7 @@ export function FileProviderHandler(props: FileProviderHandlerProps) {
                 p: 1
               }}
             >
-              Please make sure you have good Internet access before proceeding.
-              The importer may send network requests in order to download media
-              resources such as images, files, and other attachments.
+              {strings.importerNeedsNetwork()}
             </Text>
           ) : null}
           <Button
@@ -345,7 +336,7 @@ export function FileProviderHandler(props: FileProviderHandlerProps) {
             sx={{ alignSelf: "center", mt: 2, px: 4 }}
             onClick={onStartImport}
           >
-            Start importing
+            {strings.startImport()}
           </Button>
         </>
       )}

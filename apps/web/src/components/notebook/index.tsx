@@ -316,10 +316,10 @@ export const notebookMenuItems: (
           await writeToClipboard({
             "text/plain": notebook.id
           });
-          showToast("success", "Notebook ID copied to clipboard");
+          showToast("success", strings.idCopied());
         } catch (e) {
           console.error(e);
-          showToast("error", "Failed to copy Notebook ID");
+          showToast("error", strings.idCopyFailed());
         }
       },
       isHidden: !settingStore.get().isInboxEnabled

@@ -41,6 +41,7 @@ import {
 import { MONTHS_FULL, getTimeFormat } from "@notesnook/core";
 import { Note, Reminder } from "@notesnook/core";
 import { BaseDialogProps, DialogManager } from "../common/dialog-manager";
+import { i18n } from "@lingui/core";
 import { strings } from "@notesnook/intl";
 import { checkFeature } from "../common";
 import { setTimeOnly, setDateOnly } from "../utils/date-time";
@@ -76,8 +77,10 @@ const RecurringModes = {
   DAY: "day"
 } as const;
 
-const WEEK_DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const WEEK_DAYS_MON = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const shortDays = (order: number[]) =>
+  order.map((day) => strings.weekDayNamesShort[day as 0]());
+const WEEK_DAYS = () => shortDays([0, 1, 2, 3, 4, 5, 6]);
+const WEEK_DAYS_MON = () => shortDays([1, 2, 3, 4, 5, 6, 0]);
 
 const modes = [
   {
@@ -131,7 +134,7 @@ export const AddReminderDialog = DialogManager.register(
     const { reminder, note } = props;
 
     const weekFormat = useSettingsStore((store) => store.weekFormat);
-    const weekDays = weekFormat === "Sun" ? WEEK_DAYS : WEEK_DAYS_MON;
+    const weekDays = weekFormat === "Sun" ? WEEK_DAYS() : WEEK_DAYS_MON();
     const [selectedDays, setSelectedDays] = useState<number[]>(
       reminder?.selectedDays ?? []
     );
@@ -593,27 +596,17 @@ function timeFormat() {
 function getSelectedDaysText(
   selectedDays: number[],
   recurringMode: ValueOf<typeof RecurringModes>,
-  weekDays: typeof WEEK_DAYS | typeof WEEK_DAYS_MON
+  weekDays: string[]
 ) {
-  const text = selectedDays
+  const days = selectedDays
     .sort((a, b) => a - b)
-    .map((day, index) => {
-      const isLast = index === selectedDays.length - 1;
-      const isSecondLast = index === selectedDays.length - 2;
-      const joinWith = isSecondLast ? " & " : isLast ? "" : ", ";
-      return recurringMode === RecurringModes.WEEK
-        ? weekDays[day] + joinWith
-        : `${day}${nth(day)} ${joinWith}`;
-    })
-    .join("");
-  return text;
-}
-
-function nth(n: number) {
-  return (
-    ["st", "nd", "rd"][(((((n < 0 ? -n : n) + 90) % 100) - 10) % 10) - 1] ||
-    "th"
-  );
+    .map((day) =>
+      recurringMode === RecurringModes.WEEK
+        ? weekDays[day]
+        : strings.dayOfMonth(day)
+    );
+  // "Mon, Wed & Fri" in English, "lun, mié y vie" in Spanish.
+  return new Intl.ListFormat(i18n.locale, { type: "conjunction" }).format(days);
 }
 
 type LabeledSelectProps = {

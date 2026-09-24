@@ -17,6 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+import { strings } from "@notesnook/intl";
 import { IKVStore, IndexedDBKVStore, MemoryKVStore } from "./key-value";
 import { isFeatureSupported } from "../utils/feature-check";
 import { desktop } from "../common/desktop-bridge";
@@ -557,9 +558,9 @@ function fallbackCredential(
 export function wrongCredentialError(query: CredentialQuery): string {
   switch (query.type) {
     case "password":
-      return "Wrong password";
+      return strings.wrongPassword();
     case "securityKey":
-      return "Wrong security key.";
+      return strings.wrongSecurityKey();
   }
 }
 

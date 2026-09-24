@@ -24,6 +24,7 @@ import {
 } from "@notesnook-importer/core";
 import { ScrollContainer } from "@notesnook/ui";
 import { Button, Flex, Text } from "@theme-ui/components";
+import { strings } from "@notesnook/intl";
 import { xxhash64 } from "hash-wasm";
 import { useRef, useState } from "react";
 import { importNote } from "../../../utils/importer";
@@ -63,9 +64,9 @@ export function NetworkProviderHandler(props: NetworkProviderHandlerProps) {
         get: async () => [],
         write: async (data) => {
           logs.current.push(
-            `[${new Date().toLocaleString()}] Pushing ${
+            `[${new Date().toLocaleString()}] ${strings.importerSavingNote(
               data.title
-            } into database`
+            )}`
           );
 
           await importNote(data);
@@ -105,14 +106,16 @@ export function NetworkProviderHandler(props: NetworkProviderHandlerProps) {
     >
       {totalNoteCount ? (
         <>
-          <Text variant="title">Importing your notes from {provider.name}</Text>
+          <Text variant="title">
+            {strings.importerImportingFrom(provider.name)}
+          </Text>
           <Text variant="body" sx={{ mt: 4 }}>
-            Found {totalNoteCount} notes
+            {strings.importerFoundNotes(totalNoteCount)}
           </Text>
           {logs.current.length > 0 && (
             <Accordion
               isClosed={false}
-              title="Logs"
+              title={strings.importerLogs()}
               sx={{
                 border: "1px solid var(--border)",
                 mt: 2
@@ -141,19 +144,15 @@ export function NetworkProviderHandler(props: NetworkProviderHandlerProps) {
         </>
       ) : (
         <>
-          <Text variant="title">Connect your {provider.name} account</Text>
-          <Text variant="body" sx={{ color: "fontTertiary", mt: [2, 0] }}>
-            Check out our step-by-step guide on{" "}
-            <a href={provider.helpLink} target="_blank" rel="noreferrer">
-              how to import from {provider.name}.
-            </a>
+          <Text variant="title">
+            {strings.importerConnectAccount(provider.name)}
           </Text>
           <Button
             variant="accent"
             onClick={onStartImport}
             sx={{ my: 4, alignSelf: "center" }}
           >
-            Start importing
+            {strings.startImport()}
           </Button>
         </>
       )}

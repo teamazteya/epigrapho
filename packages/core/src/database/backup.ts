@@ -17,6 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+import { strings } from "@notesnook/intl";
 import SparkMD5 from "spark-md5";
 import { CURRENT_DATABASE_VERSION } from "../common.js";
 import Migrator from "./migrator.js";
@@ -441,7 +442,7 @@ export default class Backup {
       attachmentsKey?: SerializedKey | Cipher<"base64">;
     } = {}
   ) {
-    if (!this.validate(backup)) throw new Error("Invalid backup.");
+    if (!this.validate(backup)) throw new Error(strings.backupInvalid());
 
     const { encryptionKey, password, attachmentsKey } = options;
 
@@ -452,9 +453,7 @@ export default class Backup {
     let decryptedAttachmentsKey: SerializedKey | undefined = undefined;
     if (isEncryptedBackup(backup)) {
       if (!password && !encryptionKey)
-        throw new Error(
-          "Please provide a password to decrypt this backup & restore it."
-        );
+        throw new Error(strings.backupNeedsPassword());
 
       const key = encryptionKey
         ? { key: encryptionKey, salt: backup.data.salt }
@@ -479,7 +478,9 @@ export default class Backup {
             e.message === "FAILURE"
           )
             throw new Error(
-              encryptionKey ? "Invalid encryption key." : "Incorrect password."
+              encryptionKey
+                ? strings.backupWrongKey()
+                : strings.backupWrongPassword()
             );
           throw new Error(`Could not decrypt backup: ${e.message}`);
         }
@@ -492,7 +493,7 @@ export default class Backup {
     if (!decryptedData) return;
 
     if ("hash" in backup && !this.verify(backup, decryptedData))
-      throw new Error("Backup file has been tempered, aborting...");
+      throw new Error(strings.backupTampered());
 
     if ("compressed" in backup && typeof decryptedData === "string")
       decryptedData = await (
@@ -504,7 +505,7 @@ export default class Backup {
         ? (JSON.parse(decryptedData) as unknown)
         : Object.values(decryptedData);
 
-    if (!data) throw new Error("No data found.");
+    if (!data) throw new Error(strings.backupEmpty());
 
     const normalizedData: BackupDataItem[] = Array.isArray(data)
       ? (data as BackupDataItem[])
@@ -523,9 +524,7 @@ export default class Backup {
   private migrateBackup(backup: BackupFile | LegacyBackupFile) {
     const { version = 0 } = backup;
     if (version > CURRENT_DATABASE_VERSION)
-      throw new Error(
-        "This backup was made from a newer version of Epigrapho. Cannot migrate."
-      );
+      throw new Error(strings.backupTooNew());
 
     switch (version) {
       case CURRENT_DATABASE_VERSION:

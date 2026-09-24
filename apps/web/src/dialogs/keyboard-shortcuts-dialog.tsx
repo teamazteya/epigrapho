@@ -17,6 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+import { strings } from "@notesnook/intl";
 import { formatKey, getGroupedKeybindings } from "@notesnook/common";
 import { Flex, Text } from "@theme-ui/components";
 import { DialogManager } from "../common/dialog-manager";
@@ -30,7 +31,7 @@ export const KeyboardShortcutsDialog = DialogManager.register(
     return (
       <Dialog
         isOpen={true}
-        title={"Keyboard Shortcuts"}
+        title={strings.keyboardShortcuts()}
         width={750}
         onClose={() => props.onClose(false)}
       >
@@ -53,7 +54,7 @@ export const KeyboardShortcutsDialog = DialogManager.register(
                     pb: 1
                   }}
                 >
-                  {group.category}
+                  {strings.shortcutText(group.category)}
                 </Text>
                 {group.shortcuts.map((shortcut) => {
                   return (
@@ -65,7 +66,9 @@ export const KeyboardShortcutsDialog = DialogManager.register(
                         justifyContent: "space-between"
                       }}
                     >
-                      <Text variant="body">{shortcut.description}</Text>
+                      <Text variant="body">
+                        {strings.shortcutText(shortcut.description)}
+                      </Text>
                       <Keys keys={shortcut.keys} />
                     </Flex>
                   );

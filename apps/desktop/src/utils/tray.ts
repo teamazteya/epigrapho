@@ -17,6 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+import { strings } from "@notesnook/intl";
 import { app, Menu, Tray } from "electron";
 import { AssetManager } from "./asset-manager";
 import { isFlatpak } from "./index";
@@ -42,7 +43,7 @@ export function setupTray() {
 
   const contextMenu = Menu.buildFromTemplate([
     {
-      label: "Show app",
+      label: strings.showApp(),
       type: "normal",
       icon: isFlatpak()
         ? undefined
@@ -51,7 +52,7 @@ export function setupTray() {
     },
     { type: "separator" },
     {
-      label: "New note",
+      label: strings.newNote(),
       type: "normal",
       icon: isFlatpak()
         ? undefined
@@ -62,7 +63,7 @@ export function setupTray() {
       }
     },
     {
-      label: "New notebook",
+      label: strings.newNotebook(),
       type: "normal",
       icon: isFlatpak()
         ? undefined
@@ -74,7 +75,7 @@ export function setupTray() {
     },
     { type: "separator" },
     {
-      label: "Quit",
+      label: strings.quit(),
       icon: isFlatpak()
         ? undefined
         : AssetManager.icon("quit", { size: trayIconSize }),

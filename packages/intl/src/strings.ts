@@ -16,7 +16,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-import { plural, select, t } from "@lingui/core/macro";
+import { plural, select, selectOrdinal, t } from "@lingui/core/macro";
 import { actionConfirmations } from "../generated/action-confirmations";
 import { actionErrors } from "../generated/action-errors";
 import { actions } from "../generated/actions";
@@ -1586,6 +1586,125 @@ For example:
       other: `# hours`
     }),
   immediately: () => t`Immediately`,
+  lockAppAfter: () => t`Lock app after`,
+  lockAppAfterDesc: () =>
+    t`How long should the app wait to lock itself after going into the background or going idle?`,
+  failedToAuthenticate: () => t`Failed to authenticate.`,
+  wrongPassword: () => t`Wrong password`,
+  lockApp: () => t`Lock app`,
+  backupInvalid: () => t`Invalid backup.`,
+  backupNeedsPassword: () =>
+    t`Please provide a password to decrypt this backup & restore it.`,
+  backupWrongKey: () => t`Invalid encryption key.`,
+  backupWrongPassword: () => t`Incorrect password.`,
+  backupTampered: () => t`Backup file has been tampered with, aborting...`,
+  backupEmpty: () => t`No data found.`,
+  backupTooNew: () =>
+    t`This backup was made from a newer version of Epigrapho. Cannot migrate.`,
+  showApp: () => t`Show app`,
+  quit: () => t`Quit`,
+  quickActions: () => t`Quick actions`,
+  createNewNotebook: () => t`Create a new notebook`,
+  addNewReminder: () => t`Add a new reminder`,
+  pathNotFound: () => t`Path not found`,
+  setBackupDirectory: () => t`Set backup directory`,
+  ignore: () => t`Ignore`,
+  backupDirMigrationFailed: () => t`Backup directory migration failed`,
+  backupDirMigrationFailedDesc: () =>
+    t`Failed to migrate backup directory. It has been reset to default.`,
+  pathNotFoundDesc: (path: string) => t`The path does not exist:\n${path}`,
+  /** A keyboard shortcut's description or category, as the shortcuts dialog shows it. */
+  shortcutText: (text: string) =>
+    ({
+      Navigation: t`Navigation`,
+      General: t`General`,
+      Editor: t`Editor`,
+      "Add attachment": t`Add attachment`,
+      "Add image": t`Add image`,
+      "Clear current line": t`Clear current line`,
+      "Close active tab": t`Close active tab`,
+      "Close all tabs": t`Close all tabs`,
+      "Command palette": t`Command palette`,
+      "Decrease font size": t`Decrease font size`,
+      "Increase font size": t`Increase font size`,
+      "Insert blockquote": t`Insert blockquote`,
+      "Insert date and time with timezone": t`Insert date and time with timezone`,
+      "Insert date and time": t`Insert date and time`,
+      "Insert date": t`Insert date`,
+      "Insert heading 1": t`Insert heading 1`,
+      "Insert heading 2": t`Insert heading 2`,
+      "Insert heading 3": t`Insert heading 3`,
+      "Insert heading 4": t`Insert heading 4`,
+      "Insert heading 5": t`Insert heading 5`,
+      "Insert heading 6": t`Insert heading 6`,
+      "Insert internal link": t`Insert internal link`,
+      "Insert link": t`Insert link`,
+      "Insert math block": t`Insert math block`,
+      "Insert paragraph": t`Insert paragraph`,
+      "Insert time": t`Insert time`,
+      "Keyboard shortcuts": t`Keyboard shortcuts`,
+      "Lift list item": t`Lift list item`,
+      "Move line down": t`Move line down`,
+      "Move line up": t`Move line up`,
+      "Move parent node down": t`Move parent node down`,
+      "Move parent node up": t`Move parent node up`,
+      "New note": t`New note`,
+      "New tab": t`New tab`,
+      "Next tab": t`Next tab`,
+      "Open search and replace": t`Open search and replace`,
+      "Open search": t`Open search`,
+      "Previous tab": t`Previous tab`,
+      "Quick open": t`Quick open`,
+      Redo: t`Redo`,
+      "Remove formatting in selection": t`Remove formatting in selection`,
+      "Search in notes list view if editor is not focused": t`Search in notes list view if editor is not focused`,
+      Settings: t`Settings`,
+      "Sink list item": t`Sink list item`,
+      "Split list item": t`Split list item`,
+      "Text align center": t`Text align center`,
+      "Text align justify": t`Text align justify`,
+      "Text align left": t`Text align left`,
+      "Text align right": t`Text align right`,
+      "Toggle bold": t`Toggle bold`,
+      "Toggle bullet list": t`Toggle bullet list`,
+      "Toggle check list": t`Toggle check list`,
+      "Toggle code block": t`Toggle code block`,
+      "Toggle code": t`Toggle code`,
+      "Toggle highlight": t`Toggle highlight`,
+      "Toggle italic": t`Toggle italic`,
+      "Toggle ordered list": t`Toggle ordered list`,
+      "Toggle outline list expand": t`Toggle outline list expand`,
+      "Toggle outline list": t`Toggle outline list`,
+      "Toggle strike": t`Toggle strike`,
+      "Toggle subscript": t`Toggle subscript`,
+      "Toggle superscript": t`Toggle superscript`,
+      "Toggle task list": t`Toggle task list`,
+      "Toggle text color": t`Toggle text color`,
+      Underline: t`Underline`,
+      Undo: t`Undo`
+    }[text] ?? text),
+  dayOfMonth: (day: number) =>
+    selectOrdinal(day, {
+      one: "#st",
+      two: "#nd",
+      few: "#rd",
+      other: "#th"
+    }),
+  filterTags: () => t`Filter tags...`,
+  filterNotebooks: () => t`Filter notebooks...`,
+  keyboardShortcuts: () => t`Keyboard shortcuts`,
+  autoSaveDisabledLargeNote: () =>
+    t`Auto-save is disabled for large notes. Press Ctrl + S to save.`,
+  expiryDateRemoved: () => t`Expiry date removed`,
+  idCopied: () => t`ID copied to clipboard`,
+  idCopyFailed: () => t`Failed to copy ID`,
+  wrongSecurityKey: () => t`Wrong security key.`,
+  plainText: () => t`Plain text`,
+  dayFormatShort: () => t`Short (Mon, Tue)`,
+  dayFormatLong: () => t`Long (Monday, Tuesday)`,
+  changingReleaseTrack: () => t`Changing release track`,
+  changingReleaseTrackDesc: () =>
+    t`Please wait while we switch to the new release track...`,
   "12-hour": () => t`12-hour`,
   "24-hour": () => t`24-hour`,
   noteTitle: () => t`Note title`,
@@ -1761,6 +1880,48 @@ For example:
       other: "# errors occured"
     }),
   startOver: () => t`Start over`,
+  importerSelectApp: () => t`Select a notes app to import from`,
+  importerAppName: (name: string) =>
+    ({
+      Text: t`Plain text`,
+      "Fusebase (formerly Nimbus Note)": t`Fusebase (formerly Nimbus Note)`
+    }[name] ?? name),
+  importerAppMissing: () => t`Can't find your notes app in the list?`,
+  importerRequestApp: () => t`Send us a request.`,
+  importerSelectAppPlaceholder: () => t`Select notes app`,
+  importerSelectFiles: (app: string) => t`Select ${app} files`,
+  importerProcessingFiles: (done: number, total: number) =>
+    t`Processing ${done} of ${total} file(s)`,
+  importerFoundNotes: (count: number) => t`Found ${count} notes`,
+  importerLogs: () => t`Logs`,
+  importerOnlyExtensions: (extensions: string) =>
+    t`Only ${extensions} files are supported.`,
+  importerZipAlso: (extensions: string) =>
+    t`You can also select .zip files containing ${extensions} files.`,
+  importerExamples: (examples: string) => t`For example, ${examples}`,
+  importerFilesSelected: (count: number) =>
+    plural(count, {
+      one: "# file selected",
+      other: "# files selected"
+    }),
+  importerFreeSpace: (size: string) =>
+    t`Please make sure you have at least ${size} of free space before proceeding.`,
+  importerNeedsNetwork: () =>
+    t`Please make sure you have good Internet access before proceeding. The importer may send network requests in order to download media resources such as images, files, and other attachments.`,
+  importerSavingNote: (title: string) => t`Saving ${title}`,
+  importerNoteFailed: (title: string, error: string) =>
+    t`Could not import ${title}: ${error}`,
+  importerSendBugReport: () => t`Send us a bug report`,
+  importerUnsuccessful: () => t`Import unsuccessful`,
+  importerFailedDesc: () =>
+    t`We failed to import the selected files. Please try again.`,
+  importerNotesImported: (count: number) =>
+    plural(count, {
+      one: "# note successfully imported.",
+      other: "# notes successfully imported."
+    }),
+  importerImportingFrom: (app: string) => t`Importing your notes from ${app}`,
+  importerConnectAccount: (app: string) => t`Connect your ${app} account`,
   filesReadyToImport: (count: number) =>
     plural(count, {
       one: "# file ready for import",
