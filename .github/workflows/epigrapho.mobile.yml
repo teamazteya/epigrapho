@@ -110,6 +110,23 @@ jobs:
           mkdir -p ../dist
           ditto -c -k --keepParent build/Build/Products/Release-iphonesimulator/*.app ../dist/epigrapho_ios_simulator.zip
 
+      # ponytail: a smoke test, the app opens and is still running after 30
+      # seconds, with a screenshot to look at. The full walk is the Android
+      # oracle (m1-device-check.mjs); a Detox run here once iOS diverges.
+      - name: Open the app in the simulator
+        if: runner.os == 'macOS'
+        working-directory: ./apps/mobile/ios
+        shell: bash
+        run: |
+          device=$(xcrun simctl list devices available -j | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{const all=Object.values(JSON.parse(s).devices).flat();console.log(all.find(d=>/^iPhone/.test(d.name)).udid)})")
+          xcrun simctl boot "$device"
+          xcrun simctl bootstatus "$device"
+          xcrun simctl install "$device" build/Build/Products/Release-iphonesimulator/*.app
+          xcrun simctl launch "$device" tech.azteya.epigrapho
+          sleep 30
+          xcrun simctl io "$device" screenshot ../dist/epigrapho_ios_simulator.png
+          xcrun simctl spawn "$device" launchctl list | grep -q tech.azteya.epigrapho
+
       - uses: actions/upload-artifact@v4
         with:
           name: epigrapho-${{ matrix.name }}
