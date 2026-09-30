@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import { createHash } from "node:crypto";
 import {
+  copyFileSync,
   existsSync,
   mkdirSync,
   readdirSync,
@@ -60,7 +61,7 @@ const LETTERS = "abcdefghijklmnopqrstuvwyz".split("");
  */
 export const SOURCES: Record<
   string,
-  { url: string; sha256: string; files?: string[] }
+  { url: string; sha256: string; files?: string[]; vendored?: boolean }
 > = {
   "TAGNT-Mat-Jhn.txt": {
     url: TAGNT("Mat-Jhn"),
@@ -127,10 +128,13 @@ export const SOURCES: Record<
     sha256: "008a180673f638d76b9b7be22efc79a31ad858b58ed62a77f9ce7c6430e5ed99"
   },
   // Rand, Diccionario de la Santa Biblia (1890): archive.org's OCR of the
-  // Library of Congress copy, public domain (A2 Paso 7.2).
+  // Library of Congress copy, public domain (A2 Paso 7.2). Kept in data/:
+  // archive.org's data nodes do not answer GitHub's Linux runners, and the
+  // file is small (3.8 MB).
   "rand-1890_djvu.txt": {
     url: "https://archive.org/download/diccionariodelas00rand/diccionariodelas00rand_djvu.txt",
-    sha256: "ed0977149a09451567d03ca4ebf39caabd88f676919606291c92be0ba9704350"
+    sha256: "ed0977149a09451567d03ca4ebf39caabd88f676919606291c92be0ba9704350",
+    vendored: true
   },
   // Easton (1897), Smith (1863) and Hitchcock's names, as NEUU parsed them
   // from CCEL: one file per dictionary and letter (A2 Fase 6).
@@ -151,9 +155,13 @@ const sha256 = (data: Buffer) =>
 /** Downloads whatever is missing from the cache, and checks every file. */
 export async function fetchSources() {
   mkdirSync(CACHE, { recursive: true });
-  for (const [name, { url, sha256: expected, files }] of Object.entries(
+  for (const [name, { url, sha256: expected, files, vendored }] of Object.entries(
     SOURCES
   )) {
+    // A source kept in the repo (data/) is copied, not downloaded; `url`
+    // says where it came from.
+    if (vendored && !existsSync(CACHE + name))
+      copyFileSync(fileURLToPath(new URL(`../data/${name}`, import.meta.url)), CACHE + name);
     const download = async (from: string, to: string) => {
       if (existsSync(to)) return;
       console.error(`descargando ${from.slice(from.lastIndexOf("/") + 1)}`);

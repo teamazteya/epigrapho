@@ -1,1 +1,3 @@
 * text=auto eol=lf
+# The Rand OCR is checked against its SHA-256: git must not touch its line ends.
+packages/original-languages/data/rand-1890_djvu.txt -text
