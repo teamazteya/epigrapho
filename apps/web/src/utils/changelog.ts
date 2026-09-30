@@ -17,23 +17,25 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+import { strings } from "@notesnook/intl";
+
 export async function getChangelog(tag: string) {
   try {
-    if (!tag) return "No changelog found.";
+    if (!tag) return strings.noChangelog();
 
     const url = `https://api.github.com/repos/teamazteya/epigrapho/releases/tags/v${tag}`;
     const response = await fetch(url, {
       headers: { Accept: "application/json" }
     });
-    if (!response.ok) return "No changelog found.";
+    if (!response.ok) return strings.noChangelog();
 
     const release = await response.json();
-    if (!release || !release.body) return "No changelog found.";
+    if (!release || !release.body) return strings.noChangelog();
 
     const { body } = release;
     return body;
   } catch (e) {
     console.error(e);
-    return "No changelog found.";
+    return strings.noChangelog();
   }
 }

@@ -21,7 +21,11 @@ import { SettingComponent, SettingsGroup } from "./types";
 import { appVersion } from "../../utils/version";
 import { writeText } from "clipboard-polyfill";
 import { showToast } from "../../utils/toast";
-import { checkForUpdate, downloadUpdate } from "../../utils/updater";
+import {
+  checkForUpdate,
+  downloadUpdate,
+  installUpdate
+} from "../../utils/updater";
 import { clearLogs, downloadLogs } from "../../utils/logger";
 import { useAutoUpdateStore } from "../../hooks/use-auto-updater";
 import { IssueDialog } from "../issue-dialog";
@@ -44,6 +48,10 @@ export const AboutSettings: SettingsGroup[] = [
           const status = useAutoUpdateStore.getState().status;
           if (status?.type === "available")
             return strings.newVersionAvailable(status.version);
+          // Epigrapho: once downloaded, Settings says so too, not only the
+          // status bar.
+          if (status?.type === "completed")
+            return strings.updateCompleted(status.version);
           return appVersion.formatted;
         },
         onStateChange: (listener) =>
@@ -68,7 +76,14 @@ export const AboutSettings: SettingsGroup[] = [
           }
 
           return [
-            status?.type === "available"
+            status?.type === "completed"
+              ? {
+                  type: "button",
+                  action: installUpdate,
+                  title: strings.installUpdate(),
+                  variant: "secondary"
+                }
+              : status?.type === "available"
               ? {
                   type: "button",
                   action: downloadUpdate,

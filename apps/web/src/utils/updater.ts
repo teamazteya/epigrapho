@@ -20,6 +20,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import { AppEventManager, AppEvents } from "../common/app-events";
 import { desktop } from "../common/desktop-bridge";
 import { appVersion, getServiceWorkerVersion } from "./version";
+import { strings } from "@notesnook/intl";
+import { isMac } from "./platform";
+import { useAutoUpdateStore } from "../hooks/use-auto-updater";
 
 export async function checkForUpdate(checkOnDesktop = true) {
   if (IS_DESKTOP_APP && checkOnDesktop) {
@@ -78,6 +81,21 @@ export async function downloadUpdate() {
 }
 
 export async function installUpdate() {
+  // Epigrapho: on macOS the update is a .dmg the person drags into
+  // Applications (desktop utils/mac-update), so they are told first.
+  if (IS_DESKTOP_APP && isMac()) {
+    const { ConfirmDialog } = await import("../dialogs/confirm");
+    const version = useAutoUpdateStore.getState().status;
+    const confirmed = await ConfirmDialog.show({
+      title: strings.macUpdateTitle(
+        version && "version" in version ? version.version : ""
+      ),
+      message: strings.macUpdateSteps(),
+      positiveButtonText: strings.macUpdateOpen(),
+      negativeButtonText: strings.cancel()
+    });
+    if (!confirmed) return;
+  }
   if (IS_DESKTOP_APP) await desktop?.updater.install.query();
   else {
     const registrations =

@@ -153,6 +153,16 @@ Descarga el `.dmg` de tu Mac, ábrelo y arrastra Epigrapho a Aplicaciones:
 
 La app todavía no está firmada por Apple. Si macOS no la deja abrir la primera vez, ve a Ajustes del Sistema → Privacidad y seguridad y pulsa **Abrir de todos modos**.
 
+### Actualizaciones
+
+Desde la versión 1.0.0 la app avisa cuando hay una versión nueva y la descarga por su cuenta. No hace falta desinstalar nada, y tus notas se conservan.
+
+- **Windows**: la actualización queda descargada. Con un clic en la barra de estado ("v… descargada (clic para instalar)") se instala y la app se reinicia.
+- **Linux**: igual que en Windows. Con los paquetes .deb, .rpm y .pacman el sistema pide tu contraseña para instalarla. La AppImage se reemplaza sola.
+- **macOS**: la app descarga el .dmg de la versión nueva y lo abre. Arrastra Epigrapho a Aplicaciones y elige **Reemplazar**. Si instalaste con Homebrew, usa `brew upgrade --cask epigrapho`.
+
+Si tienes una versión anterior a la 1.0.0 (por ejemplo, la 3.4.8), instala la 1.0.0 una vez a mano, encima de la que tienes. Esas versiones no saben dónde buscar las de Epigrapho, y podrían ofrecerte una versión de Notesnook, que no debes aceptar. Tus notas se conservan.
+
 ## Desarrollo
 
 Requisitos: Node 22.23.2 y npm.
@@ -174,6 +184,13 @@ npx electron-builder --config=electron-builder.config.js --publish=never
 ```
 
 Los paquetes de Linux se generan en Linux con esos mismos pasos, después de instalar `rpm` y `libarchive-tools`.
+
+Para publicar una versión se crea una etiqueta con sus novedades, escritas para quienes usan la app, que las ven al actualizar. El workflow de instaladores la compila en los tres sistemas y la publica como release de GitHub, que es donde las apps instaladas buscan las actualizaciones:
+
+```bash
+git tag -a v1.0.1 -m "Epigrapho 1.0.1" -m "- Qué cambió, en español."
+git push epigrapho v1.0.1
+```
 
 Las verificaciones de extremo a extremo están en `apps/desktop/scripts/a0-*.mjs` y `a1-*.mjs`. Se ejecutan con `npm run start:desktop` corriendo. Las guías para contribuir están en [CONTRIBUTING.md](./CONTRIBUTING.md).
 

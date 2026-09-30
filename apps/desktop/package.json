@@ -2,7 +2,7 @@
   "name": "@notesnook/desktop",
   "productName": "Epigrapho",
   "description": "Private notes that read Bible references",
-  "version": "3.4.8",
+  "version": "1.0.0",
   "appAppleId": "1544027013",
   "private": true,
   "main": "./dist/cjs/index.js",

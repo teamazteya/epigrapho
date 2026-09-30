@@ -20,11 +20,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import { initTRPC } from "@trpc/server";
 import { observable } from "@trpc/server/observable";
 import { CancellationToken, autoUpdater } from "electron-updater";
+import type { UpdateInfo as ReleaseInfo } from "electron-updater";
 import type { AppUpdaterEvents } from "electron-updater/out/AppUpdater";
 import { z } from "zod";
 import { config } from "../utils/config";
 import { app } from "electron";
 import { isFlatpak, isPortable, isSnap } from "../utils";
+import { downloadMacUpdate, installMacUpdate } from "../utils/mac-update";
 
 type UpdateInfo = { version: string };
 type Progress = { percent: number };
@@ -33,13 +35,43 @@ const t = initTRPC.create();
 let cancellationToken: CancellationToken | undefined = undefined;
 let downloadTimeout: NodeJS.Timeout | undefined = undefined;
 const updatesSupported = !isFlatpak() && !isSnap() && !isPortable();
+// Epigrapho: macOS updates through the release's .dmg (utils/mac-update).
+const isMac = process.platform === "darwin";
+let available: ReleaseInfo | undefined;
+let macDownload: Promise<unknown> | undefined;
+
+/** Downloads the Mac update once, reporting through the updater's events. */
+function downloadForMac() {
+  if (!available) return Promise.resolve();
+  const info = available;
+  macDownload ??= downloadMacUpdate(info, (percent) =>
+    autoUpdater.emit("download-progress", {
+      percent,
+      bytesPerSecond: 0,
+      delta: 0,
+      total: 100,
+      transferred: percent
+    })
+  )
+    .then((downloadedFile) =>
+      autoUpdater.emit("update-downloaded", { ...info, downloadedFile })
+    )
+    .catch((error) => {
+      macDownload = undefined;
+      autoUpdater.emit("error", error);
+    });
+  return macDownload;
+}
 export const updaterRouter = t.router({
   autoUpdates: t.procedure.query(
     () => updatesSupported && config.automaticUpdates
   ),
   releaseTrack: t.procedure.query(() => config.releaseTrack),
-  install: t.procedure.query(() => autoUpdater.quitAndInstall()),
+  install: t.procedure.query(() =>
+    isMac ? installMacUpdate() : autoUpdater.quitAndInstall()
+  ),
   download: t.procedure.query(async () => {
+    if (isMac) return downloadForMac();
     if (!updatesSupported || cancellationToken) return;
     clearTimeout(downloadTimeout);
     await new Promise<string[]>((resolve, reject) => {
@@ -61,6 +93,15 @@ export const updaterRouter = t.router({
       downloadTimeout = setTimeout(async () => {
         await autoUpdater
           .checkForUpdates()
+          .then((result) => {
+            available = result?.isUpdateAvailable
+              ? result.updateInfo
+              : undefined;
+            // electron-updater downloads by itself elsewhere; on macOS
+            // that is this app's job.
+            if (isMac && available && config.automaticUpdates)
+              void downloadForMac();
+          })
           .catch(console.error)
           .finally(resolve);
       }, 1000);

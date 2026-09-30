@@ -1829,7 +1829,7 @@ For example:
   checkingForUpdates: () => t`Checking for updates`,
   updating: (percentage: number) => t`${percentage}% updating...`,
   updateCompleted: (version: string) =>
-    `v${version} downloaded (click to install)`,
+    t`v${version} downloaded (click to install)`,
   updateNewVersionAvailable: (version: string) => t`v${version} available`,
   unlocking: () => t`Unlocking`,
   reminderStarts: (date: string, time: string) =>
@@ -2322,7 +2322,7 @@ Please note that we will respond to your feature request on the link above. **We
   privacy: () => t`Privacy`,
   other: () => t`Other`,
   newVersionAvailable: (version: string) =>
-    `New version (v${version}) is available for download.`,
+    t`New version (v${version}) is available for download.`,
   installUpdate: () => t`Install update`,
   sourceCode: () => t`Source code`,
   sourceCodeDescription: () =>
@@ -3046,6 +3046,11 @@ Continue without attachments?`,
   dictionaryNothing: (query: string) =>
     t`No dictionary has an entry for "${query}".`,
   insertInNote: () => t`Insert in the note`,
+  noChangelog: () => t`No changelog found.`,
+  macUpdateTitle: (version: string) => t`Install version ${version}`,
+  macUpdateSteps: () =>
+    t`Epigrapho will close and open the installer. Drag Epigrapho to the Applications folder and choose Replace. Your notes are kept.`,
+  macUpdateOpen: () => t`Open installer`,
   embedNeedsIframe: () => t`Embed code must include an iframe.`,
   embedNeedsIframeSrc: () =>
     t`Embed code must include an iframe with an src attribute.`,

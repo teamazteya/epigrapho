@@ -238,8 +238,11 @@ module.exports = {
   toolsets: {
     appimage: "1.0.2"
   },
+  // Epigrapho: no hand-written app-update.yml here. Upstream shipped one
+  // pointing at streetwriters/notesnook, which overwrote the one generated
+  // from `publish` below and made installed builds ask Notesnook's releases
+  // for updates.
   extraResources: [
-    "app-update.yml",
     "./assets/**",
     // Epigrapho: the grammar checker (ADR-0010), built beforehand by
     // scripts/build-languagetool.mjs. The jars are the same everywhere; the

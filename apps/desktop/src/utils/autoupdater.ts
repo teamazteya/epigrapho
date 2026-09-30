@@ -28,7 +28,11 @@ async function configureAutoUpdater() {
   // own server here, which would have offered Notesnook as an update.
   autoUpdater.channel = releaseTrack;
 
-  autoUpdater.autoDownload = config.automaticUpdates;
+  // On macOS electron-updater's download ends in Squirrel.Mac, which
+  // refuses an app without a Developer ID; api/updater.ts downloads the
+  // release's .dmg there instead.
+  autoUpdater.autoDownload =
+    config.automaticUpdates && process.platform !== "darwin";
   autoUpdater.allowDowngrade =
     // only allow downgrade if the current version is a prerelease
     // and the user has changed the release track to stable

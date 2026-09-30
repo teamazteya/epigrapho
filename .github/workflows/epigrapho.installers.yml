@@ -8,6 +8,13 @@
 # to open the app until the person right-clicks and chooses Open, because
 # Epigrapho has no code-signing certificate and no Apple Developer account
 # yet. The installers work; they just arrive unvouched-for.
+#
+# A tag vX.Y.Z also publishes them as a GitHub release, which is where the
+# app looks for updates (electron-updater reads the latest*.yml files next
+# to the installers). The tag's own message becomes the release notes the
+# app shows, so write it for the people who use Epigrapho:
+#   git tag -a v1.0.1 -m "Epigrapho 1.0.1" -m "- Qué cambió…" && git push epigrapho v1.0.1
+# Run by hand, the workflow only builds and keeps the installers as files.
 name: Epigrapho installers
 
 on:
@@ -29,11 +36,14 @@ jobs:
             artifacts: |
               apps/desktop/output/*.exe
               apps/desktop/output/*.blockmap
+              apps/desktop/output/latest*.yml
           - os: macos-14
             name: macOS
             artifacts: |
               apps/desktop/output/*.dmg
               apps/desktop/output/*.zip
+              apps/desktop/output/*.blockmap
+              apps/desktop/output/latest*.yml
           - os: ubuntu-24.04
             name: Linux
             artifacts: |
@@ -41,6 +51,8 @@ jobs:
               apps/desktop/output/*.deb
               apps/desktop/output/*.rpm
               apps/desktop/output/*.pacman
+              apps/desktop/output/*.blockmap
+              apps/desktop/output/latest*.yml
 
     steps:
       - uses: actions/checkout@v5
@@ -77,6 +89,16 @@ jobs:
             ls "node_modules/$name"
           done
 
+      # The tag is the version: the app compares it with the release it finds
+      # to know whether there is an update.
+      - name: Take the version from the tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        run: |
+          for app in apps/desktop apps/web; do
+            (cd "$app" && npm version "${GITHUB_REF_NAME#v}" --no-git-tag-version --allow-same-version --ignore-scripts)
+          done
+
       - name: Build the app
         working-directory: ./apps/desktop
         run: node scripts/build.mjs
@@ -95,6 +117,20 @@ jobs:
         working-directory: ./apps/desktop
         run: npx electron-builder --config=electron-builder.config.js --publish=never
 
+      # Installed apps look for updates where app-update.yml says. Upstream's
+      # pointed at Notesnook's releases; fail here if one ever ships again.
+      - name: Check the update feed
+        shell: bash
+        working-directory: ./apps/desktop/output
+        run: |
+          found=0
+          while IFS= read -r feed; do
+            echo "$feed:"; cat "$feed"; echo
+            grep -q "owner: teamazteya" "$feed" && grep -q "repo: epigrapho" "$feed"
+            found=1
+          done < <(find . -name app-update.yml -path "*esources*")
+          test "$found" = 1
+
       # An unsigned Apple Silicon app is reported as "damaged" once it has
       # been downloaded; fail here instead of shipping one.
       - name: Check the macOS signature
@@ -111,3 +147,29 @@ jobs:
           name: epigrapho-${{ matrix.name }}
           path: ${{ matrix.artifacts }}
           if-no-files-found: error
+
+  # Once every system has built, a tag becomes a release with all the
+  # installers and update files, which the installed apps then find.
+  release:
+    name: Release
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git fetch --force origin "refs/tags/$GITHUB_REF_NAME:refs/tags/$GITHUB_REF_NAME"
+          git tag -l --format='%(contents:body)' "$GITHUB_REF_NAME" > notes.md
+          ls -la dist
+          gh release create "$GITHUB_REF_NAME" dist/* --title "Epigrapho ${GITHUB_REF_NAME#v}" --notes-file notes.md --verify-tag --latest
