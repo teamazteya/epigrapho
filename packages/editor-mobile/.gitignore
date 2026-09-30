@@ -30,3 +30,5 @@ public/vbl.json
 public/bsb.json
 public/kjv.json
 public/pddpt.json
+# Original-language packs, built by packages/original-languages (M1 Fase 4).
+public/original

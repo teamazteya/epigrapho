@@ -33,13 +33,13 @@ export function isShortcutsSupported() {
 
 const defaultShortcuts: ShortcutItem[] = [
   {
-    type: "notesnook.action.newnote",
+    type: "epigrapho.action.newnote",
     title: strings.createNewNote(),
     shortTitle: strings.newNote(),
     iconName: Platform.OS === "android" ? "ic_newnote" : "plus"
   },
   {
-    type: "notesnook.action.newreminder",
+    type: "epigrapho.action.newreminder",
     title: strings.setReminder(),
     shortTitle: strings.newReminder(),
     iconName: Platform.OS === "android" ? "ic_newnote" : "plus"

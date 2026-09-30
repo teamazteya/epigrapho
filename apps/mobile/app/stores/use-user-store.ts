@@ -25,7 +25,6 @@ import { presentDialog } from "../components/dialog/functions";
 import { strings } from "@notesnook/intl";
 import { eSendEvent } from "../services/event-manager";
 import { eCloseSimpleDialog } from "../utils/events";
-import Navigation from "../services/navigation";
 
 export enum SyncStatus {
   Passed,
@@ -78,10 +77,6 @@ export const useUserStore = create<UserStore>((set) => ({
               negativeText: strings.cancel(),
               positivePress: async () => {
                 eSendEvent(eCloseSimpleDialog);
-                if (SettingsService.getProperty("serverUrls")) return;
-                Navigation.navigate("PayWall", {
-                  context: "logged-in"
-                });
               }
             });
           }, 1000);

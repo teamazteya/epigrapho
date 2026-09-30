@@ -2,7 +2,7 @@
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
     android:initialKeyguardLayout="@layout/note_widget"
     android:initialLayout="@layout/note_widget"
-    android:configure="com.streetwriters.notesnook.NotePreviewConfigureActivity"
+    android:configure="tech.azteya.epigrapho.NotePreviewConfigureActivity"
     android:widgetFeatures="reconfigurable"
     android:minResizeWidth="100dp"
     android:minResizeHeight="50dp"

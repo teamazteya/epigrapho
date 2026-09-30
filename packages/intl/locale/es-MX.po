@@ -43,7 +43,7 @@ msgstr " Cambia a Epigrapho Pro para usar esta función."
 
 #: src/strings.ts:838
 msgid "— not just the"
-msgstr "— no solo el"
+msgstr "— no solo para"
 
 #: src/strings.ts:3017
 msgid "\"{input}\" has more than 10 verses. An interlinear takes a verse or a range of up to 10."
@@ -609,12 +609,12 @@ msgid "{plan} plan"
 msgstr "plan {plan}"
 
 #: src/strings.ts:753
-msgid "{platform, select, android {{name} saved to selected path} other {{name} saved to File Manager/Notesnook/downloads}}"
-msgstr "{platform, select, android {{name} se guardó en la ruta elegida} other {{name} se guardó en File Manager/Notesnook/downloads}}"
+msgid "{platform, select, android {{name} saved to selected path} other {{name} saved to File Manager/Epigrapho/downloads}}"
+msgstr "{platform, select, android {{name} se guardó en la ruta elegida} other {{name} se guardó en File Manager/Epigrapho/downloads}}"
 
 #: src/strings.ts:1342
-msgid "{platform, select, android {Backup file saved in \"Notesnook backups\" folder on your phone.} other {Backup file is saved in File Manager/Notesnook folder}}"
-msgstr "{platform, select, android {El respaldo se guardó en la carpeta \"Notesnook backups\" de tu teléfono.} other {El respaldo se guardó en la carpeta File Manager/Notesnook}}"
+msgid "{platform, select, android {Backup file saved in \"Epigrapho backups\" folder on your phone.} other {Backup file is saved in File Manager/Epigrapho folder}}"
+msgstr "{platform, select, android {El respaldo se guardó en la carpeta \"Epigrapho backups\" de tu teléfono.} other {El respaldo se guardó en la carpeta File Manager/Epigrapho}}"
 
 #: src/strings.ts:2536
 msgid "{selected} selected"
@@ -938,8 +938,8 @@ msgid "All tools in this group will be removed from the toolbar."
 msgstr "Se quitarán de la barra todas las herramientas de este grupo."
 
 #: src/strings.ts:1351
-msgid "All your backups are stored in 'Phone Storage/Notesnook/backups/' folder"
-msgstr "Todos tus respaldos se guardan en la carpeta 'Phone Storage/Notesnook/backups/'"
+msgid "All your backups are stored in 'Phone Storage/Epigrapho/backups/' folder"
+msgstr "Todos tus respaldos se guardan en la carpeta 'Phone Storage/Epigrapho/backups/'"
 
 #: src/strings.ts:108
 msgid "Already have an account?"

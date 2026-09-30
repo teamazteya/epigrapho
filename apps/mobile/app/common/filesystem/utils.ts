@@ -162,10 +162,10 @@ export async function checkUpload(
     size === 0
       ? `File size is 0.`
       : size === -1
-        ? `File verification check failed.`
-        : expectedSize !== decryptedLength
-          ? `File size mismatch. Expected ${size} bytes but got ${decryptedLength} bytes.`
-          : undefined;
+      ? `File verification check failed.`
+      : expectedSize !== decryptedLength
+      ? `File size mismatch. Expected ${size} bytes but got ${decryptedLength} bytes.`
+      : undefined;
   if (error) throw new Error(error);
 }
 
@@ -177,7 +177,7 @@ export async function checkAndCreateDir(path: string) {
   const dir =
     Platform.OS === "ios"
       ? RNFetchBlob.fs.dirs.DocumentDir + path
-      : RNFetchBlob.fs.dirs.SDCardDir + "/Notesnook/" + path;
+      : RNFetchBlob.fs.dirs.SDCardDir + "/Epigrapho/" + path;
 
   try {
     const exists = await RNFetchBlob.fs.exists(dir);

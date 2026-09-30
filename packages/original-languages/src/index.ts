@@ -95,6 +95,17 @@ export function setOriginalBase(url: string) {
   base = url;
 }
 
+let reader: ((name: string) => Promise<unknown>) | undefined;
+/**
+ * Reads the packs some other way than a page can: the phone app's own
+ * JavaScript (M1 Fase 4) has neither IndexedDB nor XHR on file://, but can
+ * read them from inside its package. With a reader set, nothing is cached in
+ * IndexedDB; the files are already on the device.
+ */
+export function setOriginalReader(read: (name: string) => Promise<unknown>) {
+  reader = read;
+}
+
 const files = new Map<string, Promise<unknown>>();
 
 /**
@@ -106,6 +117,7 @@ function file<T>(name: string): Promise<T> {
   let found = files.get(name) as Promise<T> | undefined;
   if (!found) {
     found = (async () => {
+      if (reader) return (await reader(name)) as T;
       const db = await openDb();
       try {
         const stored = await request(
@@ -190,7 +202,8 @@ export async function translationWord(id: string) {
 
 /** "G26", "g0026" or "H7225G" → "G0026" / "H7225"; anything else → undefined. */
 export function baseStrong(query: string) {
-  const [, letter, digits] = /^\s*([GHA])0*(\d{1,4})[A-Za-z]?\s*$/i.exec(query) ?? [];
+  const [, letter, digits] =
+    /^\s*([GHA])0*(\d{1,4})[A-Za-z]?\s*$/i.exec(query) ?? [];
   if (!letter) return;
   const upper = letter.toUpperCase();
   return `${upper === "A" ? "H" : upper}${digits.padStart(4, "0")}`;
@@ -354,18 +367,28 @@ export async function dictionaryArticle(
 ): Promise<DictionaryArticle | undefined> {
   if (id.startsWith("TW:")) {
     const found = await translationWord(id.slice(3));
-    return found && {
-      id,
-      term: found[0],
-      source: "TW",
-      body: found[1],
-      strongs: found[2]
-    };
+    return (
+      found && {
+        id,
+        term: found[0],
+        source: "TW",
+        body: found[1],
+        strongs: found[2]
+      }
+    );
   }
   const found = (
     await file<DictionaryPack>(
       id.startsWith("RAND:") ? "dictionary-es-rand.json" : "dictionary-en.json"
     )
   )[id];
-  return found && { id, term: found[0], source: found[1], body: found[2], strongs: [] };
+  return (
+    found && {
+      id,
+      term: found[0],
+      source: found[1],
+      body: found[2],
+      strongs: []
+    }
+  );
 }

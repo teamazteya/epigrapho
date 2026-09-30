@@ -37,7 +37,6 @@ import React, { useCallback, useEffect, useRef } from "react";
 import {
   AppState,
   AppStateStatus,
-  EmitterSubscription,
   Keyboard,
   Linking,
   NativeEventEmitter,
@@ -47,7 +46,6 @@ import {
 } from "react-native";
 import { checkVersion } from "react-native-check-version";
 import Config from "react-native-config";
-import * as RNIap from "react-native-iap";
 import { DatabaseLogger, db, setupDatabase } from "../common/database";
 import { initializeLogger } from "../common/database/logger";
 import { MMKV } from "../common/database/mmkv";
@@ -72,14 +70,7 @@ import {
   eSubscribeEvent,
   presentSheet
 } from "../services/event-manager";
-import {
-  clearMessage,
-  setEmailVerifyMessage,
-  setLoginMessage,
-  setRateAppMessage,
-  setRecoveryKeyMessage,
-  setUpdateAvailableMessage
-} from "../services/message";
+import { clearMessage, setUpdateAvailableMessage } from "../services/message";
 import Navigation from "../services/navigation";
 import { NotePreviewWidget } from "../services/note-preview-widget";
 import Notifications from "../services/notifications";
@@ -102,7 +93,6 @@ import {
   eEditorReset,
   eLoginSessionExpired,
   eOnLoadNote,
-  eOpenAnnouncementDialog,
   eUserLoggedIn,
   refreshNotesPage
 } from "../utils/events";
@@ -171,7 +161,7 @@ const onAppOpenedFromURL = async (event: {
   const parsedLink = isInternalLink(url) ? parseInternalLink(url) : undefined;
 
   try {
-    if (url.startsWith("https://app.notesnook.com/account/verified")) {
+    if (url.startsWith("epigrapho://app/account/verified")) {
       await onUserEmailVerified();
     } else if (url.startsWith("ShareMedia://QuickNoteWidget")) {
       editorState().movedAway = false;
@@ -180,7 +170,7 @@ const onAppOpenedFromURL = async (event: {
       return;
     } else if (
       parsedLink?.type === "note" ||
-      url.startsWith("https://app.notesnook.com/open_note?")
+      url.startsWith("epigrapho://app/open_note?")
     ) {
       const id = parsedLink?.id || new URL(url).searchParams.get("id");
 
@@ -196,7 +186,7 @@ const onAppOpenedFromURL = async (event: {
       }
     } else if (
       (parsedLink?.type === "notebook" ||
-        url.startsWith("https://app.notesnook.com/open_notebook?")) &&
+        url.startsWith("epigrapho://app/open_notebook?")) &&
       !event.isInitialUrl
     ) {
       const id = parsedLink?.id || new URL(url).searchParams.get("id");
@@ -213,7 +203,7 @@ const onAppOpenedFromURL = async (event: {
       }
     } else if (
       (parsedLink?.type === "tag" ||
-        url.startsWith("https://app.notesnook.com/open_tag?")) &&
+        url.startsWith("epigrapho://app/open_tag?")) &&
       !event.isInitialUrl
     ) {
       const id = parsedLink?.id || new URL(url).searchParams.get("id");
@@ -231,7 +221,7 @@ const onAppOpenedFromURL = async (event: {
       }
     } else if (
       (parsedLink?.type === "color" ||
-        url.startsWith("https://app.notesnook.com/open_color?")) &&
+        url.startsWith("epigrapho://app/open_color?")) &&
       !event.isInitialUrl
     ) {
       const id = parsedLink?.id || new URL(url).searchParams.get("id");
@@ -247,13 +237,13 @@ const onAppOpenedFromURL = async (event: {
           });
         }
       }
-    } else if (url.startsWith("https://app.notesnook.com/open_reminder")) {
+    } else if (url.startsWith("epigrapho://app/open_reminder")) {
       const id = new URL(url).searchParams.get("id");
       if (id) {
         const reminder = await db.reminders.reminder(id);
         if (reminder) AddReminder.present(reminder);
       }
-    } else if (url.startsWith("https://app.notesnook.com/new_reminder")) {
+    } else if (url.startsWith("epigrapho://app/new_reminder")) {
       const reminderFeature = await isFeatureAvailable("activeReminders");
       if (!reminderFeature.isAllowed) {
         ToastManager.show({
@@ -295,7 +285,6 @@ const onUserSubscriptionStatusChanged = async (
     subscription.plan !== SubscriptionPlan.FREE &&
     subscription.plan !== useUserStore.getState().user?.subscription?.plan
   ) {
-    PremiumService.subscriptions.clear();
     useUserStore.setState({
       user: {
         ...(useUserStore.getState().user as User),
@@ -308,7 +297,6 @@ const onUserSubscriptionStatusChanged = async (
     }, 500);
   }
   await PremiumService.setPremiumStatus();
-  useMessageStore.getState().setAnnouncement();
   useUserStore.getState().setUser(await db.user.fetchUser());
 };
 
@@ -333,7 +321,6 @@ const onRequestPartialSync = async (
 
 const onLogout = async (reason: string) => {
   DatabaseLogger.log("User Logged Out " + reason);
-  setLoginMessage();
   await PremiumService.setPremiumStatus();
   await BiometricService.resetCredentials();
   MMKV.clearStore();
@@ -378,45 +365,11 @@ async function checkForShareExtensionLaunchedInBackground() {
   }
 }
 
-const onSuccessfulSubscription = async (
-  subscription: RNIap.ProductPurchase | RNIap.SubscriptionPurchase
-) => {
-  if (Platform.OS === "android") return;
-  await PremiumService.subscriptions.set(subscription);
-  await PremiumService.subscriptions.verify(subscription);
-};
-
-const onSubscriptionError = async (error: RNIap.PurchaseError) => {
-  ToastManager.show({
-    heading: strings.failedToSubscribe(),
-    type: "error",
-    message: error.message,
-    context: "local"
-  });
-};
-
 const SodiumEventEmitter = new NativeEventEmitter(NativeModules.Sodium);
 
+// Epigrapho: no account, no store rating, no announcements from a server —
+// the only message the app raises on its own is a new version.
 const setAppMessage = async () => {
-  const user = await db.user.getUser();
-  if (!user) {
-    setLoginMessage();
-    return;
-  }
-  if (!user?.isEmailConfirmed) {
-    setEmailVerifyMessage();
-    return;
-  }
-  if (await checkForRateAppRequest()) return;
-  if (
-    user?.isEmailConfirmed &&
-    !SettingsService.get().recoveryKeySaved &&
-    !useMessageStore.getState().message?.visible
-  ) {
-    setRecoveryKeyMessage();
-    return;
-  }
-  useMessageStore.getState().setAnnouncement();
   checkAppUpdateAvailable();
 };
 
@@ -427,14 +380,6 @@ const doAppLoadActions = async () => {
   }
   notifee.setBadgeCount(0);
   if (NewFeature.present()) return;
-  if (SettingsService.get().introCompleted) {
-    useMessageStore.subscribe((state) => {
-      const dialogs = state.dialogs;
-      if (dialogs.length > 0) {
-        eSendEvent(eOpenAnnouncementDialog, dialogs[0]);
-      }
-    });
-  }
 };
 
 const checkAppUpdateAvailable = async () => {
@@ -459,19 +404,6 @@ const checkAppUpdateAvailable = async () => {
   } catch (e) {
     return false;
   }
-};
-
-const checkForRateAppRequest = async () => {
-  const rateApp = SettingsService.get().rateApp as number;
-  if (
-    rateApp &&
-    rateApp < Date.now() &&
-    !useMessageStore.getState().message?.visible
-  ) {
-    setRateAppMessage();
-    return true;
-  }
-  return false;
 };
 
 const IsDatabaseMigrationRequired = () => {
@@ -556,8 +488,6 @@ export const useAppEvents = () => {
   const syncedOnLaunch = useRef(false);
   const refValues = useRef<
     Partial<{
-      subsriptionSuccessListener: EmitterSubscription;
-      subsriptionErrorListener: EmitterSubscription;
       prevState: AppStateStatus;
       removeInternetStateListener: NetInfoSubscription;
       initialUrl: string;
@@ -604,31 +534,6 @@ export const useAppEvents = () => {
       });
     }
   }, [initialUrl, isAppLoading]);
-
-  const subscribeToPurchaseListeners = useCallback(async () => {
-    if (Platform.OS === "android") {
-      try {
-        await RNIap.flushFailedPurchasesCachedAsPendingAndroid();
-      } catch (e) {
-        e;
-      }
-    }
-    refValues.current.subsriptionSuccessListener =
-      RNIap.purchaseUpdatedListener(onSuccessfulSubscription);
-    refValues.current.subsriptionErrorListener =
-      RNIap.purchaseErrorListener(onSubscriptionError);
-  }, []);
-
-  const unsubscribePurchaseListeners = () => {
-    if (refValues.current?.subsriptionSuccessListener) {
-      refValues.current.subsriptionSuccessListener?.remove();
-      refValues.current.subsriptionSuccessListener = undefined;
-    }
-    if (refValues.current?.subsriptionErrorListener) {
-      refValues.current.subsriptionErrorListener?.remove();
-      refValues.current.subsriptionErrorListener = undefined;
-    }
-  };
 
   const checkAutoBackup = useCallback(async () => {
     const { appLocked, syncing } = useUserStore.getState();
@@ -696,7 +601,6 @@ export const useAppEvents = () => {
           syncedOnLaunch.current = true;
           return;
         }
-        subscribeToPurchaseListeners();
         if (!isLogin) {
           user = await db.user.fetchUser();
           setUser(user);
@@ -729,7 +633,7 @@ export const useAppEvents = () => {
         checkAutoBackup();
       }
     },
-    [subscribeToPurchaseListeners, setLastSynced, setUser, checkAutoBackup]
+    [setLastSynced, setUser, checkAutoBackup]
   );
 
   useEffect(() => {
@@ -932,7 +836,6 @@ export const useAppEvents = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
         refValues.current?.removeInternetStateListener();
       sub?.remove();
-      unsubscribePurchaseListeners();
     };
   }, [isAppLoading, appLocked, checkAutoBackup]);
 

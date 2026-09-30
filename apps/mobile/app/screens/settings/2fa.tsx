@@ -241,8 +241,8 @@ export const MFASetup = ({
       methodId === "email"
         ? user?.email || ""
         : methodId === "app"
-          ? authenticatorDetails.sharedKey || ""
-          : formRef.current.getValue("target")
+        ? authenticatorDetails.sharedKey || ""
+        : formRef.current.getValue("target")
     );
     formRef.current.setValue("code", "");
     setGeneralError(undefined);
@@ -267,11 +267,11 @@ export const MFASetup = ({
               : strings.enterValidPhone()
         ]
       : method?.id === "email"
-        ? [
-            validators.required(strings.emailRequired()),
-            validators.email(strings.enterValidEmail())
-          ]
-        : [];
+      ? [
+          validators.required(strings.emailRequired()),
+          validators.email(strings.enterValidEmail())
+        ]
+      : [];
 
   const codeValidators = [
     validators.required(strings.enterSixDigitCode()),
@@ -399,7 +399,9 @@ export const MFASetup = ({
         ) : (
           <>
             <FormInput
-              key={`${method.id}-${authenticatorDetails.sharedKey || user?.email || ""}`}
+              key={`${method.id}-${
+                authenticatorDetails.sharedKey || user?.email || ""
+              }`}
               name="target"
               formRef={formRef}
               fwdRef={targetInputRef}
@@ -409,8 +411,8 @@ export const MFASetup = ({
                 method.id === "email"
                   ? user?.email || ""
                   : method.id === "app"
-                    ? authenticatorDetails.sharedKey || ""
-                    : undefined
+                  ? authenticatorDetails.sharedKey || ""
+                  : undefined
               }
               multiline={method.id === "app"}
               onChangeText={() => {
@@ -438,12 +440,12 @@ export const MFASetup = ({
                     sending
                       ? null
                       : method.id === "app"
-                        ? strings.copy()
-                        : `${
-                            seconds
-                              ? strings.resendCode(seconds as number)
-                              : strings.sendCode()
-                          }`
+                      ? strings.copy()
+                      : `${
+                          seconds
+                            ? strings.resendCode(seconds as number)
+                            : strings.sendCode()
+                        }`
                   }
                 />
               }
@@ -638,7 +640,7 @@ export const MFARecoveryCodes = ({
               onPress={async () => {
                 try {
                   let path;
-                  let fileName = "notesnook_recoverycodes";
+                  let fileName = "epigrapho_recoverycodes";
                   fileName = sanitizeFilename(fileName, { replacement: "_" });
                   fileName = fileName + ".txt";
                   const codeString = codes.join("\n");

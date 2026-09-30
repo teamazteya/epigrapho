@@ -114,6 +114,13 @@ def getNpmVersion() {
     return jsonPackage["version"]
 }
 
+// Epigrapho: the version is the release tag (1.2.3), and the store version
+// code follows it, 1.2.3 -> 10203, so every release is higher than the last.
+def versionCodeFromVersion(String version) {
+    def (major, minor, patch) = version.tokenize("-")[0].tokenize(".").collect { it as int }
+    return major * 10000 + minor * 100 + patch
+}
+
 def isBuildingAAB = gradle.startParameter.getTaskNames().any { it.contains("bundleRelease") }
 
 android {
@@ -131,16 +138,16 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-    namespace "com.streetwriters.notesnook"
+    namespace "tech.azteya.epigrapho"
     defaultConfig {
-        applicationId "com.streetwriters.notesnook"
+        applicationId "tech.azteya.epigrapho"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         multiDexEnabled true
         if (project.hasProperty("prBuildNumber")) {
             versionCode Integer.parseInt(prBuildNumber())
         } else {
-            versionCode 3119
+            versionCode versionCodeFromVersion(getNpmVersion())
         }
         versionName getNpmVersion()
         testBuildType System.getProperty('testBuildType', 'debug')
@@ -163,11 +170,23 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
-          release {
-            storeFile file('debug.keystore')
-            storePassword 'android'
-            keyAlias 'androiddebugkey'
-            keyPassword 'android'
+        // Epigrapho: the upload key comes from the environment (CI secrets,
+        // M1 Fase 5.1) and never from the repository. Without it a release
+        // build is signed with the debug key, which is fine for trying it on
+        // an emulator and refused by every store.
+        release {
+            def keystore = System.getenv("ANDROID_KEYSTORE_FILE")
+            if (keystore) {
+                storeFile file(keystore)
+                storePassword System.getenv("ANDROID_KEYSTORE_PASSWORD")
+                keyAlias System.getenv("ANDROID_KEY_ALIAS")
+                keyPassword System.getenv("ANDROID_KEY_PASSWORD")
+            } else {
+                storeFile file('debug.keystore')
+                storePassword 'android'
+                keyAlias 'androiddebugkey'
+                keyPassword 'android'
+            }
         }
     }
     buildTypes {

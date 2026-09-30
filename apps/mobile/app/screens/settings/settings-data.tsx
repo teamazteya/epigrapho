@@ -17,45 +17,27 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { formatBytes } from "@notesnook/common";
-import {
-  SubscriptionPlan,
-  SubscriptionProvider,
-  SubscriptionStatus,
-  User
-} from "@notesnook/core";
 import { strings } from "@notesnook/intl";
 import notifee from "@notifee/react-native";
 import Clipboard from "@react-native-clipboard/clipboard";
-import dayjs from "dayjs";
 import React from "react";
 import { Appearance, Linking, Platform } from "react-native";
 import { getVersion } from "react-native-device-info";
-import { TextInput } from "react-native-gesture-handler";
-import * as RNIap from "react-native-iap";
-import { DatabaseLogger, db } from "../../common/database";
+import { db } from "../../common/database";
 import { MMKV } from "../../common/database/mmkv";
-import filesystem from "../../common/filesystem";
 import { presentDialog } from "../../components/dialog/functions";
 import { AppLockPassword } from "../../components/dialogs/applock-password";
-import { endProgress, startProgress } from "../../components/dialogs/progress";
 import ExportNotesSheet from "../../components/sheets/export-notes";
 import { Issue } from "../../components/sheets/github/issue";
-import { Progress } from "../../components/sheets/progress";
 import { Update } from "../../components/sheets/update";
-import {
-  createFormRef,
-  validators
-} from "../../components/ui/input/form-input";
+
 import { VaultStatusType, useVaultStatus } from "../../hooks/use-vault-status";
-import { BackgroundSync } from "../../services/background-sync";
 import BackupService from "../../services/backup";
 import BiometricService from "../../services/biometrics";
 import {
   ToastManager,
   VaultRequestType,
   eSendEvent,
-  eSubscribeEvent,
   openVault,
   presentSheet
 } from "../../services/event-manager";
@@ -63,780 +45,18 @@ import Navigation from "../../services/navigation";
 import Notifications from "../../services/notifications";
 import PremiumService from "../../services/premium";
 import SettingsService from "../../services/settings";
-import Sync from "../../services/sync";
 import { clearAllStores } from "../../stores";
 import { refreshAllStores } from "../../stores/create-db-collection-store";
-import { useSettingStore } from "../../stores/use-setting-store";
 import { useThemeStore } from "../../stores/use-theme-store";
 import { useUserStore } from "../../stores/use-user-store";
 import { EDITOR_LINE_HEIGHT } from "../../utils/constants";
-import {
-  eAfterSync,
-  eCloseSheet,
-  eOpenRecoveryKeyDialog
-} from "../../utils/events";
-import { sleep } from "../../utils/time";
+import { eAfterSync } from "../../utils/events";
 import { resetTabStore } from "../editor/tiptap/use-tab-store";
-import { MFARecoveryCodes, MFASheet } from "./2fa";
 import { useDragState } from "./editor/state";
 import { verifyUser, verifyUserWithApplock } from "./functions";
-import { logoutUser } from "./logout";
 import { SettingSection } from "./types";
-import { getTimeLeft } from "./user-section";
 
 export const settingsGroups: SettingSection[] = [
-  {
-    id: "account-local",
-    name: strings.account(),
-    useHook: () => useUserStore((state) => state.user),
-    hidden: (current) => !!current,
-    sections: [
-      {
-        id: "delete-data",
-        name: strings.deleteData(),
-        icon: "delete",
-        description: strings.deleteAccountDesc(),
-        modifer: () => {
-          presentDialog({
-            title: strings.deleteData(),
-            paragraph: strings.irreverisibleAction(),
-            positiveType: "errorShade",
-            positiveText: "Delete data",
-            positivePress: async () => {
-              await PremiumService.setPremiumStatus();
-              await BiometricService.resetCredentials();
-              MMKV.clearStore();
-              resetTabStore();
-              clearAllStores();
-              Navigation.queueRoutesForUpdate();
-              SettingsService.resetSettings();
-              db.reset();
-
-              setImmediate(() => {
-                refreshAllStores();
-                eSendEvent(eAfterSync);
-              });
-              return true;
-            }
-          });
-        }
-      }
-    ]
-  },
-  {
-    id: "account",
-    name: strings.account(),
-    useHook: () => useUserStore((state) => state.user),
-    hidden: (current) => !current,
-    sections: [
-      {
-        id: "subscription-status",
-        useHook: () => useUserStore((state) => state.user),
-        hidden: (current) => {
-          const user = current as User;
-          return (
-            !user ||
-            !user.subscription ||
-            user.subscription.provider === undefined ||
-            !strings.subscriptionProviderInfo[user?.subscription?.provider] ||
-            user.subscription?.plan === SubscriptionPlan.FREE
-          );
-        },
-        name: (current) => {
-          const user = (current as User) || useUserStore.getState().user;
-          return (
-            strings.subscriptionProviderInfo[
-              user?.subscription?.provider
-            ]?.title() || `Unknown provider id: ${user?.subscription?.provider}`
-          );
-        },
-        icon: "credit-card",
-        modifer: () => {
-          const user = useUserStore.getState().user;
-          if (!user) return;
-          const subscriptionProviderInfo =
-            strings.subscriptionProviderInfo[user?.subscription?.provider];
-
-          if (!subscriptionProviderInfo) return;
-
-          const isCurrentPlatform =
-            (user.subscription?.provider === SubscriptionProvider.APPLE &&
-              Platform.OS === "ios") ||
-            (user.subscription?.provider === SubscriptionProvider.GOOGLE &&
-              Platform.OS === "android");
-
-          if (
-            (user.subscription?.provider === SubscriptionProvider.GOOGLE ||
-              user.subscription?.provider === SubscriptionProvider.APPLE) &&
-            isCurrentPlatform &&
-            user?.subscription?.productId
-          ) {
-            RNIap.deepLinkToSubscriptions({
-              sku: user?.subscription.productId
-            });
-          } else {
-            presentSheet({
-              title: subscriptionProviderInfo.title(),
-              paragraph: subscriptionProviderInfo.desc()
-            });
-          }
-        },
-        description: (current) => {
-          const user = current as User;
-          if (!user) return strings.neverHesitate();
-          const subscriptionDaysLeft =
-            user && getTimeLeft(user.subscription?.expiry);
-          const expiryDate = dayjs(user?.subscription?.expiry).format(
-            "dddd, MMMM D, YYYY h:mm A"
-          );
-          const startDate = dayjs(user?.subscription?.start).format(
-            "dddd, MMMM D, YYYY h:mm A"
-          );
-
-          const trialEndDate = dayjs(user?.subscription?.start)
-            .add(
-              user?.subscription?.productId?.includes("monthly") ? 7 : 14,
-              "day"
-            )
-            .format("dddd, MMMM D, YYYY h:mm A");
-
-          if (
-            user.subscription?.plan !== SubscriptionPlan.FREE &&
-            user.subscription?.productId
-          ) {
-            const status = user.subscription?.status;
-            return status === SubscriptionStatus.TRIAL
-              ? strings.trialOnGoing(trialEndDate)
-              : status === SubscriptionStatus.ACTIVE
-              ? strings.subRenewOn(expiryDate)
-              : status === SubscriptionStatus.CANCELED ||
-                status === SubscriptionStatus.PAUSED
-              ? strings.subEndsOn(expiryDate)
-              : status === SubscriptionStatus.EXPIRED
-              ? subscriptionDaysLeft.time < -3
-                ? strings.subEnded()
-                : strings.accountDowngradedIn(3)
-              : strings.neverHesitate();
-          }
-
-          return strings.neverHesitate();
-        }
-      },
-      {
-        id: "redeem-gift-code",
-        name: strings.redeemGiftCode(),
-        description: strings.redeemGiftCodeDesc(),
-        hidden: (current) => {
-          return !current as boolean;
-        },
-        useHook: () =>
-          useUserStore(
-            (state) => state.user?.subscription?.plan === SubscriptionPlan.FREE
-          ),
-        icon: "gift",
-        modifer: () => {
-          presentDialog({
-            title: strings.redeemGiftCode(),
-            paragraph: strings.redeemGiftCodeDesc(),
-            form: {
-              formRef: createFormRef({
-                code: ""
-              }),
-              items: [
-                {
-                  name: "code",
-                  placeholder: strings.code(),
-                  ref: React.createRef<TextInput | null>(),
-                  validators: [validators.required(strings.giftCodeRequired())]
-                }
-              ],
-              onFormSubmit: async (form) => {
-                try {
-                  await db.subscriptions.redeemCode(form.getValue("code"));
-                  return true;
-                } catch (e) {
-                  form.setError("code", (e as Error).message);
-                  return false;
-                }
-              }
-            },
-            positiveText: strings.redeem()
-          });
-        }
-      },
-      {
-        id: "account-settings",
-        type: "screen",
-        name: strings.manageAccount(),
-        icon: "account-cog",
-        description: strings.manageAccountDesc(),
-        sections: [
-          {
-            id: "remove-profile-picture",
-            name: strings.removeProfilePicture(),
-            description: strings.removeProfilePictureDesc(),
-            useHook: () =>
-              useUserStore((state) => state.profile?.profilePicture),
-            hidden: () => !useUserStore.getState().profile?.profilePicture,
-            modifer: () => {
-              presentDialog({
-                title: strings.removeProfilePicture(),
-                paragraph: strings.removeProfilePictureConfirmation(),
-                positiveText: strings.remove(),
-                positivePress: async () => {
-                  db.settings
-                    .setProfile({
-                      profilePicture: undefined
-                    })
-                    .then(async () => {
-                      useUserStore.setState({
-                        profile: db.settings.getProfile()
-                      });
-                    });
-                }
-              });
-            }
-          },
-          {
-            id: "remove-name",
-            name: strings.removeFullName(),
-            description: strings.removeFullNameDesc(),
-            useHook: () => useUserStore((state) => state.profile?.fullName),
-            hidden: () => !useUserStore.getState().profile?.fullName,
-            modifer: () => {
-              presentDialog({
-                title: strings.removeFullName(),
-                paragraph: strings.removeFullNameConfirmation(),
-                positiveText: strings.remove(),
-                positivePress: async () => {
-                  db.settings
-                    .setProfile({
-                      fullName: undefined
-                    })
-                    .then(async () => {
-                      useUserStore.setState({
-                        profile: db.settings.getProfile()
-                      });
-                    });
-                }
-              });
-            }
-          },
-          {
-            id: "recovery-key",
-            name: strings.saveDataRecoveryKey(),
-            modifer: async () => {
-              verifyUser(null, async () => {
-                await sleep(300);
-                eSendEvent(eOpenRecoveryKeyDialog);
-              });
-            },
-            description: strings.saveDataRecoveryKeyDesc(),
-            icon: "key"
-          },
-          {
-            id: "manage-attachments",
-            name: strings.manageAttachments(),
-            icon: "attachment",
-            type: "screen",
-            component: "attachments-manager",
-            description: strings.manageAttachmentsDesc(),
-            hideHeader: true
-          },
-          {
-            id: "change-password",
-            name: strings.changePassword(),
-            type: "screen",
-            description: strings.changePasswordDesc(),
-            component: "change-password",
-            icon: "form-textbox-password"
-          },
-          {
-            id: "change-email",
-            name: strings.changeEmail(),
-            type: "screen",
-            component: "change-email",
-            description: strings.changeEmailDesc(),
-            icon: "at"
-          },
-          {
-            id: "2fa-settings",
-            type: "screen",
-            name: strings.twoFactorAuth(),
-            description: strings.twoFactorAuthDesc(),
-            icon: "two-factor-authentication",
-            sections: [
-              {
-                id: "enable-2fa",
-                name: strings.change2faMethod(),
-                modifer: () => {
-                  verifyUser("global", async () => {
-                    MFASheet.present();
-                  });
-                },
-                useHook: () => useUserStore((state) => state.user),
-                description: strings.change2faMethodDesc()
-              },
-              {
-                id: "2fa-fallback",
-                name: strings.addFallback2faMethod(),
-                useHook: () => useUserStore((state) => state.user),
-                hidden: (user) => {
-                  return (
-                    !!(user as User)?.mfa?.secondaryMethod ||
-                    !(user as User)?.mfa?.isEnabled
-                  );
-                },
-                modifer: () => {
-                  verifyUser("global", async () => {
-                    MFASheet.present(true);
-                  });
-                },
-                description: strings.addFallback2faMethodDesc()
-              },
-              {
-                id: "change-2fa-method",
-                name: strings.change2faFallbackMethod(),
-                useHook: () => useUserStore((state) => state.user),
-                hidden: (user) => {
-                  return (
-                    !(user as User)?.mfa?.secondaryMethod ||
-                    !(user as User)?.mfa?.isEnabled
-                  );
-                },
-                modifer: () => {
-                  verifyUser("global", async () => {
-                    MFASheet.present(true);
-                  });
-                },
-                description: strings.change2faFallbackMethod()
-              },
-              {
-                id: "view-2fa-codes",
-                name: strings.viewRecoveryCodes(),
-                modifer: () => {
-                  verifyUser("global", async () => {
-                    MFARecoveryCodes.present("sms");
-                  });
-                },
-                useHook: () => useUserStore((state) => state.user),
-                hidden: (user) => {
-                  return !(user as User)?.mfa?.isEnabled;
-                },
-                description: strings.viewRecoveryCodesDesc()
-              }
-            ]
-          },
-          {
-            id: "subscription-not-active",
-            name: strings.subscriptionNotActivated(),
-            useHook: () => useUserStore((state) => state.user),
-            hidden: (user) =>
-              Platform.OS !== "ios" ||
-              (user as User)?.subscription?.plan !== SubscriptionPlan.FREE,
-            modifer: async () => {
-              if (Platform.OS === "android") return;
-              try {
-                presentSheet({
-                  title: strings.loadingSubscription(),
-                  paragraph: strings.loadingSubscriptionDesc(),
-                  progress: true
-                });
-                const subscriptions = await RNIap.getPurchaseHistory();
-                subscriptions.sort(
-                  (a, b) => b.transactionDate - a.transactionDate
-                );
-                const currentSubscription = subscriptions[0];
-
-                if (
-                  !currentSubscription ||
-                  dayjs(currentSubscription.transactionDate).isBefore(
-                    dayjs().subtract(30, "day")
-                  )
-                ) {
-                  ToastManager.show({
-                    message: "No active subscription found",
-                    type: "info"
-                  });
-                  eSendEvent(eCloseSheet);
-                  return;
-                }
-
-                presentSheet({
-                  title: strings.notesnookPro(),
-                  paragraph: strings.subscribedOnVerify(
-                    new Date(
-                      currentSubscription.transactionDate
-                    ).toLocaleString()
-                  ),
-                  action: async () => {
-                    presentSheet({
-                      title: strings.verifySubscription(),
-                      paragraph: strings.subscriptionVerifyWait()
-                    });
-                    await PremiumService.subscriptions.verify(
-                      currentSubscription
-                    );
-                    eSendEvent(eCloseSheet);
-                  },
-                  icon: "information-outline",
-                  actionText: strings.verify()
-                });
-              } catch (e) {
-                eSendEvent(eCloseSheet);
-              }
-            },
-            description: strings.verifySubDesc()
-          },
-          {
-            id: "clear-cache",
-            name: strings.clearCache(),
-            icon: "delete",
-            modifer: async () => {
-              presentDialog({
-                title: strings.clearCacheConfirm(),
-                paragraph: strings.clearCacheConfirmDesc(),
-                positiveText: strings.clear(),
-                positivePress: async () => {
-                  filesystem.clearCache();
-                  ToastManager.show({
-                    heading: strings.cacheCleared(),
-                    message: strings.cacheClearedDesc(),
-                    type: "success"
-                  });
-                }
-              });
-            },
-            description(current) {
-              return strings.clearCacheDesc(current as number);
-            },
-            useHook: () => {
-              const [cacheSize, setCacheSize] = React.useState(0);
-              React.useEffect(() => {
-                filesystem
-                  .getCacheSize()
-                  .then(setCacheSize)
-                  .catch(() => {
-                    /* empty */
-                  });
-                const sub = eSubscribeEvent("cache-cleared", () => {
-                  setCacheSize(0);
-                });
-                return () => {
-                  sub?.unsubscribe();
-                };
-              }, []);
-              return formatBytes(cacheSize);
-            }
-          },
-
-          {
-            id: "logout",
-            name: strings.logout(),
-            description: strings.logoutWarnin(),
-            icon: "logout",
-            modifer: logoutUser
-          },
-          {
-            id: "delete-account",
-            type: "danger",
-            name: strings.deleteAccount(),
-            icon: "alert",
-            description: strings.deleteAccountDesc(),
-            modifer: () => {
-              presentDialog({
-                title: strings.deleteAccount(),
-                paragraphColor: "red",
-                paragraph: strings.deleteAccountDesc(),
-                positiveType: "errorShade",
-                input: true,
-                secureTextEntry: true,
-                inputPlaceholder: strings.enterAccountPassword(),
-                positiveText: strings.delete(),
-                positivePress: async (value) => {
-                  try {
-                    if (!value || !value.trim()) {
-                      ToastManager.error(
-                        new Error(strings.passwordNotEntered()),
-                        undefined,
-                        "local"
-                      );
-                      return;
-                    }
-                    const verified = await db.user?.verifyPassword(value);
-                    if (verified) {
-                      setTimeout(async () => {
-                        try {
-                          startProgress({
-                            title: "Deleting account",
-                            paragraph:
-                              "Please wait while we delete your account"
-                          });
-                          await db.user?.deleteUser(value);
-                          DatabaseLogger.info("User account deleted");
-                          Navigation.navigate("Notes");
-                          await BiometricService.resetCredentials();
-                          SettingsService.set({
-                            introCompleted: true
-                          });
-                        } catch (e) {
-                          endProgress();
-                          DatabaseLogger.error(e);
-                          ToastManager.error(
-                            e as Error,
-                            strings.failedToDeleteAccount(),
-                            "global"
-                          );
-                        }
-                      }, 300);
-                    } else {
-                      ToastManager.show({
-                        heading: strings.passwordIncorrect(),
-                        type: "error",
-                        context: "global"
-                      });
-                    }
-                  } catch (e) {
-                    ToastManager.error(
-                      e as Error,
-                      strings.failedToDeleteAccount(),
-                      "global"
-                    );
-                  }
-                }
-              });
-            }
-          }
-        ]
-      },
-      {
-        id: "sync-settings",
-        name: strings.syncSettings(),
-        description: strings.syncSettingsDesc(),
-        type: "screen",
-        icon: "autorenew",
-        component: "offline-mode-progress",
-        sections: [
-          {
-            id: "offline-mode",
-            icon: "download-multiple",
-            name: strings.fullOfflineMode(),
-            description: strings.fullOfflineModeDesc(),
-            type: "switch",
-            property: "offlineMode",
-            featureId: "fullOfflineMode",
-            modifer: () => {
-              const current = SettingsService.get().offlineMode;
-              if (current) {
-                SettingsService.setProperty("offlineMode", false);
-                db.fs().cancel("offline-mode");
-                return;
-              }
-              SettingsService.setProperty("offlineMode", true);
-              db.attachments.cacheAttachments().catch(() => {
-                /* empty */
-              });
-            }
-          },
-          {
-            id: "auto-sync",
-            name: strings.disableAutoSync(),
-            description: strings.disableAutoSyncDesc(),
-            type: "switch",
-            property: "disableAutoSync",
-            featureId: "syncControls",
-            icon: "sync-off"
-          },
-          {
-            id: "disable-realtime-sync",
-            name: strings.disableRealtimeSync(),
-            description: strings.disableRealtimeSyncDesc(),
-            type: "switch",
-            property: "disableRealtimeSync",
-            featureId: "syncControls"
-          },
-          {
-            id: "disable-sync",
-            name: strings.disableSync(),
-            description: strings.disableSyncDesc(),
-            type: "switch",
-            property: "disableSync",
-            featureId: "syncControls",
-            icon: "cloud-off-outline"
-          },
-          {
-            id: "background-sync",
-            name: strings.backgroundSync(),
-            description: strings.backgroundSyncDesc(),
-            type: "switch",
-            property: "backgroundSync",
-            icon: "cloud-upload-outline",
-            onChange: (value) => {
-              if (value) {
-                BackgroundSync.start();
-              } else {
-                BackgroundSync.stop();
-              }
-            }
-          },
-          {
-            id: "pull-sync",
-            name: strings.forcePullChanges(),
-            description: strings.forcePullChangesDesc(),
-            icon: "download",
-            modifer: () => {
-              presentDialog({
-                title: strings.forcePullChanges(),
-                paragraph: strings.forceSyncNotice(),
-                negativeText: strings.cancel(),
-                positiveText: strings.start(),
-                positivePress: async () => {
-                  eSendEvent(eCloseSheet);
-                  await sleep(300);
-                  Progress.present();
-                  Sync.run("global", true, "fetch", () => {
-                    eSendEvent(eCloseSheet);
-                  });
-                }
-              });
-            }
-          },
-          {
-            id: "push-sync",
-            name: strings.forcePushChanges(),
-            description: strings.forcePushChangesDesc(),
-            icon: "upload",
-            modifer: () => {
-              presentDialog({
-                title: strings.forcePushChanges(),
-                paragraph: strings.forceSyncNotice(),
-                negativeText: strings.cancel(),
-                positiveText: strings.start(),
-                positivePress: async () => {
-                  eSendEvent(eCloseSheet);
-                  await sleep(300);
-                  Progress.present();
-                  Sync.run("global", true, "send", () => {
-                    eSendEvent(eCloseSheet);
-                  });
-                }
-              });
-            }
-          }
-        ]
-      },
-      {
-        id: "notesnook-circle",
-        name: strings.notesnookCircle(),
-        icon: "circle-outline",
-        type: "screen",
-        description: strings.notesnookCircleDesc(),
-        component: "notesnook-circle"
-      },
-      {
-        id: "inbox-api",
-        name: strings.inboxAPI(),
-        icon: "inbox",
-        type: "screen",
-        description: strings.inboxAPIDesc(),
-        sections: [
-          {
-            id: "toggle-inbox-api",
-            name: strings.enableInboxAPI(),
-            description: strings.enableInboxAPIDesc(),
-            type: "switch",
-            useHook: () => {
-              return useSettingStore((state) => state.inboxEnabled);
-            },
-            getter: (current) => current,
-            modifer: async (current) => {
-              if (current) {
-                return new Promise((resolve) => {
-                  presentDialog({
-                    title: strings.disableInboxAPI(),
-                    paragraph: strings.disableInboxAPIDesc(),
-                    positiveText: strings.disable(),
-                    onClose: () => {
-                      resolve();
-                    },
-                    positivePress: async () => {
-                      try {
-                        await db.inboxItemsHistory.deleteFailed();
-                        await db.user.discardInboxKeys();
-                        useSettingStore.setState({
-                          inboxEnabled: false
-                        });
-                        resolve();
-                        return true;
-                      } catch (e) {
-                        ToastManager.show({
-                          message: (e as Error).message,
-                          context: "local"
-                        });
-                        DatabaseLogger.error(e);
-                        return false;
-                      }
-                    }
-                  });
-                });
-              }
-
-              try {
-                Navigation.push("SettingsGroup", {
-                  id: "setup-inbox-keys",
-                  name: strings.setupInboxKeys(),
-                  type: "screen",
-                  component: "setup-inbox-keys"
-                } as any);
-              } catch (e) {
-                console.log(e);
-              }
-            }
-          },
-          {
-            id: "manage-inbox-keys",
-            name: strings.manageInboxKeys(),
-            useHook: () => useSettingStore((state) => state.inboxEnabled),
-            hidden: (current) => !current,
-            description: strings.manageInboxKeysDesc(),
-            onVerify: async () => {
-              return new Promise((resolve) => {
-                verifyUser(
-                  "global",
-                  () => {
-                    resolve(true);
-                  },
-                  false,
-                  () => resolve(false)
-                );
-              });
-            },
-            type: "screen",
-            component: "manage-inbox-keys"
-          },
-          {
-            id: "inbox-keys",
-            name: strings.viewAPIKeys(),
-            description: strings.viewAPIKeysDesc(),
-            useHook: () => useSettingStore((state) => state.inboxEnabled),
-            hidden: (current) => !current,
-            type: "screen",
-            component: "inbox-keys"
-          },
-          {
-            id: "failed-inbox-items",
-            name: strings.failedInboxItems(),
-            description: strings.failedInboxItemsDesc(),
-            useHook: () => useSettingStore((state) => state.inboxEnabled),
-            hidden: (current) => !current,
-            type: "screen",
-            component: "failed-inbox-items",
-            hideHeader: true
-          }
-        ]
-      }
-    ]
-  },
   {
     id: "customize",
     name: strings.customization(),
@@ -848,6 +68,14 @@ export const settingsGroups: SettingSection[] = [
         description: strings.appearanceDesc(),
         icon: "shape",
         sections: [
+          {
+            id: "ui-language",
+            type: "component",
+            name: strings.uiLanguage(),
+            description: strings.restartAppToApplyChanges(),
+            component: "ui-locale-selector",
+            icon: "translate"
+          },
           {
             id: "theme-picker",
             type: "screen",
@@ -991,6 +219,14 @@ export const settingsGroups: SettingSection[] = [
         description: strings.editorDesc(),
         sections: [
           {
+            id: "scripture-translation",
+            type: "component",
+            name: strings.scriptureTranslation(),
+            description: strings.scriptureTranslationDesc(),
+            component: "translation-selector",
+            icon: "book-open-variant"
+          },
+          {
             id: "configure-toolbar",
             type: "screen",
             name: strings.customizeToolbar(),
@@ -1068,14 +304,6 @@ export const settingsGroups: SettingSection[] = [
             featureId: "markdownShortcuts"
           }
         ]
-      },
-      {
-        id: "servers",
-        type: "screen",
-        name: strings.servers(),
-        description: strings.serversConfigurationDesc(),
-        icon: "server",
-        component: "server-config"
       }
     ]
   },
@@ -1109,7 +337,7 @@ export const settingsGroups: SettingSection[] = [
         name: strings.corsBypass(),
         description: strings.corsBypassDesc(),
         inputProperties: {
-          defaultValue: "https://cors.notesnook.com",
+          defaultValue: "",
           autoCorrect: false,
           keyboardType: "url"
         },
@@ -1547,6 +775,38 @@ export const settingsGroups: SettingSection[] = [
             ExportNotesSheet.present(undefined, true);
           });
         }
+      },
+      // Epigrapho: the notes live only on this phone, so wiping them sits
+      // with the backups rather than under an account there is none of.
+      {
+        id: "delete-data",
+        name: strings.deleteData(),
+        icon: "delete",
+        description: strings.irreverisibleAction(),
+        modifer: () => {
+          presentDialog({
+            title: strings.deleteData(),
+            paragraph: strings.irreverisibleAction(),
+            positiveType: "errorShade",
+            positiveText: strings.deleteData(),
+            positivePress: async () => {
+              await PremiumService.setPremiumStatus();
+              await BiometricService.resetCredentials();
+              MMKV.clearStore();
+              resetTabStore();
+              clearAllStores();
+              Navigation.queueRoutesForUpdate();
+              SettingsService.resetSettings();
+              db.reset();
+
+              setImmediate(() => {
+                refreshAllStores();
+                eSendEvent(eAfterSync);
+              });
+              return true;
+            }
+          });
+        }
       }
     ]
   },
@@ -1663,26 +923,17 @@ export const settingsGroups: SettingSection[] = [
         name: strings.emailSupport(),
         icon: "email",
         modifer: () => {
-          Clipboard.setString("support@streetwriters.co");
+          Clipboard.setString("support@azteya.tech");
           ToastManager.show({
             heading: strings.emailCopied(),
             type: "success",
             icon: "content-copy"
           });
           setTimeout(() => {
-            Linking.openURL("mailto:support@streetwriters.co");
+            Linking.openURL("mailto:support@azteya.tech");
           }, 1000);
         },
         description: strings.emailSupportDesc()
-      },
-      {
-        id: "docs-link",
-        name: strings.documentation(),
-        modifer: async () => {
-          Linking.openURL("https://notesnook.com/help/");
-        },
-        description: strings.documentationDesc(),
-        icon: "file-document"
       },
       {
         id: "debugging",
@@ -1703,81 +954,18 @@ export const settingsGroups: SettingSection[] = [
     ]
   },
   {
-    id: "community",
-    name: strings.community(),
-    sections: [
-      {
-        id: "join-telegram",
-        name: strings.joinTelegram(),
-        description: strings.joinTelegramDesc(),
-        icon: "sc-telegram",
-        iconFamily: "evilicons",
-        iconSize: 35,
-        modifer: () => {
-          Linking.openURL("https://t.me/notesnook").catch(() => {
-            /* empty */
-          });
-        }
-      },
-      {
-        id: "join-mastodon",
-        name: strings.joinMastodon(),
-        description: strings.joinMastodonDesc(),
-        icon: "mastodon",
-        modifer: () => {
-          Linking.openURL("https://fosstodon.org/@notesnook").catch(
-            console.log
-          );
-        }
-      },
-      {
-        id: "join-twitter",
-        name: strings.followOnX(),
-        description: strings.followOnXDesc(),
-        icon: "twitter",
-        modifer: () => {
-          Linking.openURL("https://twitter.com/notesnook").catch(() => {
-            /* empty */
-          });
-        }
-      },
-      {
-        id: "join-discord",
-        name: strings.joinDiscord(),
-        icon: "discord",
-        modifer: async () => {
-          Linking.openURL("https://discord.gg/zQBK97EE22").catch(() => {
-            /* empty */
-          });
-        },
-        description: strings.joinDiscordDesc()
-      }
-    ]
-  },
-  {
     id: "legal",
     name: strings.legal(),
     sections: [
-      {
-        id: "tos",
-        name: strings.tos(),
-        icon: "briefcase-outline",
-        modifer: async () => {
-          try {
-            await Linking.openURL("https://notesnook.com/tos");
-          } catch (e) {
-            console.error(e);
-          }
-        },
-        description: strings.tosDesc()
-      },
       {
         id: "privacy-policy",
         name: strings.privacyPolicy(),
         icon: "shield-outline",
         modifer: async () => {
           try {
-            await Linking.openURL("https://notesnook.com/privacy");
+            await Linking.openURL(
+              "https://github.com/teamazteya/epigrapho/blob/main/PRIVACY.md"
+            );
           } catch (e) {
             console.error(e);
           }
@@ -1804,25 +992,14 @@ export const settingsGroups: SettingSection[] = [
         icon: "monitor",
         modifer: async () => {
           try {
-            await Linking.openURL("https://notesnook.com/downloads");
+            await Linking.openURL(
+              "https://github.com/teamazteya/epigrapho/releases/latest"
+            );
           } catch (e) {
             console.error(e);
           }
         },
         description: strings.downloadOnDesktopDesc()
-      },
-      {
-        id: "roadmap",
-        name: strings.roadmap(),
-        icon: "chart-timeline",
-        modifer: async () => {
-          try {
-            await Linking.openURL("https://notesnook.com/roadmap/");
-          } catch (e) {
-            console.error(e);
-          }
-        },
-        description: strings.roadmapDesc()
       },
       {
         id: "check-for-updates",
@@ -1842,7 +1019,7 @@ export const settingsGroups: SettingSection[] = [
         icon: "alpha-v",
         modifer: async () => {
           try {
-            await Linking.openURL("https://notesnook.com");
+            await Linking.openURL("https://github.com/teamazteya/epigrapho");
           } catch (e) {
             console.error(e);
           }

@@ -752,7 +752,7 @@ $day$: Current day (eg. Monday)`,
   fileSaved: (name: string, platform: string) =>
     select(platform, {
       android: `${name} saved to selected path`,
-      other: `${name} saved to File Manager/Notesnook/downloads`
+      other: `${name} saved to File Manager/Epigrapho/downloads`
     }),
   downloadError: (message: string) => t`Error downloading file: ${message}`,
   invalid: (type: string) => t`Invalid ${type}`,
@@ -1340,15 +1340,15 @@ $day$: Current day (eg. Monday)`,
   backupComplete: () => t`Backup complete`,
   backupSaved: (platform: string) =>
     select(platform, {
-      android: 'Backup file saved in "Notesnook backups" folder on your phone.',
-      other: "Backup file is saved in File Manager/Notesnook folder"
+      android: 'Backup file saved in "Epigrapho backups" folder on your phone.',
+      other: "Backup file is saved in File Manager/Epigrapho folder"
     }),
   shareBackup: () => t`Share backup`,
   neverAskAgain: () => t`Never ask again`,
   backingUpData: (type?: "full" | "partial") =>
     t`Creating a${type === "full" ? " full" : ""} backup`,
   backupDataDesc: () =>
-    t`All your backups are stored in 'Phone Storage/Notesnook/backups/' folder`,
+    t`All your backups are stored in 'Phone Storage/Epigrapho/backups/' folder`,
   backupSuccess: () => t`Backup successful`,
   biometricsAuthFailed: () =>
     t`Biometrics authentication failed. Please try again.`,

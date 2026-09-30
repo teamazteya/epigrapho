@@ -37,7 +37,6 @@ import { InteractionManager, Platform } from "react-native";
 import Share from "react-native-share";
 import { DatabaseLogger, db } from "../common/database";
 import { AttachmentDialog } from "../components/attachments";
-import { AuthMode } from "../components/auth/common";
 import { presentDialog } from "../components/dialog/functions";
 import NoteHistory from "../components/note-history";
 import { AddNotebookSheet } from "../components/sheets/add-notebook";
@@ -863,13 +862,7 @@ export const useActions = ({
       if (!user) {
         ToastManager.show({
           heading: strings.loginRequired(),
-          context: "local",
-          func: () => {
-            Navigation.navigate("Auth", {
-              mode: AuthMode.login
-            });
-          },
-          actionText: "Login"
+          context: "local"
         });
         return;
       }

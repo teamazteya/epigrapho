@@ -19,7 +19,7 @@
   "private": true,
   "license": "GPL-3.0-or-later",
   "scripts": {
-    "build": "node --experimental-strip-types scripts/import.ts --build ../../apps/web/public && tsdown src/index.ts",
+    "build": "node --experimental-strip-types scripts/import.ts --build ../../apps/web/public ../editor-mobile/public && tsdown src/index.ts",
     "import": "node --experimental-strip-types scripts/import.ts",
     "watch": "tsdown src/index.ts --watch",
     "test": "node --experimental-strip-types --test test/import.test.ts",

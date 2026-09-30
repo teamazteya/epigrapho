@@ -28,7 +28,18 @@ import {
 import { getFontById, getFonts } from "@notesnook/editor/dist/cjs/utils/font";
 import dayjs from "dayjs";
 import { createSettingsPicker } from ".";
+import {
+  PROVENANCE,
+  type ResourceProvenance
+} from "@notesnook/scripture-provider";
 import { db } from "../../../common/database";
+import {
+  getUiLocale,
+  setUiLocale,
+  UI_LOCALE_KEY,
+  UI_LOCALES,
+  UiLocale
+} from "../../../common/ui-locale";
 import { ToastManager } from "../../../services/event-manager";
 import SettingsService from "../../../services/settings";
 import { Settings, useSettingStore } from "../../../stores/use-setting-store";
@@ -137,8 +148,8 @@ export const TrashIntervalPicker = createSettingsPicker({
     return item === -1
       ? strings.never()
       : item === 1
-        ? strings.reminderRecurringMode.day()
-        : strings.days(item);
+      ? strings.reminderRecurringMode.day()
+      : strings.days(item);
   },
   getItemKey: (item) => item.toString(),
   options: [-1, 1, 7, 30, 365] as TrashCleanupInterval[],
@@ -158,6 +169,56 @@ export const TrashIntervalPicker = createSettingsPicker({
     }
     return disableTrashFeature.isAllowed;
   }
+});
+
+/**
+ * The translation verses are read in (A1 Fase 7), as on the desktop, but only
+ * the embedded ones: the brand translations need the API.Bible key, which
+ * never ships inside an app package (ADR-0002).
+ */
+const EMBEDDED_TRANSLATIONS = Object.values(PROVENANCE).filter(
+  (translation) => translation.deliveryMode === "embedded-offline"
+);
+
+export const TranslationPicker = createSettingsPicker({
+  getValue: () => useSettingStore.getState().settings.scriptureTranslation,
+  updateValue: async (item: ResourceProvenance) => {
+    SettingsService.set({ scriptureTranslation: item.id });
+    // The same key the desktop keeps it under, so a backup carries it.
+    await db.settings.setEpigrapho("epigrapho:translation", item.id);
+  },
+  formatValue: (item: ResourceProvenance | string) => {
+    const translation =
+      typeof item === "string"
+        ? PROVENANCE[item]
+        : (item as ResourceProvenance);
+    return translation ? `${translation.name} (${translation.id})` : `${item}`;
+  },
+  getItemKey: (item: ResourceProvenance) => item.id,
+  options: EMBEDDED_TRANSLATIONS,
+  compareValue: (current, item: ResourceProvenance) => current === item.id,
+  isFeatureAvailable: async () => true,
+  isOptionAvailable: async () => true
+});
+
+export const UiLocalePicker = createSettingsPicker({
+  getValue: () => getUiLocale(),
+  updateValue: async (item: UiLocale) => {
+    if (item === getUiLocale()) return;
+    setUiLocale(item);
+    await db.settings.setEpigrapho(UI_LOCALE_KEY, item);
+    ToastManager.show({
+      heading: UI_LOCALES[item],
+      message: strings.restartAppToApplyChanges(),
+      type: "success"
+    });
+  },
+  formatValue: (item: UiLocale) => UI_LOCALES[item],
+  getItemKey: (item) => item,
+  options: Object.keys(UI_LOCALES) as UiLocale[],
+  compareValue: (current, item) => current === item,
+  isFeatureAvailable: async () => true,
+  isOptionAvailable: async () => true
 });
 
 export const DateFormatPicker = createSettingsPicker({
@@ -294,10 +355,10 @@ export const ApplockTimerPicker = createSettingsPicker({
     return item === -1
       ? strings.never()
       : item === 0 || item === undefined
-        ? strings.immediately()
-        : item === 1
-          ? strings.minutes(1)
-          : strings.minutes(item);
+      ? strings.immediately()
+      : item === 1
+      ? strings.minutes(1)
+      : strings.minutes(item);
   },
   getItemKey: (item) => item.toString(),
   options: [-1, 0, 1, 5, 15, 30],
@@ -321,8 +382,8 @@ export const VaultLockTimerPicker = createSettingsPicker({
     return item === -1
       ? strings.never()
       : item < 1000 * 60 * 60
-        ? strings.minutes(item / (1000 * 60))
-        : strings.hours(item / (1000 * 60 * 60));
+      ? strings.minutes(item / (1000 * 60))
+      : strings.hours(item / (1000 * 60 * 60));
   },
   getItemKey: (item) => item.toString(),
   options: [
@@ -349,8 +410,8 @@ export const ImageCompressionPicker = createSettingsPicker({
     return item === "ask-every-time"
       ? strings.askEveryTime()
       : item === "enabled"
-        ? strings.enableRecommended()
-        : strings.disable();
+      ? strings.enableRecommended()
+      : strings.disable();
   },
   getItemKey: (item) => item,
   options: [

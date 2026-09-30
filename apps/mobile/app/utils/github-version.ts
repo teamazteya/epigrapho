@@ -52,38 +52,42 @@ export type GithubVersionInfo = {
   needsUpdate: boolean;
   current: string;
 };
+/** Epigrapho's releases: one tag vX.Y.Z carries the desktop installers and the APK. */
+export const RELEASES = "https://github.com/teamazteya/epigrapho/releases";
+export const APK_NAME = "epigrapho_android.apk";
+
+/** True when `a` is a later version than `b` (1.10.0 > 1.9.2). */
+export function isNewer(a: string, b: string) {
+  const parts = (v: string) => v.split("-")[0].split(".").map(Number);
+  const [x, y] = [parts(a), parts(b)];
+  for (let i = 0; i < 3; i++)
+    if ((x[i] || 0) !== (y[i] || 0)) return (x[i] || 0) > (y[i] || 0);
+  return false;
+}
+
 export const getGithubVersion = async (): Promise<GithubVersionInfo | null> => {
-  const url = `https://api.github.com/repos/streetwriters/notesnook/releases`;
   let res;
   try {
-    res = await fetch(url, {
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.96 Mobile Safari/537.36",
-        "sec-fetch-site": "same-origin"
-      }
-    });
+    // The latest published release, never a draft or a pre-release.
+    res = await fetch(
+      "https://api.github.com/repos/teamazteya/epigrapho/releases/latest",
+      { headers: { Accept: "application/vnd.github+json" } }
+    );
   } catch (e) {
     console.warn(e);
   }
 
   if (!res?.ok) return null;
-  const data = (await res?.json()) as GithubRelease[];
-
-  const versions = data?.filter(
-    (tag) =>
-      tag.tag_name.endsWith("android") && !tag.tag_name.endsWith("beta-android")
-  );
-  const latestVersion = versions[0];
-  const version = latestVersion.tag_name.replace("-android", "");
+  const latest = (await res.json()) as GithubRelease;
+  const version = latest.tag_name.replace(/^v/, "");
   return {
     version: version || null,
-    releasedAt: new Date(latestVersion.published_at).toISOString(),
+    releasedAt: new Date(latest.published_at).toISOString(),
     notes: "",
-    body: latestVersion.body,
-    url: latestVersion.url,
+    body: latest.body,
+    url: latest.html_url,
     lastChecked: new Date().toISOString(),
-    needsUpdate: getVersion() !== version,
+    needsUpdate: isNewer(version, getVersion()),
     current: getVersion()
   };
 };

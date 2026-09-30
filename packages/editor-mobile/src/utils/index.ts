@@ -55,6 +55,8 @@ export type Settings = {
   features: Record<any, any>;
   loggedIn: boolean;
   defaultLineHeight: number;
+  /** The translation chosen in the app's settings (A1 Fase 7). */
+  scriptureTranslation?: string;
   dayFormat: "short" | "long";
 };
 

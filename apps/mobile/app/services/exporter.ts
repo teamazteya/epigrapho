@@ -24,6 +24,8 @@ import RNHTMLtoPDF from "react-native-html-to-pdf-lite";
 import * as ScopedStorage from "react-native-scoped-storage";
 import { zip } from "react-native-zip-archive";
 import { DatabaseLogger } from "../common/database/index";
+// Registers how study blocks are written out (M1 Fase 4).
+import "./study-export";
 
 import {
   exportNote as _exportNote,

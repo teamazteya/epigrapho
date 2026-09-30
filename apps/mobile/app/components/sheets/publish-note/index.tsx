@@ -31,7 +31,6 @@ import {
 //@ts-ignore
 import ToggleSwitch from "toggle-switch-react-native";
 import { db } from "../../../common/database";
-import { requestInAppReview } from "../../../services/app-review";
 import {
   eSendEvent,
   presentSheet,
@@ -159,7 +158,6 @@ const PublishNoteSheet = ({
         Navigation.queueRoutesForUpdate();
         eSendEvent(eMenuItemUpdate);
       }
-      requestInAppReview();
     } catch (e) {
       ToastManager.show({
         heading: strings.failedToPublish(),
@@ -497,27 +495,6 @@ const PublishNoteSheet = ({
           </View>
         </>
       )}
-
-      <Paragraph
-        color={colors.secondary.paragraph}
-        size={AppFontSize.xs}
-        style={{
-          textAlign: "center",
-          marginTop: DefaultAppStyles.GAP_VERTICAL,
-          textDecorationLine: "underline"
-        }}
-        onPress={async () => {
-          try {
-            await openLinkInBrowser(
-              "https://notesnook.com/help/publish-notes-with-monographs"
-            );
-          } catch (e) {
-            console.error(e);
-          }
-        }}
-      >
-        {strings.monographLearnMore()}
-      </Paragraph>
     </View>
   );
 };

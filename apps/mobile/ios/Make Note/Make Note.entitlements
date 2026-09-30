@@ -4,11 +4,11 @@
 <dict>
 	<key>com.apple.security.application-groups</key>
 	<array>
-		<string>group.org.streetwriters.notesnook</string>
+		<string>group.tech.azteya.epigrapho</string>
 	</array>
 	<key>keychain-access-groups</key>
 	<array>
-		<string>$(AppIdentifierPrefix)group.org.streetwriters.notesnook</string>
+		<string>$(AppIdentifierPrefix)group.tech.azteya.epigrapho</string>
 	</array>
 </dict>
 </plist>

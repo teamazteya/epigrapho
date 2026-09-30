@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">Epigrapho</string>
-    <string name="title_activity_share">NotesnookShare</string>
+    <string name="title_activity_share">Epigrapho</string>
+    <string name="make_note">Make note</string>
+    <string name="new_note">New note</string>
     <string name="appwidget_text">EXAMPLE</string>
     <string name="add_widget">Add widget</string>
     <string name="take_a_quick_note">Take a quick note.</string>

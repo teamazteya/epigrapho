@@ -101,8 +101,7 @@ function* readStep(files: string[], hebrew: boolean): Generator<StepWord> {
       // follows the KJV where it and the NRSV part ways. Clear-Bible numbers
       // its source as the Hebrew Bible and NA do.
       const [chapter, verse] = hebrew ? nrsv : bracketed(others, "[") ?? nrsv;
-      const [sourceChapter, sourceVerseNumber] =
-        bracketed(others, "(") ?? nrsv;
+      const [sourceChapter, sourceVerseNumber] = bracketed(others, "(") ?? nrsv;
       const sourceVerse = verseId(book, sourceChapter, sourceVerseNumber);
 
       if (hebrew) {
@@ -320,7 +319,9 @@ export function buildTranslationWords(): TranslationWordsPack {
     const body = text
       .replace(/^# .+\n/, "")
       .replace(/^\s*## Definición\s*/, "")
-      .split(/^## (?:Sugerencias de traducción|Referencias bíblicas|Ejemplos de las historias|Datos de )/m)[0]
+      .split(
+        /^## (?:Sugerencias de traducción|Referencias bíblicas|Ejemplos de las historias|Datos de )/m
+      )[0]
       // Links to other entries keep their words; the paths mean nothing here.
       .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
       .replace(/\*\*/g, "")
@@ -349,7 +350,10 @@ export function buildLexicon(
   for (const pack of books.values())
     for (const tokens of Object.values(pack.verses))
       for (const [, , strong, , , glossEs] of tokens) {
-        const word = glossEs.toLowerCase().replace(/[^\p{L}\s]/gu, "").trim();
+        const word = glossEs
+          .toLowerCase()
+          .replace(/[^\p{L}\s]/gu, "")
+          .trim();
         // An article or preposition alone is the alignment catching a
         // neighbour, not a way RV1909 renders the word.
         if (!word || FUNCTION_WORDS.has(word)) continue;
@@ -420,9 +424,9 @@ type NeuuEntry = {
 export function buildDictionaryEn(): DictionaryPack {
   const pack: DictionaryPack = {};
   for (const [file, entries] of readFolder("neuu")) {
-    const source = (
-      { easton: "EAS", smith: "SMI", hitchcock: "HIT" } as const
-    )[file.split("-")[0] as "easton" | "smith" | "hitchcock"];
+    const source = ({ easton: "EAS", smith: "SMI", hitchcock: "HIT" } as const)[
+      file.split("-")[0] as "easton" | "smith" | "hitchcock"
+    ];
     for (const { name, slug, definitions } of Object.values(
       entries as Record<string, NeuuEntry>
     )) {
@@ -440,41 +444,41 @@ export function buildDictionaryEn(): DictionaryPack {
 const percent = ({ tokens, withSpanish }: Coverage) =>
   ((withSpanish / tokens) * 100).toFixed(1);
 
-// ponytail: no CLI parser. `--build <folder>` writes original/<BOOK>.json
-// there; a reference like "JHN 3:16" prints that verse's tokens.
+// ponytail: no CLI parser. `--build <folder> [<folder>…]` writes
+// original/<BOOK>.json in each; a reference like "JHN 3:16" prints that verse's tokens.
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   await fetchSources();
   const { books, coverage } = buildBooks();
   console.error(
-    `glosa en español: AT ${percent(coverage.OT)} %, NT ${percent(coverage.NT)} %`
+    `glosa en español: AT ${percent(coverage.OT)} %, NT ${percent(
+      coverage.NT
+    )} %`
   );
   if (process.argv[2] === "--build") {
-    const out = `${process.argv[3]}/original`;
-    mkdirSync(out, { recursive: true });
-    for (const [book, pack] of books)
-      writeFileSync(`${out}/${book}.json`, JSON.stringify(pack));
+    // Every folder named gets the same files: the web app's public/ and the
+    // mobile editor's, whose packs ship inside the phone app (M1 Fase 4).
+    const outs = process.argv.slice(3).map((folder) => `${folder}/original`);
+    const write = (name: string, data: unknown) => {
+      const json = JSON.stringify(data);
+      for (const out of outs) writeFileSync(`${out}/${name}`, json);
+    };
+    for (const out of outs) mkdirSync(out, { recursive: true });
+    for (const [book, pack] of books) write(`${book}.json`, pack);
     const words = buildTranslationWords();
-    writeFileSync(`${out}/es-419-tw.json`, JSON.stringify(words));
+    write("es-419-tw.json", words);
     const lexicon = buildLexicon(books, words);
     for (const [language, entries] of Object.entries(lexicon))
-      writeFileSync(`${out}/lexicon-${language}.json`, JSON.stringify(entries));
-    writeFileSync(
-      `${out}/dictionary-en.json`,
-      JSON.stringify(buildDictionaryEn())
-    );
+      write(`lexicon-${language}.json`, entries);
+    write("dictionary-en.json", buildDictionaryEn());
     // Rand ships only once a person has read a sample of the cleaned OCR
     // (A2 Paso 7.2, 🛑); until then the file is there, and empty.
-    writeFileSync(
-      `${out}/dictionary-es-rand.json`,
-      JSON.stringify(RAND_APPROVED ? buildRand() : {})
-    );
+    write("dictionary-es-rand.json", RAND_APPROVED ? buildRand() : {});
     for (const [language, index] of Object.entries(buildConcordance(books)))
-      writeFileSync(
-        `${out}/concordance-${language}.json`,
-        JSON.stringify(index)
-      );
+      write(`concordance-${language}.json`, index);
     console.error(
-      `${books.size} libros, ${Object.keys(words).length} entradas es-419 y ${Object.keys(lexicon.G).length + Object.keys(lexicon.H).length} del léxico escritos en ${out}`
+      `${books.size} libros, ${Object.keys(words).length} entradas es-419 y ${
+        Object.keys(lexicon.G).length + Object.keys(lexicon.H).length
+      } del léxico escritos en ${outs.join(", ")}`
     );
   } else {
     const [book, rest] = (process.argv[2] ?? "JHN 3:16").split(/\s+/);

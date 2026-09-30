@@ -4,12 +4,12 @@
 <dict>
 	<key>provisioningProfiles</key>
 	<dict>
-		<key>org.streetwriters.notesnook</key>
-		<string>Notesnook 2026</string>
-        <key>org.streetwriters.notesnook.notewidget</key>
-		<string>Notesnook Note Widget 2026</string>
-        <key>org.streetwriters.notesnook.share</key>
-		<string>Notesnook Share 2026</string>
+		<key>tech.azteya.epigrapho</key>
+		<string>Epigrapho</string>
+        <key>tech.azteya.epigrapho.widget</key>
+		<string>Epigrapho Widget</string>
+        <key>tech.azteya.epigrapho.share</key>
+		<string>Epigrapho Share</string>
 	</dict>
 </dict>
 </plist>

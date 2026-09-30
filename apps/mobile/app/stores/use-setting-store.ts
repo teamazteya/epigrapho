@@ -104,6 +104,8 @@ export type Settings = {
   defaultSidebarTab: number;
   checkForUpdates?: boolean;
   defaultLineHeight: number;
+  /** Epigrapho: the translation verses are read in (only embedded ones). */
+  scriptureTranslation: string;
   imageCompression: "ask-every-time" | "enabled" | "disabled";
   keepScreenOn?: boolean;
 };
@@ -198,7 +200,7 @@ export const defaultSettings: SettingStore["settings"] = {
   doubleSpacedLines: true,
   reminderNotifications: true,
   defaultSnoozeTime: "5",
-  corsProxy: "https://cors.notesnook.com",
+  corsProxy: "",
   reminderNotificationMode: "urgent",
   notificationSound: undefined,
   defaultFontFamily: "sans-serif",
@@ -216,6 +218,7 @@ export const defaultSettings: SettingStore["settings"] = {
   lastFullBackupDate: 0,
   checkForUpdates: true,
   defaultLineHeight: EDITOR_LINE_HEIGHT.DEFAULT,
+  scriptureTranslation: "VBL",
   imageCompression: "ask-every-time",
   keepScreenOn: true
 };
