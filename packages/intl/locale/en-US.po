@@ -621,11 +621,11 @@ msgid "{plan}, day {day} — {date}"
 msgstr ""
 
 #: src/strings.ts:753
-msgid "{platform, select, android {{name} saved to selected path} other {{name} saved to File Manager/Notesnook/downloads}}"
+msgid "{platform, select, android {{name} saved to selected path} other {{name} saved to File Manager/Epigrapho/downloads}}"
 msgstr ""
 
 #: src/strings.ts:1393
-msgid "{platform, select, android {Backup file saved in \"Notesnook backups\" folder on your phone.} other {Backup file is saved in File Manager/Notesnook folder}}"
+msgid "{platform, select, android {Backup file saved in \"Epigrapho backups\" folder on your phone.} other {Backup file is saved in File Manager/Epigrapho folder}}"
 msgstr ""
 
 #: src/strings.ts:2587
@@ -966,7 +966,7 @@ msgid "All tools in this group will be removed from the toolbar."
 msgstr ""
 
 #: src/strings.ts:1402
-msgid "All your backups are stored in 'Phone Storage/Notesnook/backups/' folder"
+msgid "All your backups are stored in 'Phone Storage/Epigrapho/backups/' folder"
 msgstr ""
 
 #: src/strings.ts:108

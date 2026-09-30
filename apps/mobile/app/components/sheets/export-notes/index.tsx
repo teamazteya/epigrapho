@@ -32,7 +32,6 @@ import Share from "react-native-share";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { notesnook } from "../../../../e2e/test.ids";
 import { db } from "../../../common/database";
-import { requestInAppReview } from "../../../services/app-review";
 import {
   PresentSheetOptions,
   ToastManager,
@@ -108,7 +107,6 @@ const ExportNotesSheet = ({
     update?.({ disableClosing: false } as PresentSheetOptions);
     setComplete(true);
     setExporting(false);
-    requestInAppReview();
   };
 
   const actions = [
@@ -137,7 +135,7 @@ const ExportNotesSheet = ({
       id: notesnook.ids.dialogs.export.md
     },
     {
-      title: "Plain Text",
+      title: strings.plainText(),
       func: async () => {
         await exportNoteAs("txt");
       },

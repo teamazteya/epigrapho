@@ -31,7 +31,6 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 import { db } from "../../common/database";
 import { DDS } from "../../services/device-detection";
 import { clearMessage, setEmailVerifyMessage } from "../../services/message";
-import Navigation from "../../services/navigation";
 import { useUserStore } from "../../stores/use-user-store";
 import { openLinkInBrowser } from "../../utils/functions";
 import { AppFontSize } from "../../utils/size";
@@ -44,7 +43,6 @@ import Paragraph from "../ui/typography/paragraph";
 import { AuthHeader } from "./header";
 import { SignupContext } from "./signup-context";
 import { RouteParams } from "../../stores/use-navigation-store";
-import SettingsService from "../../services/settings";
 import AppIcon from "../ui/AppIcon";
 
 const SignupSteps = {
@@ -96,13 +94,6 @@ export const Signup = ({
       setLastSynced(await db.lastSynced());
       clearMessage();
       setEmailVerifyMessage();
-      if (!SettingsService.getProperty("serverUrls")) {
-        Navigation.navigate("PayWall", {
-          canGoBack: false,
-          state: route.params.state,
-          context: "signup"
-        });
-      }
       return true;
     } catch (e) {
       setCurrentStep(SignupSteps.signup);
@@ -354,7 +345,9 @@ export const Signup = ({
                   <Paragraph
                     size={AppFontSize.xxs}
                     onPress={() => {
-                      openLinkInBrowser("https://notesnook.com/tos");
+                      openLinkInBrowser(
+                        "https://github.com/teamazteya/epigrapho/blob/main/LICENSE"
+                      );
                     }}
                     style={{
                       textDecorationLine: "underline"
@@ -368,7 +361,9 @@ export const Signup = ({
                   <Paragraph
                     size={AppFontSize.xxs}
                     onPress={() => {
-                      openLinkInBrowser("https://notesnook.com/privacy");
+                      openLinkInBrowser(
+                        "https://github.com/teamazteya/epigrapho/blob/main/PRIVACY.md"
+                      );
                     }}
                     style={{
                       textDecorationLine: "underline"

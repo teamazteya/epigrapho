@@ -35,6 +35,14 @@ import {
   resolveVerse
 } from "../common/scripture";
 import { askForScripture } from "../common/scripture-prompt";
+import {
+  insertInterlinear,
+  loadDictionaryEntry,
+  loadInterlinear,
+  loadLexicon,
+  useStudyPane
+} from "../common/study";
+import { StudyPane } from "./study-pane";
 import { strings } from "@notesnook/intl";
 import { useThemeColors } from "@notesnook/theme";
 import FingerprintIcon from "mdi-react/FingerprintIcon";
@@ -274,6 +282,24 @@ const Tiptap = ({
         if (scripture)
           editor.chain().focus().insertScriptureBlock(scripture).run();
       },
+      // Epigrapho (M1 Fase 4): the study tools of A2, from the packs shipped
+      // beside this page. The concordance and the dictionaries open in a
+      // sheet over the note (StudyPane) instead of the desktop's side panel.
+      insertInterlinear,
+      loadInterlinear,
+      lexicon: loadLexicon,
+      openConcordance: (strong) =>
+        useStudyPane
+          .getState()
+          .open(
+            { type: "concordance", query: strong },
+            editors[tab.id] ?? undefined
+          ),
+      insertDictionaryEntry: (editor) =>
+        useStudyPane
+          .getState()
+          .open({ type: "dictionary", query: "", inserting: true }, editor),
+      loadDictionaryEntry,
       onFocus: () => {
         getContentDiv().classList.remove("searching");
       },
@@ -1029,6 +1055,7 @@ const Tiptap = ({
           }}
         />
       </div>
+      <StudyPane />
     </>
   );
 };

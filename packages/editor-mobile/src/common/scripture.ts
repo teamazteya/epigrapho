@@ -45,13 +45,16 @@ import {
 export const DEFAULT_TRANSLATION = "VBL";
 
 /**
- * ponytail: the phone reads in the default translation for now. The chosen
- * one is a setting in the database (Fase 7), which lives in the app around
- * this page, not in the page; wiring it across is a message and its plumbing,
- * and nothing on this screen offers the choice yet.
+ * The translation chosen in the app's settings. The app hands it across with
+ * the rest of the editor settings (setSettings), and it is read when a verse
+ * is shown, so a change applies without reloading the page. Only embedded
+ * translations can be chosen on a phone; anything else falls back below.
  */
-export function getTranslation() {
-  return DEFAULT_TRANSLATION;
+export function getTranslation(): string {
+  return (
+    globalThis.settingsController?.previous?.scriptureTranslation ||
+    DEFAULT_TRANSLATION
+  );
 }
 
 /** The language book names are written in, following the interface. */

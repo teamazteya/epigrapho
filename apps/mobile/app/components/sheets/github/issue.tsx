@@ -27,7 +27,6 @@ import { useStoredRef } from "../../../hooks/use-stored-ref";
 import { eSendEvent, ToastManager } from "../../../services/event-manager";
 import PremiumService from "../../../services/premium";
 import { useUserStore } from "../../../stores/use-user-store";
-import { openLinkInBrowser } from "../../../utils/functions";
 import { defaultBorderRadius, AppFontSize } from "../../../utils/size/index";
 import DialogHeader from "../../dialog/dialog-header";
 import { Button } from "../../ui/button";
@@ -263,7 +262,7 @@ Github Release: ${Config.GITHUB_RELEASE === "true" ? "Yes" : "No"}`,
             <Text
               onPress={() => {
                 Linking.openURL(
-                  "https://github.com/streetwriters/notesnook/issues"
+                  "https://github.com/teamazteya/epigrapho/issues"
                 );
               }}
               style={{
@@ -271,23 +270,7 @@ Github Release: ${Config.GITHUB_RELEASE === "true" ? "Yes" : "No"}`,
                 color: colors.primary.accent
               }}
             >
-              github.com/streetwriters/notesnook.
-            </Text>{" "}
-            {strings.issueNotice[1]()}{" "}
-            <Text
-              style={{
-                textDecorationLine: "underline",
-                color: colors.primary.accent
-              }}
-              onPress={async () => {
-                try {
-                  await openLinkInBrowser("https://discord.gg/zQBK97EE22");
-                } catch (e) {
-                  console.error(e);
-                }
-              }}
-            >
-              {strings.issueNotice[2]()}
+              github.com/teamazteya/epigrapho.
             </Text>
           </Paragraph>
         </>

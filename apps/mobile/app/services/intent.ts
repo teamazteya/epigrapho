@@ -42,9 +42,9 @@ export const IntentService = {
     try {
       const intent = NotesnookModule.getIntent();
 
-      if (intent["com.streetwriters.notesnook.OpenNoteId"]) {
+      if (intent["tech.azteya.epigrapho.OpenNoteId"]) {
         const note = await db.notes.note(
-          intent["com.streetwriters.notesnook.OpenNoteId"]
+          intent["tech.azteya.epigrapho.OpenNoteId"]
         );
         if (note) {
           eSendEvent(eOnLoadNote, {
@@ -52,12 +52,12 @@ export const IntentService = {
           });
           fluidTabsRef.current?.goToPage("editor", false);
         }
-      } else if (intent["com.streetwriters.notesnook.OpenReminderId"]) {
+      } else if (intent["tech.azteya.epigrapho.OpenReminderId"]) {
         const reminder = await db.reminders.reminder(
-          intent["com.streetwriters.notesnook.OpenReminderId"]
+          intent["tech.azteya.epigrapho.OpenReminderId"]
         );
         if (reminder) AddReminder.present(reminder);
-      } else if (intent["com.streetwriters.notesnook.NewReminder"]) {
+      } else if (intent["tech.azteya.epigrapho.NewReminder"]) {
         AddReminder.present();
       }
     } catch (e) {

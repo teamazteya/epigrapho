@@ -71,9 +71,7 @@ const routeNames = {
   Archive: "Archive",
   ManageTags: "ManageTags",
   AddReminder: "AddReminder",
-  RelationsList: "RelationsList",
-  PayWall: "PayWall",
-  Wrapped: "Wrapped"
+  RelationsList: "RelationsList"
 };
 
 export type NavigationProps<T extends RouteName> = NativeStackScreenProps<

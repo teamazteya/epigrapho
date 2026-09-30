@@ -40,7 +40,6 @@ import {
 import { WebViewMessageEvent } from "react-native-webview";
 import { DatabaseLogger, db } from "../../../common/database";
 import downloadAttachment from "../../../common/filesystem/download-attachment";
-import { AuthMode } from "../../../components/auth/common";
 import { Properties } from "../../../components/properties";
 import EditorTabs from "../../../components/sheets/editor-tabs";
 import { Issue } from "../../../components/sheets/github/issue";
@@ -93,13 +92,7 @@ const publishNote = async () => {
   if (!user) {
     ToastManager.show({
       heading: strings.loginRequired(),
-      context: "global",
-      func: () => {
-        Navigation.navigate("Auth", {
-          mode: AuthMode.login
-        });
-      },
-      actionText: "Login"
+      context: "global"
     });
     return;
   }
@@ -190,6 +183,9 @@ export const useEditorEvents = (
   const markdownShortcuts = useSettingStore(
     (state) => state.settings.markdownShortcuts
   );
+  const scriptureTranslation = useSettingStore(
+    (state) => state.settings.scriptureTranslation
+  );
 
   const tools = useDragState((state) => state.data);
   useEffect(() => {
@@ -237,7 +233,8 @@ export const useEditorEvents = (
       markdownShortcuts,
       features,
       loggedIn,
-      defaultLineHeight
+      defaultLineHeight,
+      scriptureTranslation
     });
   }, [
     fullscreen,
@@ -259,6 +256,7 @@ export const useEditorEvents = (
     markdownShortcuts,
     loggedIn,
     defaultLineHeight,
+    scriptureTranslation,
     features
   ]);
 
@@ -467,8 +465,9 @@ export const useEditorEvents = (
             relationType: "from",
             title: strings.dataTypesPluralCamelCase.reminder(),
             onAdd: async () => {
-              const reminderFeature =
-                await isFeatureAvailable("activeReminders");
+              const reminderFeature = await isFeatureAvailable(
+                "activeReminders"
+              );
               if (!reminderFeature.isAllowed) {
                 ToastManager.show({
                   type: "info",
@@ -546,8 +545,8 @@ export const useEditorEvents = (
                 link.type === "note"
                   ? "notes"
                   : link.type === "notebook"
-                    ? "notebooks"
-                    : "tags";
+                  ? "notebooks"
+                  : "tags";
               const item = await db
                 .sql()
                 .selectFrom(table)

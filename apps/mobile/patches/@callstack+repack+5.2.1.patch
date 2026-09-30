@@ -1,0 +1,56 @@
+diff --git a/node_modules/@callstack/repack/dist/commands/common/config/getMinimizerConfig.js b/node_modules/@callstack/repack/dist/commands/common/config/getMinimizerConfig.js
+--- a/node_modules/@callstack/repack/dist/commands/common/config/getMinimizerConfig.js
++++ b/node_modules/@callstack/repack/dist/commands/common/config/getMinimizerConfig.js
+@@ -16,7 +16,7 @@ async function getTerserPlugin(rootDir) {
+   } catch {
+     terserPluginPath = require.resolve('terser-webpack-plugin');
+   }
+-  const plugin = await import(terserPluginPath);
++  const plugin = await import(require('node:url').pathToFileURL(terserPluginPath).href);
+   return 'default' in plugin ? plugin.default : plugin;
+ }
+ async function getTerserConfig(rootDir) {
+diff --git a/node_modules/@callstack/repack/dist/commands/common/getDevMiddleware.js b/node_modules/@callstack/repack/dist/commands/common/getDevMiddleware.js
+--- a/node_modules/@callstack/repack/dist/commands/common/getDevMiddleware.js
++++ b/node_modules/@callstack/repack/dist/commands/common/getDevMiddleware.js
+@@ -11,5 +11,5 @@ async function getDevMiddleware(reactNativePath) {
+   const devMiddlewarePath = require.resolve('@react-native/dev-middleware', {
+     paths: [reactNativeCommunityCliPluginPath]
+   });
+-  return import(devMiddlewarePath);
++  return import(require('node:url').pathToFileURL(devMiddlewarePath).href);
+ }
+\ No newline at end of file
+diff --git a/node_modules/@callstack/repack/dist/loaders/babelLoader/utils.js b/node_modules/@callstack/repack/dist/loaders/babelLoader/utils.js
+--- a/node_modules/@callstack/repack/dist/loaders/babelLoader/utils.js
++++ b/node_modules/@callstack/repack/dist/loaders/babelLoader/utils.js
+@@ -28,7 +28,7 @@ function resolveHermesParser(projectRoot) {
+ async function loadHermesParser(projectRoot, providedHermesParserPath) {
+   try {
+     const hermesParserPath = providedHermesParserPath ?? resolveHermesParser(projectRoot ?? process.cwd());
+-    const hermesParser = await import(hermesParserPath);
++    const hermesParser = await import(require('node:url').pathToFileURL(hermesParserPath).href);
+     return hermesParser;
+   } catch (e) {
+     console.error(e);
+diff --git a/node_modules/@callstack/repack/dist/loaders/babelSwcLoader/utils.js b/node_modules/@callstack/repack/dist/loaders/babelSwcLoader/utils.js
+--- a/node_modules/@callstack/repack/dist/loaders/babelSwcLoader/utils.js
++++ b/node_modules/@callstack/repack/dist/loaders/babelSwcLoader/utils.js
+@@ -126,7 +126,7 @@ async function getSwcModule(loaderContext) {
+     // use optional chaining to avoid type errors when there is no experiments.swc
+     const rspackCorePath = safelyResolve('@rspack/core', projectRoot);
+     if (rspackCorePath && !isWebpack) {
+-      const rspack = await import(rspackCorePath);
++      const rspack = await import(require('node:url').pathToFileURL(rspackCorePath).href);
+       if ('default' in rspack) {
+         return rspack.default?.experiments?.swc ?? null;
+       }
+@@ -139,7 +139,7 @@ async function getSwcModule(loaderContext) {
+   // this can be in both webpack & rspack projects
+   const swcCorePath = safelyResolve('@swc/core', projectRoot);
+   if (swcCorePath) {
+-    const swc = await import(swcCorePath);
++    const swc = await import(require('node:url').pathToFileURL(swcCorePath).href);
+     if ('default' in swc) {
+       return swc.default;
+     }

@@ -29,6 +29,12 @@ import { loadScripturePacks } from "./common/scripture";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 
+// Epigrapho (M1 Fase 4): the theme's colour variables live on scope classes.
+// The lexicon, the verse preview, the passage dialog and the study sheet are
+// all appended to <body>, outside every element that has one, and came out
+// transparent; the body itself carries the editor's scope instead.
+document.body.classList.add("theme-scope-editor");
+
 setTimeout(() => {
   if (globalThis.__DEV__) {
     const logFn = global.console.log;

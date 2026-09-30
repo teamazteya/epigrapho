@@ -3,12 +3,13 @@ import "@azure/core-asynciterator-polyfill";
 import "@formatjs/intl-locale/polyfill-force";
 import "@formatjs/intl-pluralrules/polyfill-force";
 import "@formatjs/intl-pluralrules/locale-data/en";
+import "@formatjs/intl-pluralrules/locale-data/es";
 import "react-native-url-polyfill/auto";
 import "./polyfills/console-time.js";
 import "./app/common/logger/index";
 import { setI18nGlobal } from "@notesnook/intl";
 import { i18n } from "@lingui/core";
-import Config from "react-native-config";
+import { activateUiLocale } from "./app/common/ui-locale";
 import OpenPGP from "react-native-fast-openpgp";
 
 OpenPGP.useJSI = false;
@@ -28,20 +29,9 @@ Object.defineProperty(global, "Buffer", {
   }
 });
 
-if (__DEV__ && Config.isTesting !== "true") {
-  const messages =
-    require("@notesnook/intl/dist/locales/$pseudo-LOCALE.json").messages;
-  i18n.load({
-    en: messages
-  });
-} else {
-  const messages = require("@notesnook/intl/dist/locales/$en.json").messages;
-  i18n.load({
-    en: messages
-  });
-}
-
-i18n.activate("en");
+// Epigrapho: the chosen language (Spanish by default), in development too, so
+// what is checked is what ships. Upstream showed the pseudo-locale in dev.
+activateUiLocale();
 setI18nGlobal(i18n);
 
 if (__DEV__) {

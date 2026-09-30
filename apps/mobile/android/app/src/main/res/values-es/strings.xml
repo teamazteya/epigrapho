@@ -1,0 +1,31 @@
+<resources>
+    <string name="title_activity_share">Epigrapho</string>
+    <string name="make_note">Crear nota</string>
+    <string name="new_note">Nota nueva</string>
+    <string name="add_widget">Agregar widget</string>
+    <string name="take_a_quick_note">Escribe una nota rápida.</string>
+    <string name="reminders">Resumen de tus recordatorios</string>
+    <string name="reminders_title">Recordatorios</string>
+    <string name="note">Nota</string>
+    <string name="note_description">Agrega una nota a la pantalla de inicio</string>
+    <string name="quick_note">Nota rápida</string>
+    <string name="widget_reminders_empty">Toca + para agregar un recordatorio</string>
+
+    <!-- Contenido de muestra, solo en la vista previa del selector de widgets. -->
+    <string name="widget_preview_note_title">Estudio de Romanos</string>
+    <string name="widget_preview_note_body">Romanos 8:28 y el propósito de Dios.</string>
+    <string name="widget_preview_reminder_title">Leer Salmo 23</string>
+    <string name="widget_preview_reminder_time">Próximo: hoy, 5:00 p. m.</string>
+    <string name="widget_preview_reminder_title_alt">Preparar la clase</string>
+    <string name="widget_preview_reminder_time_alt">Próximo: mañana, 9:00 a. m.</string>
+
+    <string name="widget_note_unconfigured_title">Toca para elegir una nota</string>
+    <string name="widget_note_unconfigured_body">Elige la nota que quieres ver aquí.</string>
+    <string name="reminder_ongoing">En curso</string>
+    <string name="reminder_snoozed_until">Pospuesto hasta %1$s</string>
+    <string name="reminder_today">Hoy, %1$s</string>
+    <string name="reminder_tomorrow">Mañana, %1$s</string>
+    <string name="reminder_yesterday">Ayer, %1$s</string>
+    <string name="reminder_upcoming">Próximo: %1$s</string>
+    <string name="reminder_last">Último: %1$s</string>
+</resources>

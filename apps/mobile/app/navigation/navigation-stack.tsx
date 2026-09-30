@@ -78,7 +78,7 @@ const AppNavigation = React.memo(
 
           if (
             parsedLink?.type === "notebook" ||
-            url?.startsWith("https://app.notesnook.com/open_notebook?")
+            url?.startsWith("epigrapho://app/open_notebook?")
           ) {
             const id = parsedLink?.id || new URL(url).searchParams.get("id");
             if (id) {
@@ -92,7 +92,7 @@ const AppNavigation = React.memo(
             }
           } else if (
             parsedLink?.type === "tag" ||
-            url?.startsWith("https://app.notesnook.com/open_tag?")
+            url?.startsWith("epigrapho://app/open_tag?")
           ) {
             const id = parsedLink?.id || new URL(url).searchParams.get("id");
             if (id) {
@@ -107,7 +107,7 @@ const AppNavigation = React.memo(
             }
           } else if (
             parsedLink?.type === "color" ||
-            url?.startsWith("https://app.notesnook.com/open_color?")
+            url?.startsWith("epigrapho://app/open_color?")
           ) {
             const id = parsedLink?.id || new URL(url).searchParams.get("id");
             if (id) {
@@ -301,8 +301,6 @@ let Settings: any = null;
 let ManageTags: any = null;
 let AddReminder: any = null;
 let RelationsList: any = null;
-let PayWall: any = null;
-let Wrapped: any = null;
 export const RootNavigation = () => {
   const introCompleted = useSettingStore(
     (state) => state.settings.introCompleted
@@ -338,7 +336,7 @@ export const RootNavigation = () => {
         return;
       }
 
-      if (pendingShortcut.type === "notesnook.action.newreminder") {
+      if (pendingShortcut.type === "epigrapho.action.newreminder") {
         if (reminderFeature === undefined) return;
 
         if (!reminderFeature.isAllowed) {
@@ -358,7 +356,7 @@ export const RootNavigation = () => {
         }
 
         rootNavigatorRef.current?.navigate("AddReminder" as any);
-      } else if (pendingShortcut.type === "notesnook.action.newnote") {
+      } else if (pendingShortcut.type === "epigrapho.action.newnote") {
         if (fluidTabsRef.current) {
           rootNavigatorRef.current?.navigate("FluidPanelsView" as any);
           eSendEvent(eOnLoadNote, { newNote: true });
@@ -379,9 +377,9 @@ export const RootNavigation = () => {
 
   const initialRouteName = !introCompleted
     ? "Welcome"
-    : initialShortcut?.type === "notesnook.action.newreminder"
-      ? "AddReminder"
-      : "FluidPanelsView";
+    : initialShortcut?.type === "epigrapho.action.newreminder"
+    ? "AddReminder"
+    : "FluidPanelsView";
 
   return (
     <NavigationContainer onStateChange={onStateChange} ref={rootNavigatorRef}>
@@ -416,7 +414,7 @@ export const RootNavigation = () => {
           }}
           initialParams={{
             initialPage:
-              initialShortcut?.type === "notesnook.action.newnote"
+              initialShortcut?.type === "epigrapho.action.newnote"
                 ? "editor"
                 : undefined
           }}
@@ -480,21 +478,6 @@ export const RootNavigation = () => {
             RelationsList =
               RelationsList || require("../screens/relations-list").default;
             return RelationsList;
-          }}
-        />
-        <RootStack.Screen
-          name="PayWall"
-          getComponent={() => {
-            PayWall = PayWall || require("../components/paywall").default;
-            return PayWall;
-          }}
-        />
-
-        <RootStack.Screen
-          name="Wrapped"
-          getComponent={() => {
-            Wrapped = Wrapped || require("../screens/wrapped").default;
-            return Wrapped;
           }}
         />
       </RootStack.Navigator>

@@ -16,14 +16,8 @@ BackgroundSync.start();
 Notifications.init();
 
 enableFreeze(true);
-NetInfo.configure({
-  reachabilityUrl: "https://api.notesnook.com/health",
-  reachabilityTest: (response) => {
-    if (!response) return false;
-    console.log("reachabilty test", response.status);
-    return response?.status >= 200 && response?.status < 300;
-  }
-});
+// Epigrapho: NetInfo checks reachability against its own default; upstream
+// pointed it at Notesnook's API, which this app never talks to.
 
 const appName = appJson.name;
 if (Config.isTesting) {

@@ -1142,7 +1142,7 @@ export const useEditor = (
       const url = await Linking.getInitialURL();
       let noteId =
         url &&
-        url.startsWith("https://app.notesnook.com/open_note?") &&
+        url.startsWith("epigrapho://app/open_note?") &&
         new URL(url).searchParams.get("id");
       if (noteId) {
         const note = await db.notes?.note(noteId);
