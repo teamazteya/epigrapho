@@ -124,6 +124,41 @@ try {
   );
   assert.deepEqual({ shortcuts, reminder }, { shortcuts: [], reminder: [] });
 
+  // A note's "+" menu, and the callout's sub-menu, which named its kinds in
+  // English and inserted an English title into the note.
+  await page.keyboard.press("Escape");
+  await page.locator(".ReactModal__Content").waitFor({ state: "detached" });
+  await page.locator('[data-test-id="create-new-note"]').first().click();
+  await page.locator('[data-test-id="insert-block"]').first().click();
+  await page.locator('[data-test-id="menu-button-callout"]').click();
+  await page.locator('[data-test-id="menu-button-warn"]').waitFor();
+  const insertMenu = (
+    await page.locator('[data-test-id="menu-container"]').allInnerTexts()
+  ).join("\n");
+  await page.locator('[data-test-id="menu-button-warn"]').click();
+  const calloutTitle = await page
+    .locator(".ProseMirror .callout h4")
+    .first()
+    .innerText();
+  const CALLOUT = /\b(abstract|hint|info|success|warn(ing)?|example|quote)\b/i;
+  const insertEnglish = [insertMenu, calloutTitle]
+    .join("\n")
+    .split("\n")
+    .filter((line) => ENGLISH.test(line) || CALLOUT.test(line));
+  console.log("menú + en inglés:", JSON.stringify(insertEnglish));
+  console.log("título del recuadro:", calloutTitle);
+  assert.deepEqual(insertEnglish, []);
+
+  // The title a note gets when nobody writes one was "Note <date> <time>".
+  await page
+    .locator('[data-test-id="editor-save-state-saved"]')
+    .waitFor({ timeout: 30000 });
+  const title = await page
+    .locator('.active [data-test-id="editor-title"]')
+    .evaluate((element) => element.value || element.textContent);
+  console.log("título por defecto:", title);
+  assert.match(title, /^Nota /);
+
   const named = Object.fromEntries(
     Object.entries(found).filter(([, lines]) => lines.length)
   );

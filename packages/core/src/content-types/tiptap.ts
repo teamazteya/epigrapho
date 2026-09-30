@@ -18,7 +18,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import showdown from "@streetwriters/showdown";
-import { findAll, isTag, removeElement, replaceElement } from "domutils";
+import {
+  findAll,
+  isTag,
+  removeElement,
+  replaceElement,
+  textContent
+} from "domutils";
 import {
   DomNode,
   FormatOptions,
@@ -74,6 +80,14 @@ const converter = new showdown.Converter();
 converter.setFlavor("original");
 
 const splitter = /\W+/gm;
+/** Epigrapho: the blocks whose words are generated, not stored. */
+export const GENERATED_BLOCK_ATTRIBUTES = [
+  "data-interlinear-ref",
+  "data-dictionary-entry"
+] as const;
+export type GeneratedBlockAttribute =
+  (typeof GENERATED_BLOCK_ATTRIBUTES)[number];
+
 export class Tiptap {
   constructor(private data: string) {}
 
@@ -180,6 +194,40 @@ export class Tiptap {
         continue;
       }
       replaceElement(element, parseDocument(html));
+    }
+    this.data = render(document);
+    return this;
+  }
+
+  /**
+   * Epigrapho: an interlinear and a dictionary entry keep only a reference or
+   * an id in the note (A2), so an export swaps each one for the words
+   * generated from the corpus. `generate` gets the block's attribute, its
+   * value and the text the note holds for it.
+   */
+  async resolveGeneratedBlocks(
+    generate: (
+      attribute: GeneratedBlockAttribute,
+      value: string,
+      label: string
+    ) => Promise<string | undefined>
+  ) {
+    const document = parseDocument(this.data);
+    const elements = findAll(
+      (e) => GENERATED_BLOCK_ATTRIBUTES.some((name) => !!e.attribs[name]),
+      document.childNodes
+    );
+    if (!elements.length) return this;
+    for (const element of elements) {
+      const attribute = GENERATED_BLOCK_ATTRIBUTES.find(
+        (name) => !!element.attribs[name]
+      )!;
+      const html = await generate(
+        attribute,
+        element.attribs[attribute],
+        textContent(element)
+      );
+      if (html) replaceElement(element, parseDocument(html));
     }
     this.data = render(document);
     return this;

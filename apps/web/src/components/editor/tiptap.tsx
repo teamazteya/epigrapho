@@ -58,6 +58,7 @@ import { debounce, useAreFeaturesAvailable } from "@notesnook/common";
 import { ScopedThemeProvider } from "../theme-provider";
 import { useStore as useThemeStore } from "../../stores/theme-store";
 import { writeToClipboard } from "../../utils/clipboard";
+import { grammarFor } from "../../common/grammar";
 import { useEditorStore } from "../../stores/editor-store";
 import { DayFormat, parseInternalLink } from "@notesnook/core";
 import { desktop } from "../../common/desktop-bridge";
@@ -84,6 +85,12 @@ import { getBookNameLocale } from "../../common/ui-locale";
 import { resolveVerse } from "../../common/scripture";
 import { attributionOf } from "@notesnook/scripture-provider";
 import { PromptDialog } from "../../dialogs/prompt";
+import { loadDictionaryEntry } from "../../common/dictionary";
+import {
+  insertInterlinear,
+  loadInterlinear,
+  loadLexicon
+} from "../../common/interlinear";
 
 export type OnChangeHandler = (
   content: () => string,
@@ -274,6 +281,15 @@ function TipTap(props: TipTapProps) {
       parseScriptureReferences: detectScriptureReferences,
       scriptureAttribution: attributionOf,
       insertScripture,
+      insertInterlinear,
+      loadInterlinear,
+      lexicon: loadLexicon,
+      openConcordance: (strong) =>
+        useEditorStore.getState().openConcordance(strong),
+      insertDictionaryEntry: () =>
+        useEditorStore.getState().openDictionary("", true),
+      loadDictionaryEntry,
+      ...grammarFor(id),
       downloadOptions,
       doubleSpacedLines,
       dateFormat,
@@ -492,6 +508,7 @@ function TipTap(props: TipTapProps) {
       }
     };
   }, [
+    id,
     content,
     readonly,
     doubleSpacedLines,
@@ -869,6 +886,10 @@ function toIEditor(editor: Editor): IEditor {
     },
     undo: () => editor.commands.undo(),
     redo: () => editor.commands.redo(),
+    insertText: (text) => editor.chain().focus().insertContent(text).run(),
+    insertDictionaryEntry: (id, term) =>
+      editor.chain().focus().insertDictionaryEntry({ id, label: term }).run(),
+    recheckGrammar: () => editor.commands.recheckGrammar(),
     updateContent: (content) => {
       const { from, to } = editor.state.selection;
       editor

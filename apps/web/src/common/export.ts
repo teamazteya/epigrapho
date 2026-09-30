@@ -26,7 +26,8 @@ import {
   sanitizeFilename,
   exportNotes as _exportNotes,
   exportNote as _exportNote,
-  exportContent
+  exportContent,
+  setGeneratedBlockRenderer
 } from "@notesnook/common";
 import Vault from "./vault";
 import { ExportStream } from "../utils/streams/export-stream";
@@ -36,6 +37,16 @@ import { db } from "./db";
 import { toAsyncIterator } from "@notesnook-importer/core/dist/src/utils/stream";
 import { saveAs } from "file-saver";
 import { strings } from "@notesnook/intl";
+import { renderInterlinearForExport } from "./interlinear";
+import { renderDictionaryEntryForExport } from "./dictionary";
+
+// Every export path goes through this module, so it is where the stored
+// interlinear references and dictionary ids learn to become their words.
+setGeneratedBlockRenderer((attribute, value, label) =>
+  attribute === "data-interlinear-ref"
+    ? renderInterlinearForExport(value, label)
+    : renderDictionaryEntryForExport(value)
+);
 
 export async function exportToPDF(
   title: string,

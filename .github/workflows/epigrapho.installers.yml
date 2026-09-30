@@ -81,6 +81,12 @@ jobs:
         working-directory: ./apps/desktop
         run: node scripts/build.mjs
 
+      # LanguageTool and one Java runtime per architecture this runner
+      # packages (ADR-0010). The script downloads its own JDK and Maven.
+      - name: Build the grammar checker
+        working-directory: ./apps/desktop
+        run: node scripts/build-languagetool.mjs
+
       - name: Build the native modules for Electron
         working-directory: ./apps/desktop
         run: npm exec --no -- electron-builder install-app-deps

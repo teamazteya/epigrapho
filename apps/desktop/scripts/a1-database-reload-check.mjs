@@ -61,6 +61,10 @@ async function chooseLanguage(locale) {
   // one is the fallback when it does not take.
   const modal = page.locator(".ReactModal__Content");
   if (back) {
+    // The reload keeps the #/settings hash, and the app reopens Settings a
+    // few seconds after it boots. Closing it before then "succeeds" and the
+    // dialog comes back over the next round's click, so wait for it first.
+    await modal.waitFor({ timeout: 15000 }).catch(() => undefined);
     await page
       .evaluate(() => (window.location.hash = "/"))
       .catch(() => undefined);

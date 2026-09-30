@@ -5,3 +5,4 @@ dist
 _catalog
 test-results
 test-artifacts
+languagetool/target

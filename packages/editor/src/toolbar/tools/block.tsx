@@ -50,6 +50,8 @@ export function InsertBlock(props: ToolProps) {
       callout(editor),
       blockquote(editor),
       scripture(editor),
+      interlinear(editor),
+      dictionaryEntry(editor),
       image(editor, isMobile),
       attachment(editor),
       isMobile ? embedMobile(editor) : embedDesktop(editor),
@@ -147,26 +149,23 @@ const callout = (editor: Editor): MenuItem => ({
   title: strings.callout(),
   icon: Icons.callout,
   menu: {
-    items: [
-      "Abstract",
-      "Hint",
-      "Info",
-      "Success",
-      "Warn",
-      "Error",
-      "Example",
-      "Quote"
-    ].map((type) => ({
-      title: type,
+    items: (
+      [
+        "abstract",
+        "hint",
+        "info",
+        "success",
+        "warn",
+        "error",
+        "example",
+        "quote"
+      ] as const
+    ).map((type) => ({
+      title: strings.calloutType(type),
       key: type,
       type: "button",
-      isChecked: editor.isActive("callout", { type: type.toLowerCase() }),
-      onClick: () =>
-        editor
-          .chain()
-          .focus()
-          .setCallout({ type: type.toLowerCase() as any })
-          .run()
+      isChecked: editor.isActive("callout", { type }),
+      onClick: () => editor.chain().focus().setCallout({ type }).run()
     }))
   }
 });
@@ -177,6 +176,22 @@ const scripture = (editor: Editor): MenuItem => ({
   title: strings.insertScripture(),
   icon: Icons.scripture,
   onClick: () => editor.storage.insertScripture?.(editor)
+});
+
+const interlinear = (editor: Editor): MenuItem => ({
+  key: "interlinear",
+  type: "button",
+  title: strings.insertInterlinear(),
+  icon: Icons.interlinear,
+  onClick: () => editor.storage.insertInterlinear?.(editor)
+});
+
+const dictionaryEntry = (editor: Editor): MenuItem => ({
+  key: "dictionaryEntry",
+  type: "button",
+  title: strings.insertDictionaryEntry(),
+  icon: Icons.dictionaryEntry,
+  onClick: () => editor.storage.insertDictionaryEntry?.(editor)
 });
 
 const image = (editor: Editor, isMobile: boolean): MenuItem => ({

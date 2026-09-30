@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Epigrapho: the grammar checker (ADR-0010). Only what the app runs: the
+  LanguageTool HTTP server and the Spanish and English modules, no n-grams.
+  `mvn dependency:copy-dependencies` puts the jars in target/lib; the build
+  script turns them and a jlink runtime into build/languagetool.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>tech.azteya.epigrapho</groupId>
+  <artifactId>languagetool-bundle</artifactId>
+  <version>1</version>
+  <packaging>pom</packaging>
+
+  <properties>
+    <languagetool.version>6.6</languagetool.version>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.languagetool</groupId>
+      <artifactId>languagetool-server</artifactId>
+      <version>${languagetool.version}</version>
+      <!-- The server depends on every language; only es and en ship. -->
+      <exclusions>
+        <exclusion>
+          <groupId>org.languagetool</groupId>
+          <artifactId>language-all</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.languagetool</groupId>
+      <artifactId>language-es</artifactId>
+      <version>${languagetool.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.languagetool</groupId>
+      <artifactId>language-en</artifactId>
+      <version>${languagetool.version}</version>
+    </dependency>
+    <!--
+      The language identifier looks up Catalan and Portuguese when it loads,
+      and the server will not start without them. Only the module classes come
+      along, none of their dictionaries: no text is ever checked in either.
+    -->
+    <dependency>
+      <groupId>org.languagetool</groupId>
+      <artifactId>language-ca</artifactId>
+      <version>${languagetool.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.languagetool</groupId>
+      <artifactId>language-pt</artifactId>
+      <version>${languagetool.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+  </dependencies>
+</project>

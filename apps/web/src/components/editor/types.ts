@@ -53,4 +53,10 @@ export interface IEditor {
   startSearch: () => void;
   getContent: () => string;
   getSelection: () => { from: number; to: number };
+  /** Epigrapho: types text at the cursor, as the concordance does. */
+  insertText: (text: string) => void;
+  /** Epigrapho: inserts a Bible dictionary entry block (A2 Fase 6). */
+  insertDictionaryEntry: (id: string, term: string) => void;
+  /** Epigrapho: checks every paragraph's grammar again (ADR-0010). */
+  recheckGrammar: () => void;
 }

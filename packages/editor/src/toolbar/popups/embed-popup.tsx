@@ -80,13 +80,10 @@ export function EmbedPopup(props: EmbedPopupProps) {
           if (embedSource === "code") {
             const document = new DOMParser().parseFromString(src, "text/html");
             if (document.getElementsByTagName("iframe").length <= 0)
-              return setError("Embed code must include an iframe.");
+              return setError(strings.embedNeedsIframe());
 
             const srcValue = getAttribute(document, "src");
-            if (!srcValue)
-              return setError(
-                "Embed code must include an iframe with an src attribute."
-              );
+            if (!srcValue) return setError(strings.embedNeedsIframeSrc());
 
             _src = srcValue;
 
@@ -100,7 +97,7 @@ export function EmbedPopup(props: EmbedPopupProps) {
           }
 
           if (embedSource === "url" && !isValidUrl(src)) {
-            return setError("Please provide a valid url.");
+            return setError(strings.embedInvalidUrl());
           }
 
           const convertedUrl = convertUrlToEmbedUrl(_src);
@@ -108,11 +105,11 @@ export function EmbedPopup(props: EmbedPopupProps) {
           if (convertedUrl) _src = convertedUrl;
 
           if (!_src && embedSource === "url") {
-            return setError("Please provide a valid embed url.");
+            return setError(strings.embedInvalidEmbedUrl());
           }
 
           if (_src.startsWith("javascript:")) {
-            return setError("Embedding javascript code is not supported.");
+            return setError(strings.embedNoJavascript());
           }
           onClose({
             height: _height,
@@ -153,7 +150,7 @@ export function EmbedPopup(props: EmbedPopupProps) {
             <Flex sx={{ alignItems: "center", mt: 1 }}>
               <InlineInput
                 containerProps={{ sx: { mr: 1 } }}
-                label="width"
+                label={strings.width()}
                 type="number"
                 placeholder={strings.width()}
                 defaultValue={size.width}
@@ -164,7 +161,7 @@ export function EmbedPopup(props: EmbedPopupProps) {
                 onChange={(e) => onSizeChange(e.target.valueAsNumber)}
               />
               <InlineInput
-                label="height"
+                label={strings.height()}
                 type="number"
                 placeholder={strings.height()}
                 defaultValue={size.height}

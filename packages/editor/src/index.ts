@@ -94,9 +94,21 @@ import {
   ScriptureReferenceOptions
 } from "./extensions/scripture-reference/scripture-reference.js";
 import {
+  GrammarCheck,
+  GrammarCheckOptions
+} from "./extensions/grammar-check/grammar-check.js";
+import {
   ScriptureBlock,
   type ScriptureBlockOptions
 } from "./extensions/scripture-block/scripture-block.js";
+import {
+  Interlinear,
+  type InterlinearOptions
+} from "./extensions/interlinear/interlinear.js";
+import {
+  DictionaryEntry,
+  type DictionaryEntryOptions
+} from "./extensions/dictionary-entry/dictionary-entry.js";
 import { Editor, LinkData } from "./types.js";
 
 interface TiptapStorage {
@@ -112,6 +124,10 @@ interface TiptapStorage {
   downloadCsvTable?: (csv: string) => void;
   /** Asks the user for a reference and inserts it as a scripture block. */
   insertScripture?: (editor: Editor) => void;
+  /** Asks the user for a reference and inserts it as an interlinear. */
+  insertInterlinear?: (editor: Editor) => void;
+  /** Lets the user find a dictionary entry and insert it as a block. */
+  insertDictionaryEntry?: (editor: Editor) => void;
   createInternalLink?: (
     attributes?: LinkAttributes
   ) => Promise<LinkAttributes | undefined>;
@@ -151,6 +167,14 @@ export type TiptapOptions = EditorOptions &
     parseScriptureReferences?: ScriptureReferenceOptions["parse"];
     // Epigrapho: likewise the licence registry, which lives with the provider.
     scriptureAttribution?: ScriptureBlockOptions["attributionOf"];
+    // Epigrapho: and the grammar checker, which runs in the desktop app.
+    checkGrammar?: GrammarCheckOptions["check"];
+    ignoreGrammar?: GrammarCheckOptions["ignore"];
+    // Epigrapho: and the original-language corpus (ADR-0009).
+    loadInterlinear?: InterlinearOptions["load"];
+    lexicon?: InterlinearOptions["lexicon"];
+    openConcordance?: InterlinearOptions["openConcordance"];
+    loadDictionaryEntry?: DictionaryEntryOptions["load"];
   } & {
     placeholder: string;
   };
@@ -181,6 +205,14 @@ const useTiptap = (
     enableFontLigatures,
     parseScriptureReferences,
     scriptureAttribution,
+    checkGrammar,
+    ignoreGrammar,
+    insertInterlinear,
+    loadInterlinear,
+    lexicon,
+    openConcordance,
+    insertDictionaryEntry,
+    loadDictionaryEntry,
     ...restOptions
   } = options;
 
@@ -412,7 +444,14 @@ const useTiptap = (
         ScriptureReference.configure({ parse: parseScriptureReferences }),
         scriptureAttribution
           ? ScriptureBlock.configure({ attributionOf: scriptureAttribution })
-          : ScriptureBlock
+          : ScriptureBlock,
+        GrammarCheck.configure({ check: checkGrammar, ignore: ignoreGrammar }),
+        Interlinear.configure({
+          load: loadInterlinear,
+          lexicon,
+          openConcordance
+        }),
+        DictionaryEntry.configure({ load: loadDictionaryEntry })
       ],
       onBeforeCreate: ({ editor }) => {
         editor.storage.dateFormat = dateFormat;
@@ -428,6 +467,8 @@ const useTiptap = (
         editor.storage.getAttachmentData = getAttachmentData;
         editor.storage.downloadCsvTable = downloadCsvTable;
         editor.storage.insertScripture = insertScripture;
+        editor.storage.insertInterlinear = insertInterlinear;
+        editor.storage.insertDictionaryEntry = insertDictionaryEntry;
         editor.storage.getLinkData = getLinkData;
 
         if (onBeforeCreate) onBeforeCreate({ editor });
@@ -453,9 +494,17 @@ const useTiptap = (
       enableFontLigatures,
       parseScriptureReferences,
       scriptureAttribution,
+      checkGrammar,
+      ignoreGrammar,
       getLinkData,
       downloadCsvTable,
       insertScripture,
+      insertInterlinear,
+      loadInterlinear,
+      lexicon,
+      openConcordance,
+      insertDictionaryEntry,
+      loadDictionaryEntry,
       options.placeholder
     ]
   );
@@ -489,6 +538,19 @@ export {
   ScriptureBlock,
   type ScriptureBlockAttributes
 } from "./extensions/scripture-block/scripture-block.js";
+export {
+  Interlinear,
+  shortStrong,
+  type InterlinearAttributes,
+  type InterlinearData,
+  type InterlinearWord
+} from "./extensions/interlinear/interlinear.js";
+export { type LexiconView } from "./extensions/interlinear/lexicon-popover.js";
+export {
+  DictionaryEntry,
+  type DictionaryEntryAttributes,
+  type DictionaryEntryView
+} from "./extensions/dictionary-entry/dictionary-entry.js";
 // Epigrapho: the preview and the copy are markup this package draws, so every
 // app that shows the editor gets them from here (Fase 8).
 export {
@@ -519,3 +581,7 @@ export {
 export { replaceDateTime } from "./extensions/date-time/index.js";
 export type * from "./extension-imports.js";
 export { type Selection } from "@tiptap/pm/state";
+export {
+  type GrammarMatch,
+  findingKey
+} from "./extensions/grammar-check/grammar-check.js";

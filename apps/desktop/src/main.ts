@@ -25,6 +25,7 @@ import { configureAutoUpdater } from "./utils/autoupdater";
 import { getBackgroundColor, getTheme, setTheme } from "./utils/theme";
 import { setupMenu } from "./utils/menu";
 import { setupSpellChecker } from "./utils/spell-check";
+import { startGrammarChecker, stopGrammarChecker } from "./utils/grammar-check";
 import { WindowState } from "./utils/window-state";
 import { setupJumplist } from "./utils/jumplist";
 import { setupTray } from "./utils/tray";
@@ -249,9 +250,14 @@ app.once("ready", async () => {
 
   if (!isDevelopment()) registerProtocol();
   await createWindow();
+  // After the window, so Java starting never delays the first paint.
+  startGrammarChecker();
   await migrateBackupDirectory();
   await configureAutoUpdater();
 });
+
+// LanguageTool is a process of its own; it must not outlive the app.
+app.on("will-quit", stopGrammarChecker);
 
 app.once("window-all-closed", () => {
   if (process.platform !== "darwin" || MAC_APP_STORE) {

@@ -60,6 +60,16 @@ activateUiLocale(getUiLocale()).then(() => {
         console.error("could not load the scripture packs", error)
       )
     );
+    // On the first start the spell checker takes the interface language,
+    // which only this side knows; after that the two settings are separate.
+    if (IS_DESKTOP_APP)
+      import("./common/desktop-bridge").then(({ desktop }) =>
+        desktop?.spellChecker.followLocale
+          .mutate({ language: getUiLocale() === "en-US" ? "en" : "es" })
+          .catch((error) =>
+            console.error("could not set the spell check language", error)
+          )
+      );
   });
 });
 setI18nGlobal(i18n);

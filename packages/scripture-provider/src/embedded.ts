@@ -102,19 +102,27 @@ export async function getVerseText(
     book = loadBook(translationId, ref.book);
     books.set(key, book);
   }
-  const verses = await book;
+  return textInRange(await book, ref);
+}
 
-  // A range is read as the verses it spans. Ranges crossing a chapter are out
-  // of A0, so only the opening chapter is read.
-  const last =
-    ref.endVerse && !ref.endChapter
-      ? Math.max(ref.endVerse, ref.verse)
-      : ref.verse;
+/**
+ * Joins the verses a range spans, across chapters too. Walks the book in
+ * order instead of counting verses, because a chapter's last verse is not
+ * known here and verses without words (JHN 5:4 in VBL) leave gaps.
+ */
+export function textInRange(verses: Book, ref: VerseRange): string {
+  const endChapter = ref.endChapter ?? ref.chapter;
+  const endVerse = ref.endChapter
+    ? ref.endVerse ?? Infinity
+    : Math.max(ref.endVerse ?? ref.verse, ref.verse);
+  const start = ref.chapter * 1e4 + ref.verse;
+  const end = endChapter * 1e4 + endVerse;
 
   const text: string[] = [];
-  for (let verse = ref.verse; verse <= last; verse++) {
-    const found = verses.get(`${ref.chapter}:${verse}`);
-    if (found) text.push(found);
+  for (const [key, found] of verses) {
+    const [chapter, verse] = key.split(":").map(Number);
+    const at = chapter * 1e4 + verse;
+    if (at >= start && at <= end && found) text.push(found);
   }
   return text.join(" ");
 }

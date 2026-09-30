@@ -32,6 +32,8 @@ import {
   Plus,
   Properties,
   References,
+  Concordance,
+  Dictionary,
   Publish,
   Published,
   Readonly,
@@ -113,6 +115,12 @@ export function EditorActionBar() {
   const areBacklinksVisible = useEditorStore(
     (store) => store.areBacklinksVisible
   );
+  const isConcordanceVisible = useEditorStore(
+    (store) => store.concordanceQuery !== undefined
+  );
+  const isDictionaryVisible = useEditorStore(
+    (store) => store.dictionaryPane !== undefined
+  );
   const monographs = useMonographStore((store) => store.monographs);
   const isNotePublished =
     activeSession &&
@@ -185,6 +193,30 @@ export function EditorActionBar() {
       toggled: areBacklinksVisible
     },
     {
+      // Epigrapho: the concordance of the original text (A2 Fase 5).
+      title: strings.concordance(),
+      icon: Concordance,
+      enabled:
+        activeSession &&
+        activeSession.type !== "locked" &&
+        activeSession.type !== "diff" &&
+        activeSession.type !== "conflicted",
+      onClick: () => useEditorStore.getState().toggleConcordance(),
+      toggled: isConcordanceVisible
+    },
+    {
+      // Epigrapho: the Bible dictionaries (A2 Fases 6 and 7).
+      title: strings.bibleDictionary(),
+      icon: Dictionary,
+      enabled:
+        activeSession &&
+        activeSession.type !== "locked" &&
+        activeSession.type !== "diff" &&
+        activeSession.type !== "conflicted",
+      onClick: () => useEditorStore.getState().toggleDictionary(),
+      toggled: isDictionaryVisible
+    },
+    {
       title: strings.search(),
       icon: Search,
       enabled:
@@ -240,7 +272,9 @@ export function EditorActionBar() {
       <Flex
         sx={{
           alignItems: "center",
-          justifyContent: "center",
+          // Epigrapho: start, not center: an overflowing group centred would
+          // hide its first tools where scrolling cannot reach them.
+          justifyContent: "flex-start",
           mr:
             hasNativeWindowControls && !isMac() && !isMobile && !isTablet
               ? `calc(100vw - env(titlebar-area-width))`
@@ -248,7 +282,12 @@ export function EditorActionBar() {
           pl: 1,
           borderLeft: "1px solid var(--border)",
           borderBottom: "1px solid var(--border)",
-          flexShrink: 0
+          // Epigrapho: in a narrow pane the tools scroll instead of drawing
+          // over the new-note button; the tabs give up their room first.
+          flexShrink: 1,
+          minWidth: 0,
+          overflowX: "auto",
+          scrollbarWidth: "none"
         }}
       >
         {tools.map((tool) => (
@@ -293,7 +332,9 @@ const TabStrip = React.memo(function TabStrip() {
   const isFocusMode = useAppStore((store) => store.isFocusMode);
 
   return (
-    <Flex sx={{ flex: 1 }}>
+    // Epigrapho: never narrower than its new-note group (the tabs, which
+    // scroll, are what gives way), so the tools cannot draw over it.
+    <Flex sx={{ flex: 1, minWidth: "min-content" }}>
       <Flex
         sx={{
           px: 1,
@@ -338,7 +379,10 @@ const TabStrip = React.memo(function TabStrip() {
       <ScrollContainer
         className="tabsScroll"
         suppressScrollY
-        style={{ flex: 1, height: "100%" }}
+        // Epigrapho: minWidth 0 lets the tabs (which scroll) give up their
+        // room when the pane is narrow; without it the tools drew over the
+        // new-note button once A2 added its panes.
+        style={{ flex: 1, height: "100%", minWidth: 0, width: 0 }}
         trackStyle={() => ({
           backgroundColor: "transparent",
           "--ms-track-size": "6px"

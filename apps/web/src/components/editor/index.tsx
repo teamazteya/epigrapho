@@ -70,6 +70,8 @@ import { Freeze } from "react-freeze";
 import { UnlockView } from "../unlock";
 import DiffViewer from "../diff-viewer";
 import TableOfContents from "./table-of-contents";
+import ConcordancePanel from "./concordance";
+import DictionaryPanel from "./dictionary";
 import Backlinks from "./backlinks";
 import { scrollIntoViewById } from "@notesnook/editor";
 import { IEditor } from "./types";
@@ -135,6 +137,12 @@ export default function TabsView() {
   const isTOCVisible = useEditorStore((store) => store.isTOCVisible);
   const areBacklinksVisible = useEditorStore(
     (store) => store.areBacklinksVisible
+  );
+  const isConcordanceVisible = useEditorStore(
+    (store) => store.concordanceQuery !== undefined
+  );
+  const isDictionaryVisible = useEditorStore(
+    (store) => store.dictionaryPane !== undefined
   );
   const [dropRef, overlayRef] = useDragOverlay();
 
@@ -235,6 +243,16 @@ export default function TabsView() {
           {areBacklinksVisible && activeSession ? (
             <Pane id="backlinks-pane" initialSize={300} minSize={300}>
               <Backlinks sessionId={activeSession.id} />
+            </Pane>
+          ) : null}
+          {isConcordanceVisible && activeSession ? (
+            <Pane id="concordance-pane" initialSize={300} minSize={300}>
+              <ConcordancePanel sessionId={activeSession.id} />
+            </Pane>
+          ) : null}
+          {isDictionaryVisible && activeSession ? (
+            <Pane id="dictionary-pane" initialSize={300} minSize={300}>
+              <DictionaryPanel sessionId={activeSession.id} />
             </Pane>
           ) : null}
           {arePropertiesVisible &&

@@ -1,0 +1,32 @@
+{
+  "name": "@notesnook/original-languages",
+  "version": "0.0.0",
+  "description": "Epigrapho: the Hebrew and Greek words of each verse (STEPBible TAHOT/TAGNT, CC BY 4.0), their Spanish gloss from the Clear-Bible RV1909 alignment (CC BY 4.0), the STEP lexicon and es-419 Palabras de Traducción (CC BY-SA 4.0).",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "require": {
+      "types": "./dist/index.d.cts",
+      "default": "./dist/index.cjs"
+    },
+    "import": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "private": true,
+  "license": "GPL-3.0-or-later",
+  "scripts": {
+    "build": "node --experimental-strip-types scripts/import.ts --build ../../apps/web/public && tsdown src/index.ts",
+    "import": "node --experimental-strip-types scripts/import.ts",
+    "watch": "tsdown src/index.ts --watch",
+    "test": "node --experimental-strip-types --test test/import.test.ts",
+    "rand-sample": "node --experimental-strip-types scripts/rand-sample.ts",
+    "rand-ocr-fixes": "node --experimental-strip-types scripts/rand-ocr-fixes.ts"
+  },
+  "dependencies": {
+    "@notesnook/scripture-parser": "file:../scripture-parser"
+  }
+}

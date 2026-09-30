@@ -115,13 +115,29 @@ function place(target: HTMLElement) {
   if (!popover) return;
   const anchor = target.getBoundingClientRect();
   const gap = 6;
-  const size = popover.getBoundingClientRect();
+  const spaceBelow = window.innerHeight - anchor.bottom - 2 * gap;
+  const spaceAbove = anchor.top - 2 * gap;
+  const room = Math.max(spaceBelow, spaceAbove);
 
-  const below = anchor.bottom + gap;
+  // A long passage in a short window fits on neither side. Pulling the box
+  // back inside the window would cover the reference it describes, so the
+  // words get shorter instead and scroll within; the credit stays in view.
+  if (verseElement) verseElement.style.maxHeight = "";
+  let size = popover.getBoundingClientRect();
+  if (verseElement && size.height > room) {
+    const words = verseElement.getBoundingClientRect().height;
+    verseElement.style.maxHeight = `${Math.max(
+      48,
+      words - (size.height - room)
+    )}px`;
+    size = popover.getBoundingClientRect();
+  }
+
+  const fitsBelow = size.height <= spaceBelow;
   const top =
-    below + size.height > window.innerHeight
-      ? Math.max(gap, anchor.top - gap - size.height)
-      : below;
+    fitsBelow || spaceBelow >= spaceAbove
+      ? anchor.bottom + gap
+      : Math.max(gap, anchor.top - gap - size.height);
   const left = Math.min(
     Math.max(gap, anchor.left),
     Math.max(gap, window.innerWidth - size.width - gap)
@@ -295,9 +311,13 @@ export function attachScripturePopover(
   document.addEventListener("keydown", onKeyDown);
   document.addEventListener("pointerdown", onPointerDown, true);
   // The popover is fixed to the viewport, so anything that moves the text
-  // under it has to close it. Passive: closing a box never cancels a scroll,
-  // and saying so lets the browser scroll without waiting to hear it.
-  window.addEventListener("scroll", hide, { capture: true, passive: true });
+  // under it has to close it — except scrolling a long passage inside the box
+  // itself, which is how it gets read. Passive: closing a box never cancels a
+  // scroll, and saying so lets the browser scroll without waiting to hear it.
+  const onScroll = (event: Event) => {
+    if (!popover?.contains(event.target as Node)) hide();
+  };
+  window.addEventListener("scroll", onScroll, { capture: true, passive: true });
   window.addEventListener("resize", hide);
 
   return () => {
@@ -306,7 +326,7 @@ export function attachScripturePopover(
     document.removeEventListener("selectionchange", onSelectionChange);
     document.removeEventListener("keydown", onKeyDown);
     document.removeEventListener("pointerdown", onPointerDown, true);
-    window.removeEventListener("scroll", hide, true);
+    window.removeEventListener("scroll", onScroll, true);
     window.removeEventListener("resize", hide);
     hide();
   };

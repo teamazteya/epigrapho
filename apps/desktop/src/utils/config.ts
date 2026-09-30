@@ -43,6 +43,12 @@ export const config = {
   },
   privacyMode: false,
   isSpellCheckerEnabled: true,
+  // The dictionaries the spell checker reads. Empty only before the first
+  // start, which fills it with the interface language (api/spell-checker).
+  spellCheckerLanguages: <string[]>[],
+  // The grammar checker (ADR-0010): on by default, its style rules off.
+  isGrammarCheckerEnabled: true,
+  grammarStyleRules: false,
   // Where Paso 6.3 kept the person's own words. Since Fase 7 they belong to
   // the account, encrypted and synced, so these two are only a waiting room:
   // the app takes what is here once and empties it (see api/spell-checker).

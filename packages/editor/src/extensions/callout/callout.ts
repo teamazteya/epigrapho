@@ -31,6 +31,7 @@ import { Heading, toggleNodesUnderPos } from "../heading/index.js";
 import { TextSelection } from "@tiptap/pm/state";
 import { Fragment } from "@tiptap/pm/model";
 import { hasPermission } from "../../types.js";
+import { strings } from "@notesnook/intl";
 
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
@@ -144,7 +145,9 @@ export const Callout = Node.create({
           const start = selection.from;
           const end = selection.to;
 
-          const calloutTitle = attributes.type.toUpperCase();
+          const calloutTitle = strings
+            .calloutType(attributes.type)
+            .toUpperCase();
           const content = Fragment.from(
             selection.empty
               ? state.schema.node(Paragraph.name)

@@ -29,6 +29,7 @@ import { strings } from "@notesnook/intl";
 import { desktop } from "../../common/desktop-bridge";
 import { TaskManager } from "../../common/task-manager";
 import { useStore as useSettingStore } from "../../stores/setting-store";
+import { STUDY_PROVENANCE } from "@notesnook/scripture-provider";
 
 export const AboutSettings: SettingsGroup[] = [
   {
@@ -170,6 +171,19 @@ export const AboutSettings: SettingsGroup[] = [
         ]
       }
     ]
+  },
+  {
+    // CC BY and CC BY-SA ask for the credit where the data is used and in
+    // the app's notices; the interlinear credits its corpus at the foot too.
+    key: "study-data",
+    section: "about",
+    header: strings.studyDataCredits(),
+    settings: Object.values(STUDY_PROVENANCE).map((resource) => ({
+      key: `study-data-${resource.id}`,
+      title: resource.name,
+      description: resource.attribution,
+      components: []
+    }))
   }
 ];
 

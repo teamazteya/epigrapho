@@ -2988,6 +2988,72 @@ Continue without attachments?`,
   // Epigrapho: strings that were written into the components instead of the
   // catalogue, on surfaces this app shows every day (Fase 9).
   clickToSync: () => t`click to sync`,
+  calloutType: (type: string) =>
+    select(type, {
+      abstract: "Abstract",
+      hint: "Hint",
+      info: "Info",
+      success: "Success",
+      warn: "Warning",
+      error: "Error",
+      example: "Example",
+      quote: "Quote",
+      other: "Note"
+    }),
+  grammarIgnore: () => t`Ignore`,
+  // $date$ and $time$ are placeholders the app fills in; keep them as they are.
+  defaultTitleFormat: () => t`Note $date$ $time$`,
+  grammarChecker: () => t`Grammar checker`,
+  grammarCheckerDesc: () =>
+    t`Marks grammar mistakes and missing accents, such as "qué" in a question. It runs on this computer with LanguageTool, nothing you write leaves it, and it uses about 300 MB of memory while it is on.`,
+  grammarCheckerFailed: () =>
+    t`The grammar checker stopped working. Turn it off and on again to retry.`,
+  grammarStyleRules: () => t`Style suggestions`,
+  grammarStyleRulesDesc: () =>
+    t`Also marks repeated words and other suggestions about style.`,
+  studyDataCredits: () => t`Study data`,
+  insertInterlinear: () => t`Insert interlinear`,
+  interlinearPromptDesc: () =>
+    t`Type a verse or a range of up to 10 verses, for example John 3:16.`,
+  interlinearTooLong: (input: string) =>
+    t`"${input}" has more than 10 verses. An interlinear takes a verse or a range of up to 10.`,
+  interlinearUnavailable: () =>
+    t`The original-language text of this passage could not be read.`,
+  transliteration: () => t`Transliteration`,
+  morphology: () => t`Morphology`,
+  originalWord: () => t`Original`,
+  gloss: () => t`Gloss`,
+  lexicon: () => t`Lexicon`,
+  lexiconUnavailable: () => t`This word's lexicon entry could not be read.`,
+  lexiconUsage: (usage: string) => t`Usage in RV1909: ${usage}`,
+  lexiconDefinitionEn: () => t`Definition (English)`,
+  seeAllOccurrences: () => t`See all occurrences`,
+  concordance: () => t`Concordance`,
+  concordanceSearch: () => t`Strong number or original word`,
+  concordanceHint: () =>
+    t`Search the Hebrew and Greek text by Strong number (G26, H430) or by the original word (ἀγάπη, agape).`,
+  concordanceNothing: (query: string) =>
+    t`Nothing in the original text matches "${query}".`,
+  concordanceTotal: (count: number, corpus: string) =>
+    t`${count} occurrences according to ${corpus}`,
+  insertReference: (reference: string) => t`Insert ${reference} in the note`,
+  bibleDictionary: () => t`Bible dictionary`,
+  insertDictionaryEntry: () => t`Insert dictionary entry`,
+  dictionaryEntryUnavailable: () => t`This dictionary entry could not be read.`,
+  dictionarySearch: () => t`Search a term`,
+  dictionaryHint: () =>
+    t`Search the Bible dictionaries by term, for example grace, Bethel or Moses.`,
+  dictionaryPickHint: () =>
+    t`Search a term and pick the entry to insert in the note.`,
+  dictionaryNothing: (query: string) =>
+    t`No dictionary has an entry for "${query}".`,
+  insertInNote: () => t`Insert in the note`,
+  embedNeedsIframe: () => t`Embed code must include an iframe.`,
+  embedNeedsIframeSrc: () =>
+    t`Embed code must include an iframe with an src attribute.`,
+  embedInvalidUrl: () => t`Please provide a valid url.`,
+  embedInvalidEmbedUrl: () => t`Please provide a valid embed url.`,
+  embedNoJavascript: () => t`Embedding javascript code is not supported.`,
   syncedTimeAgo: (ago: string) => t`Synced ${ago}`,
   syncedTimeAgoOffline: (ago: string) => t`Synced ${ago} (offline)`,
   allChangesSynced: () => t`All changes are synced.`,

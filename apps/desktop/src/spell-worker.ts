@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import { readFileSync } from "fs";
 import path from "path";
-import { parentPort } from "worker_threads";
+import { parentPort, workerData } from "worker_threads";
 import nspell from "nspell";
 
 /**
@@ -39,18 +39,18 @@ const load = (language: string) =>
     aff: readFileSync(path.join(dictionaries, `${language}.aff`)),
     dic: readFileSync(path.join(dictionaries, `${language}.dic`))
   });
-// Spanish first: the biblical pack is Spanish, and it is what the app is
-// written for. English sits beside it because notes quote English
-// translations (BSB, KJV) and people write in both. A word either dictionary
-// knows is not an error.
-// ponytail: both are always on; a per-person choice of languages is the
-// upgrade if a Spanish word that happens to be English slips through.
-const speller = load("es");
-const english = load("en");
-// A token with no letters ("8:28", "3,16", "2026") is a number, and neither
+// The languages the person picked in Settings, Spanish when nothing says
+// otherwise: the biblical pack is Spanish, and it is what the app is written
+// for. A word any of them knows is not an error. Changing the choice starts a
+// new worker (see utils/spell-check), so the list is fixed for this one's life.
+const languages: string[] = workerData?.languages?.length
+  ? workerData.languages
+  : ["es"];
+const spellers = languages.map(load);
+// A token with no letters ("8:28", "3,16", "2026") is a number, and no
 // dictionary has numbers: without this every verse reference was underlined.
 const correct = (word: string) =>
-  !/\p{L}/u.test(word) || speller.correct(word) || english.correct(word);
+  !/\p{L}/u.test(word) || spellers.some((speller) => speller.correct(word));
 
 /**
  * The biblical Resource Pack (PRD §31.11, Paso 6.2).
@@ -85,16 +85,17 @@ const pack: { entries: Entry[] } = JSON.parse(
 );
 const terms = new Map<string, Entry>();
 for (const entry of pack.entries) {
-  speller.add(entry.word);
+  // Added to every dictionary: a name like "Neftalí" is right whichever
+  // language the person writes about it in.
+  for (const speller of spellers) speller.add(entry.word);
   terms.set(entry.word, entry);
 }
 
 function suggest(word: string): string[] {
   const suggestions: string[] = [];
-  for (const suggestion of [
-    ...speller.suggest(word),
-    ...english.suggest(word)
-  ]) {
+  for (const suggestion of spellers.flatMap((speller) =>
+    speller.suggest(word)
+  )) {
     const term = terms.get(suggestion);
     // An old spelling points at the current one instead of at itself; a
     // variant keeps its place but lets the preferred form go first.

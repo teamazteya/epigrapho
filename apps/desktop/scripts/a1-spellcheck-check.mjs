@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// A misspelled word is underlined, a correct one is not, and typing in a long
-// note blocks neither the editor's thread nor the main process (Paso 6.1).
+// A misspelled word is underlined, a correct one is not, the languages picked
+// in Settings are the ones that check, and typing in a long note blocks
+// neither the editor's thread nor the main process (Paso 6.1).
 // Run while npm run start:desktop is serving the app on localhost:3000.
 import assert from "node:assert/strict";
 import { mkdtemp } from "node:fs/promises";
@@ -111,7 +112,8 @@ try {
   await page.keyboard.type(WRONG, { delay: 25 });
   await page.keyboard.press("Enter");
   await page.keyboard.type(RIGHT, { delay: 25 });
-  // English sits beside Spanish: notes quote BSB and KJV.
+  // Until the person picks languages, only the interface language checks,
+  // so an English word is not yet one the dictionary knows.
   await page.keyboard.press("Enter");
   await page.keyboard.type(ENGLISH_RIGHT, { delay: 25 });
   await page.keyboard.press("Enter");
@@ -133,17 +135,53 @@ try {
   assert.equal(wrong.word, WRONG);
   assert.equal(right.word, "");
 
-  // 1b. the same holds in English.
-  const englishRight = await wordAt(".active .ProseMirror p:nth-of-type(3)");
-  const englishWrong = await wordAt(".active .ProseMirror p:nth-of-type(4)");
-  console.log("inglés:", JSON.stringify({ englishRight, englishWrong }));
-  assert.equal(englishRight.word, "");
-  assert.equal(englishWrong.word, ENGLISH_WRONG);
-
-  // 1c. numbers are left alone.
+  // 1b. numbers are left alone.
   const verse = await wordAt(".active .ProseMirror p:nth-of-type(5)");
   console.log("número de versículo:", JSON.stringify(verse));
   assert.equal(verse.word, "");
+
+  // 1c. the interface is Spanish, so English is off until it is picked.
+  const englishBefore = await wordAt(".active .ProseMirror p:nth-of-type(3)");
+  console.log("inglés sin elegirlo:", JSON.stringify(englishBefore));
+  assert.equal(englishBefore.word, ENGLISH_RIGHT);
+
+  // 1d. ticking English in Settings > Editor adds it beside Spanish: notes
+  //     quote BSB and KJV.
+  await page.evaluate(() => (window.location.hash = "/settings"));
+  await page.locator(".ReactModal__Content").waitFor();
+  await page
+    .locator(
+      '[data-test-id="settings-navigation-menu"] [data-test-id="navigation-item"]'
+    )
+    .filter({ hasText: /^Editor$/ })
+    .click();
+  await page.locator('[data-test-id="spell-checker-language-en"]').check();
+  // The last language left cannot be unticked.
+  assert.ok(
+    !(await page
+      .locator('[data-test-id="spell-checker-language-es"]')
+      .isDisabled())
+  );
+  await page.keyboard.press("Escape");
+  await page.locator(".ReactModal__Content").waitFor({ state: "detached" });
+  await page.locator(".active .ProseMirror").click();
+  await page.keyboard.press("Control+End");
+  await page.keyboard.press("Enter");
+  await page.keyboard.type(ENGLISH_RIGHT, { delay: 25 });
+  await page.keyboard.press("Enter");
+  await page.keyboard.type(ENGLISH_WRONG, { delay: 25 });
+  // A new worker reads both dictionaries on its first question.
+  await page.waitForTimeout(4000);
+  const englishRight = await wordAt(".active .ProseMirror p:nth-of-type(6)");
+  const englishWrong = await wordAt(".active .ProseMirror p:nth-of-type(7)");
+  console.log(
+    "inglés elegido:",
+    JSON.stringify({ englishRight, englishWrong })
+  );
+  assert.equal(englishRight.word, "");
+  assert.equal(englishWrong.word, ENGLISH_WRONG);
+  const spanishStill = await wordAt(".active .ProseMirror p:nth-of-type(1)");
+  assert.equal(spanishStill.word, WRONG);
 
   // 2. a long note keeps typing responsive.
   await page.locator(".active .ProseMirror").click();

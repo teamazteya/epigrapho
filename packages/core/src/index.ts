@@ -45,5 +45,9 @@ export { VAULT_ERRORS } from "./api/vault.js";
 export type { SyncOptions } from "./api/sync/index.js";
 export { sanitizeTag } from "./collections/tags.js";
 export { default as DataURL } from "./utils/dataurl.js";
-export { type ResolveInternalLink } from "./content-types/tiptap.js";
+export {
+  type ResolveInternalLink,
+  type GeneratedBlockAttribute,
+  GENERATED_BLOCK_ATTRIBUTES
+} from "./content-types/tiptap.js";
 export type * from "./api/wrapped.js";

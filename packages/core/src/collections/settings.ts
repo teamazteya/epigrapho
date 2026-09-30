@@ -38,6 +38,7 @@ import {
 } from "../types.js";
 import { ICollection } from "./collection.js";
 import { SQLCachedCollection } from "../database/sql-cached-collection.js";
+import { strings } from "@notesnook/intl";
 
 const DEFAULT_GROUP_OPTIONS = (key: GroupingKey) =>
   ({
@@ -149,7 +150,13 @@ export class Settings implements ICollection {
     const item = this.collection.get(KEY_IDS[key]) as
       | SettingItem<TKey>
       | undefined;
-    if (!item || item.key !== key) return defaultSettings[key];
+    if (!item || item.key !== key) {
+      // Epigrapho: a title nobody chose is written in the interface language,
+      // read now rather than when this module loaded.
+      if (key === "titleFormat")
+        return strings.defaultTitleFormat() as SettingItemMap[TKey];
+      return defaultSettings[key];
+    }
     return item.value;
   }
 

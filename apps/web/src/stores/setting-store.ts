@@ -29,6 +29,7 @@ import { showToast } from "../utils/toast";
 import { ConfirmDialog } from "../dialogs/confirm";
 import * as openpgp from "openpgp";
 import { InboxPGPKeysDialog } from "../dialogs/inbox-pgp-keys-dialog";
+import { strings } from "@notesnook/intl";
 
 export const HostIds = [
   "API_HOST",
@@ -69,7 +70,7 @@ class SettingStore extends BaseStore<SettingStore> {
   timeFormat: TimeFormat = "12-hour";
   dayFormat: DayFormat = "short";
   weekFormat: WeekFormat = "Sun";
-  titleFormat = "Note $date$ $time$";
+  titleFormat = strings.defaultTitleFormat();
   profile?: Profile;
 
   trashCleanupInterval: TrashCleanupInterval = 7;

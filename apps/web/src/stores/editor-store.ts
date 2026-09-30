@@ -218,6 +218,12 @@ class EditorStore extends BaseStore<EditorStore> {
   isTOCVisible = Config.get("editor:toc", false);
   // Epigrapho: the verse backlinks pane (PRD §31.10, Paso 5.2).
   areBacklinksVisible = Config.get("editor:backlinks", false);
+  // Epigrapho: the concordance pane (A2 Fase 5): closed while undefined, and
+  // otherwise what it searches for, a Strong number or an original word.
+  concordanceQuery?: string = undefined;
+  // Epigrapho: the Bible dictionary pane (A2 Fases 6 and 7). `inserting` when
+  // the "+" menu opened it to pick an entry for the note.
+  dictionaryPane?: { query: string; inserting: boolean } = undefined;
   editorMargins = Config.get("editor:margins", true);
   history: string[] = [];
 
@@ -1251,6 +1257,10 @@ class EditorStore extends BaseStore<EditorStore> {
     this.set((state) => {
       state.arePropertiesVisible =
         toggleState !== undefined ? toggleState : !state.arePropertiesVisible;
+      if (state.arePropertiesVisible) {
+        state.concordanceQuery = undefined;
+        state.dictionaryPane = undefined;
+      }
     });
     this.toggleTableOfContents(false);
     this.toggleBacklinks(false);
@@ -1262,7 +1272,10 @@ class EditorStore extends BaseStore<EditorStore> {
       toggleState !== undefined ? toggleState : !isTOCVisible;
     this.set({
       isTOCVisible: isTOCVisibleState,
-      arePropertiesVisible: isTOCVisibleState ? false : arePropertiesVisible
+      arePropertiesVisible: isTOCVisibleState ? false : arePropertiesVisible,
+      ...(isTOCVisibleState
+        ? { concordanceQuery: undefined, dictionaryPane: undefined }
+        : {})
     });
     if (isTOCVisibleState) this.toggleBacklinks(false);
     Config.set("editor:toc", isTOCVisibleState);
@@ -1276,10 +1289,47 @@ class EditorStore extends BaseStore<EditorStore> {
     if (next === areBacklinksVisible) return;
     this.set({ areBacklinksVisible: next });
     if (next) {
-      this.set({ arePropertiesVisible: false, isTOCVisible: false });
+      this.set({
+        arePropertiesVisible: false,
+        isTOCVisible: false,
+        concordanceQuery: undefined,
+        dictionaryPane: undefined
+      });
       Config.set("editor:toc", false);
     }
     Config.set("editor:backlinks", next);
+  };
+
+  /** Opens the concordance on `query`, putting the other panes away. */
+  openConcordance = (query = "") => {
+    this.toggleTableOfContents(false);
+    this.toggleBacklinks(false);
+    this.set({
+      arePropertiesVisible: false,
+      dictionaryPane: undefined,
+      concordanceQuery: query
+    });
+  };
+
+  /** Opens the Bible dictionary, to read or to pick an entry for the note. */
+  openDictionary = (query = "", inserting = false) => {
+    this.toggleTableOfContents(false);
+    this.toggleBacklinks(false);
+    this.set({
+      arePropertiesVisible: false,
+      concordanceQuery: undefined,
+      dictionaryPane: { query, inserting }
+    });
+  };
+
+  toggleDictionary = () => {
+    if (this.get().dictionaryPane === undefined) this.openDictionary();
+    else this.set({ dictionaryPane: undefined });
+  };
+
+  toggleConcordance = () => {
+    if (this.get().concordanceQuery === undefined) this.openConcordance();
+    else this.set({ concordanceQuery: undefined });
   };
 
   toggleEditorMargins = (toggleState?: boolean) => {

@@ -28,6 +28,7 @@ import { getFonts } from "@notesnook/editor";
 import { useSpellChecker } from "../../hooks/use-spell-checker";
 import { CustomizeToolbar } from "./components/customize-toolbar";
 import { DictionaryWords } from "./components/dictionary-words";
+import { SpellCheckerLanguages } from "./components/spell-checker-languages";
 import { strings } from "@notesnook/intl";
 import { EDITOR_LINE_HEIGHT } from "../../components/editor/common";
 import {
@@ -206,6 +207,47 @@ export const EditorSettings: SettingsGroup[] = [
             type: "toggle",
             isToggled: () => useSpellChecker.getState().enabled,
             toggle: () => useSpellChecker.getState().toggleSpellChecker()
+          }
+        ]
+      },
+      {
+        key: "spell-checker-languages",
+        title: strings.languages(),
+        description: strings.spellCheckerLanguagesDescription(),
+        isHidden: () => !useSpellChecker.getState().enabled,
+        onStateChange: (listener) =>
+          useSpellChecker.subscribe((c) => c.enabled, listener),
+        components: [{ type: "custom", component: SpellCheckerLanguages }]
+      },
+      {
+        key: "grammar-checker",
+        title: strings.grammarChecker(),
+        description: () =>
+          useSpellChecker.getState().grammar.failed
+            ? strings.grammarCheckerFailed()
+            : strings.grammarCheckerDesc(),
+        onStateChange: (listener) =>
+          useSpellChecker.subscribe((c) => c.grammar, listener),
+        components: [
+          {
+            type: "toggle",
+            isToggled: () => useSpellChecker.getState().grammar.enabled,
+            toggle: () => useSpellChecker.getState().toggleGrammar()
+          }
+        ]
+      },
+      {
+        key: "grammar-style",
+        title: strings.grammarStyleRules(),
+        description: strings.grammarStyleRulesDesc(),
+        isHidden: () => !useSpellChecker.getState().grammar.enabled,
+        onStateChange: (listener) =>
+          useSpellChecker.subscribe((c) => c.grammar, listener),
+        components: [
+          {
+            type: "toggle",
+            isToggled: () => useSpellChecker.getState().grammar.style,
+            toggle: () => useSpellChecker.getState().toggleGrammarStyle()
           }
         ]
       },

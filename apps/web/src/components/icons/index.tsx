@@ -169,6 +169,8 @@ import {
   mdiRefresh,
   mdiRestore,
   mdiVectorLink,
+  mdiAlphabetGreek,
+  mdiBookAlphabet,
   mdiCodeBraces,
   mdiArrowCollapseHorizontal,
   mdiSpeedometer,
@@ -510,6 +512,8 @@ export const Upload = createIcon(mdiCloudOffOutline);
 export const Uploaded = createIcon(mdiCloudCheckOutline);
 export const Uploading = createIcon(mdiUploadOutline);
 export const References = createIcon(mdiVectorLink);
+export const Concordance = createIcon(mdiAlphabetGreek);
+export const Dictionary = createIcon(mdiBookAlphabet);
 export const Codeblock = createIcon(mdiCodeBraces);
 export const Resize = createIcon(mdiArrowCollapseHorizontal);
 export const Performance = createIcon(mdiSpeedometer);

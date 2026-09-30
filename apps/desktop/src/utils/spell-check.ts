@@ -52,7 +52,9 @@ const pending = new Map<number, (answer: Answer) => void>();
 function spellWorker() {
   if (worker) return worker;
 
-  worker = new Worker(path.join(__dirname, "spell-worker.js"));
+  worker = new Worker(path.join(__dirname, "spell-worker.js"), {
+    workerData: { languages: spellCheckerLanguages() }
+  });
   worker.on("message", ({ id, ...answer }: Answer & { id: number }) => {
     pending.get(id)?.(answer);
     pending.delete(id);
@@ -65,6 +67,26 @@ function spellWorker() {
   // The worker must not be a reason for the app to stay alive on quit.
   worker.unref();
   return worker;
+}
+
+/** The dictionaries the spell checker can load, by language code. */
+export const SPELL_CHECKER_LANGUAGES = ["es", "en"];
+
+/** What the person picked in Settings; Spanish until the first start sets it. */
+export function spellCheckerLanguages() {
+  return config.spellCheckerLanguages.length
+    ? config.spellCheckerLanguages
+    : ["es"];
+}
+
+/**
+ * The worker loads its dictionaries once, so a different choice is a new
+ * worker. Questions in flight are answered "nothing is misspelled" and the
+ * next one starts it with the new list.
+ */
+export function restartSpellChecker() {
+  void worker?.terminate();
+  stop();
 }
 
 function stop() {

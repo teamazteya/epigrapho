@@ -18,6 +18,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import { desktop } from "../common/desktop-bridge";
+import { useEditorManager } from "../components/editor/manager";
+
+/** Open notes show what the checker says now, not under the old setting. */
+function recheckOpenNotes() {
+  for (const context of Object.values(useEditorManager.getState().editors))
+    context?.editor?.recheckGrammar();
+}
 import BaseStore from "../stores";
 import createStore from "../common/store";
 import {
@@ -29,6 +36,10 @@ import {
 class SpellCheckerStore extends BaseStore<SpellCheckerStore> {
   enabled = true;
   words: string[] = [];
+  /** The dictionaries in use; the list itself is fixed (es, en). */
+  languages: string[] = [];
+  // The grammar checker (ADR-0010) reads in the same languages.
+  grammar = { enabled: true, style: false, failed: false };
 
   toggleSpellChecker = async () => {
     const enabled = this.get().enabled;
@@ -43,8 +54,42 @@ class SpellCheckerStore extends BaseStore<SpellCheckerStore> {
   refresh = async () => {
     this.set({
       enabled: await desktop?.spellChecker.isEnabled.query(),
+      languages: (await desktop?.spellChecker.languages.query())?.enabled,
       words: customWords()
     });
+    const grammar = await desktop?.grammarChecker.settings.query();
+    if (grammar)
+      this.set({
+        grammar: {
+          enabled: grammar.enabled,
+          style: grammar.style,
+          failed: grammar.status === "failed"
+        }
+      });
+  };
+
+  toggleGrammar = async () => {
+    const enabled = !this.get().grammar.enabled;
+    await desktop?.grammarChecker.toggle.mutate({ enabled });
+    await this.get().refresh();
+    recheckOpenNotes();
+  };
+
+  toggleGrammarStyle = async () => {
+    const enabled = !this.get().grammar.style;
+    await desktop?.grammarChecker.toggleStyle.mutate({ enabled });
+    await this.get().refresh();
+    recheckOpenNotes();
+  };
+
+  setLanguages = async (languages: ("es" | "en")[]) => {
+    // At least one: an empty list would silently fall back to the interface
+    // language, which is not what unticking the last box asks for.
+    if (!languages.length) return;
+    await desktop?.spellChecker.setLanguages.mutate({ languages });
+    this.set({ languages });
+    // Grammar is checked in the same languages.
+    recheckOpenNotes();
   };
 
   deleteWord = async (word: string) => {

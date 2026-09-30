@@ -23,16 +23,20 @@ import { z } from "zod";
 import { strings } from "@notesnook/intl";
 import { config } from "../utils/config";
 import { userDictionary } from "../utils/user-dictionary";
+import {
+  SPELL_CHECKER_LANGUAGES,
+  restartSpellChecker,
+  spellCheckerLanguages
+} from "../utils/spell-check";
 
 const t = initTRPC.create();
 
 /**
  * Settings talk to the spell checker through here (Pasos 6.1 and 6.3).
  *
- * There is no list of languages any more: Chromium's checker is off and its
- * list of downloadable languages said nothing about what this app can read.
- * What is left is the switch, the person's own words, and a file to carry
- * them to another machine.
+ * The languages are the dictionaries this app ships, not Chromium's list of
+ * downloadable ones: Chromium's checker is off. Beside them are the switch,
+ * the person's own words, and a file to carry them to another machine.
  *
  * The words themselves belong to the account since Fase 7. This process only
  * keeps the copy it answers with, so what crosses here is the list going down
@@ -44,6 +48,28 @@ export const spellCheckerRouter = t.router({
     .input(z.object({ enabled: z.boolean() }))
     .mutation(({ input: { enabled } }) => {
       config.isSpellCheckerEnabled = enabled;
+    }),
+  languages: t.procedure.query(() => ({
+    available: SPELL_CHECKER_LANGUAGES,
+    enabled: spellCheckerLanguages()
+  })),
+  setLanguages: t.procedure
+    .input(z.object({ languages: z.array(z.enum(["es", "en"])).min(1) }))
+    .mutation(({ input: { languages } }) => {
+      config.spellCheckerLanguages = languages;
+      restartSpellChecker();
+    }),
+  /**
+   * The interface language, sent at every start. It is taken once, on the
+   * first start, as the default: after that the two settings are separate
+   * (A1's rule), and changing the interface does not change the checker.
+   */
+  followLocale: t.procedure
+    .input(z.object({ language: z.enum(["es", "en"]) }))
+    .mutation(({ input: { language } }) => {
+      if (config.spellCheckerLanguages.length) return;
+      config.spellCheckerLanguages = [language];
+      restartSpellChecker();
     }),
   /**
    * The account's lists, handed over whenever they change (Fase 7). They are

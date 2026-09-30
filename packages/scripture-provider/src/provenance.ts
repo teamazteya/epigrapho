@@ -118,6 +118,50 @@ export const PROVENANCE: Record<string, ResourceProvenance> = {
 };
 
 /**
+ * The study data of A2 (ADR-0009): not translations, so kept apart from
+ * PROVENANCE, whose every entry is offered as one. Settings → About lists
+ * these, and the interlinear and lexicon credit them from here.
+ */
+export const STUDY_PROVENANCE: Record<string, ResourceProvenance> = {
+  STEP: {
+    id: "STEP",
+    name: "STEPBible: TAHOT, TAGNT, TBESH, TBESG",
+    // Hebrew, Aramaic and Greek.
+    language: "mul",
+    licence: "CC BY 4.0",
+    attribution: "STEP Bible (STEPBible.org) — CC BY 4.0",
+    deliveryMode: "embedded-offline"
+  },
+  RV09A: {
+    id: "RV09A",
+    name: "Clear Bible Alignments: RV1909",
+    language: "es",
+    licence: "CC BY 4.0",
+    attribution: "Alineación RV1909 © 2024 BiblioNexus, Clear Bible — CC BY 4.0",
+    deliveryMode: "embedded-offline"
+  },
+  ES419TW: {
+    id: "ES419TW",
+    name: "Palabras de Traducción (es-419)",
+    language: "es",
+    licence: "CC BY-SA 4.0",
+    attribution:
+      "Palabras de Traducción © 2022 Fundación Idiomas Puentes — CC BY-SA 4.0",
+    deliveryMode: "embedded-offline"
+  },
+  NEUU: {
+    id: "NEUU",
+    name: "Easton (1897), Smith (1863), Hitchcock",
+    language: "en",
+    // The dictionaries are public domain; the parsed dataset is CC BY.
+    licence: "Public Domain; dataset CC BY 4.0",
+    attribution:
+      "Easton, Smith, Hitchcock — dominio público; datos de NEUU (github.com/neuu-org) — CC BY 4.0",
+    deliveryMode: "embedded-offline"
+  }
+};
+
+/**
  * The attribution line for a translation. An unknown id falls back to the id
  * itself, so a verse is never shown with no credit at all.
  */

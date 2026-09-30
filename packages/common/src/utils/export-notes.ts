@@ -26,7 +26,8 @@ import {
   isImage,
   isWebClip,
   FilteredSelector,
-  EMPTY_CONTENT
+  EMPTY_CONTENT,
+  type GeneratedBlockAttribute
 } from "@notesnook/core";
 import { sanitizeFilename } from "./file.js";
 import { database } from "../database.js";
@@ -216,6 +217,24 @@ export async function* exportNote(
   }
 }
 
+/**
+ * Epigrapho: turns a stored interlinear reference or dictionary entry id into
+ * the HTML an export carries. The corpus lives with the app, which registers
+ * this; with nothing registered the block exports as the text it stores.
+ */
+let generatedBlockRenderer:
+  | ((
+      attribute: GeneratedBlockAttribute,
+      value: string,
+      label: string
+    ) => Promise<string | undefined>)
+  | undefined;
+export function setGeneratedBlockRenderer(
+  renderer: typeof generatedBlockRenderer
+) {
+  generatedBlockRenderer = renderer;
+}
+
 export async function exportContent(
   note: Note,
   options: {
@@ -271,6 +290,8 @@ export async function exportContent(
 
   const content = await getContentFromData(type, data);
   if (resolveInternalLink) content.resolveInternalLinks(resolveInternalLink);
+  if (generatedBlockRenderer && "resolveGeneratedBlocks" in content)
+    await content.resolveGeneratedBlocks(generatedBlockRenderer);
 
   if (
     attachmentsRoot &&

@@ -238,7 +238,15 @@ module.exports = {
   toolsets: {
     appimage: "1.0.2"
   },
-  extraResources: ["app-update.yml", "./assets/**"],
+  extraResources: [
+    "app-update.yml",
+    "./assets/**",
+    // Epigrapho: the grammar checker (ADR-0010), built beforehand by
+    // scripts/build-languagetool.mjs. The jars are the same everywhere; the
+    // Java runtime is the one for the platform being packaged.
+    { from: "languagetool/target/lib", to: "languagetool/lib" },
+    { from: "languagetool/target/jre-${os}-${arch}", to: "languagetool/jre" }
+  ],
   extraMetadata: {
     main: path.join(buildRoot, "build", "electron.js"),
     // Epigrapho: the packaged name, which also names the updater's cache
