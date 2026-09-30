@@ -79,14 +79,25 @@ function run(command, args, options = {}) {
 async function download(url, file) {
   if (existsSync(file)) return file;
   console.log(`descargando ${url}`);
-  const response = await fetch(url);
-  if (!response.ok) throw new Error(`${url}: ${response.status}`);
-  await pipeline(
-    Readable.fromWeb(response.body),
-    createWriteStream(`${file}.part`)
-  );
-  await rename(`${file}.part`, file);
-  return file;
+  // A server that stumbles once should not fail the installers: four
+  // tries, 5, 10 and 20 seconds apart.
+  for (let attempt = 1; ; attempt++) {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`${url}: ${response.status}`);
+      await pipeline(
+        Readable.fromWeb(response.body),
+        createWriteStream(`${file}.part`)
+      );
+      await rename(`${file}.part`, file);
+      return file;
+    } catch (error) {
+      if (attempt === 4) throw error;
+      const wait = 5000 * 2 ** (attempt - 1);
+      console.log(`  falló (${error.message}); reintento en ${wait / 1000} s`);
+      await new Promise((resolve) => setTimeout(resolve, wait));
+    }
+  }
 }
 
 /** Unpacks an archive into its own folder, once. */
@@ -137,7 +148,8 @@ async function jdk(platform) {
 async function maven() {
   const folder = await unpack(
     await download(
-      `https://archive.apache.org/dist/maven/maven-3/${MAVEN}/binaries/apache-maven-${MAVEN}-bin.zip`,
+      // Maven Central's copy: a CDN, where archive.apache.org is one host.
+      `https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/${MAVEN}/apache-maven-${MAVEN}-bin.zip`,
       path.join(cache, `apache-maven-${MAVEN}.zip`)
     )
   );
