@@ -36,12 +36,12 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22.23.2
           cache: npm
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         if: runner.os == 'Linux'
         with:
           distribution: temurin
@@ -52,13 +52,14 @@ jobs:
           npm ci --ignore-scripts --prefer-offline --no-audit
           npm run bootstrap -- --scope=mobile
 
-      # The packs are read from beside the editor page, inside the app.
+      # The packs are read from beside the editor page, inside the app. The
+      # task runner builds every package the app depends on, the editor page
+      # and original-languages among them; bible-pack is not one of them, so
+      # it goes first and writes its pack into the editor page's public/.
       - name: Build the packs and the editor page
         run: |
-          (cd packages/intl && npm run build)
           (cd packages/bible-pack && npm run build)
-          (cd packages/original-languages && npm run build)
-          (cd packages/editor-mobile && npm run build)
+          npm run tx mobile:build
 
       - name: Put the upload key in place
         if: runner.os == 'Linux'
