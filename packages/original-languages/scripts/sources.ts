@@ -157,9 +157,23 @@ export async function fetchSources() {
     const download = async (from: string, to: string) => {
       if (existsSync(to)) return;
       console.error(`descargando ${from.slice(from.lastIndexOf("/") + 1)}`);
-      const response = await fetch(encodeURI(from));
-      if (!response.ok) throw new Error(`${from} respondió ${response.status}`);
-      writeFileSync(to, Buffer.from(await response.arrayBuffer()));
+      // A mirror that does not answer (archive.org hands out a different
+      // data node per request) should not fail the build: four tries, the
+      // last one about a minute after the first.
+      for (let attempt = 1; ; attempt++) {
+        try {
+          const response = await fetch(encodeURI(from));
+          if (!response.ok)
+            throw new Error(`${from} respondió ${response.status}`);
+          writeFileSync(to, Buffer.from(await response.arrayBuffer()));
+          return;
+        } catch (error) {
+          if (attempt === 4) throw error;
+          const wait = 5000 * 2 ** (attempt - 1);
+          console.error(`  falló (${(error as Error).message}); reintento en ${wait / 1000} s`);
+          await new Promise((resolve) => setTimeout(resolve, wait));
+        }
+      }
     };
     let actual: string;
     if (files) {

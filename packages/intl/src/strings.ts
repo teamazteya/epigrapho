@@ -914,7 +914,6 @@ $day$: Current day (eg. Monday)`,
   copyLink: () => t`Copy link`,
   linkCopied: () => t`Link copied`,
   copyId: () => t`Copy ID`,
-  idCopied: () => t`ID copied`,
   readOnly: () => t`Read only`,
   syncOff: () => t`Sync off`,
   syncOffConfirm: (count: number) =>
@@ -2957,7 +2956,6 @@ Continue without attachments?`,
   setupInboxKeys: () => t`Setup inbox keys`,
   enterPgpPublicKey: () => t`Enter your PGP public key`,
   enterPgpPrivateKey: () => t`Enter your PGP private key`,
-  expiryDateRemoved: () => t`Expiry date removed`,
   colorNotePasswordFor: (filename: string) =>
     t`Colornote password for ${filename}`,
   colorNotPasswordForDesc: () =>
