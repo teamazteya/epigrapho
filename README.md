@@ -7,7 +7,7 @@
 <p align="center"><em>Escribe. Estudia. Conecta las Escrituras.</em></p>
 
 <p align="center">
-<a href="https://sourceforge.net/projects/epigrapho/files/epigrapho_win_x64.exe/download"><strong>Descargar para Windows</strong></a>
+<a href="https://github.com/teamazteya/epigrapho/releases/latest/download/epigrapho_win_x64.exe"><strong>Descargar para Windows</strong></a>
 ·
 <a href="#linux">Instalar en Linux</a>
 ·
@@ -72,7 +72,7 @@ Epigrapho la hace Azteya. Está construida sobre [Notesnook](https://github.com/
 
 ### Windows
 
-1. Descarga el instalador: [epigrapho_win_x64.exe](https://sourceforge.net/projects/epigrapho/files/epigrapho_win_x64.exe/download).
+1. Descarga el instalador: [epigrapho_win_x64.exe](https://github.com/teamazteya/epigrapho/releases/latest/download/epigrapho_win_x64.exe).
 2. Ábrelo. La app se instala y se abre sola.
 
 El instalador todavía no está firmado. Si Windows muestra «Windows protegió su PC», elige **Más información** y luego **Ejecutar de todas formas**.
@@ -84,28 +84,28 @@ Hay paquetes para x86_64. Copia los comandos de tu distribución en una terminal
 **Debian, Ubuntu, Linux Mint, Pop!\_OS**
 
 ```bash
-wget -O epigrapho.deb https://sourceforge.net/projects/epigrapho/files/epigrapho_linux_amd64.deb/download
+wget -O epigrapho.deb https://github.com/teamazteya/epigrapho/releases/latest/download/epigrapho_linux_amd64.deb
 sudo apt install ./epigrapho.deb
 ```
 
 **Fedora**
 
 ```bash
-wget -O epigrapho.rpm https://sourceforge.net/projects/epigrapho/files/epigrapho_linux_x86_64.rpm/download
+wget -O epigrapho.rpm https://github.com/teamazteya/epigrapho/releases/latest/download/epigrapho_linux_x86_64.rpm
 sudo dnf install ./epigrapho.rpm
 ```
 
 **Arch Linux, CachyOS, EndeavourOS, Manjaro**
 
 ```bash
-wget -O epigrapho.pacman https://sourceforge.net/projects/epigrapho/files/epigrapho_linux_x64.pacman/download
+wget -O epigrapho.pacman https://github.com/teamazteya/epigrapho/releases/latest/download/epigrapho_linux_x64.pacman
 sudo pacman -U ./epigrapho.pacman
 ```
 
 **Cualquier otra distribución (AppImage)**
 
 ```bash
-wget -O Epigrapho.AppImage https://sourceforge.net/projects/epigrapho/files/epigrapho_linux_x86_64.AppImage/download
+wget -O Epigrapho.AppImage https://github.com/teamazteya/epigrapho/releases/latest/download/epigrapho_linux_x86_64.AppImage
 chmod +x Epigrapho.AppImage
 ./Epigrapho.AppImage
 ```
@@ -138,7 +138,7 @@ Homebrew elige solo la versión de tu Mac. Para actualizar, usa `brew upgrade --
 
 ```bash
 arch=$([ "$(uname -m)" = "arm64" ] && echo arm64 || echo x64)
-curl -L -o /tmp/epigrapho.zip "https://downloads.sourceforge.net/epigrapho/epigrapho_mac_$arch.zip"
+curl -L -o /tmp/epigrapho.zip "https://github.com/teamazteya/epigrapho/releases/latest/download/epigrapho_mac_$arch.zip"
 ditto -x -k /tmp/epigrapho.zip /Applications
 rm /tmp/epigrapho.zip
 open /Applications/Epigrapho.app
@@ -148,8 +148,8 @@ open /Applications/Epigrapho.app
 
 Descarga el `.dmg` de tu Mac, ábrelo y arrastra Epigrapho a Aplicaciones:
 
-- Apple Silicon: [epigrapho_mac_arm64.dmg](https://sourceforge.net/projects/epigrapho/files/epigrapho_mac_arm64.dmg/download)
-- Intel: [epigrapho_mac_x64.dmg](https://sourceforge.net/projects/epigrapho/files/epigrapho_mac_x64.dmg/download)
+- Apple Silicon: [epigrapho_mac_arm64.dmg](https://github.com/teamazteya/epigrapho/releases/latest/download/epigrapho_mac_arm64.dmg)
+- Intel: [epigrapho_mac_x64.dmg](https://github.com/teamazteya/epigrapho/releases/latest/download/epigrapho_mac_x64.dmg)
 
 La app todavía no está firmada por Apple. Si macOS no la deja abrir la primera vez, ve a Ajustes del Sistema → Privacidad y seguridad y pulsa **Abrir de todos modos**.
 
