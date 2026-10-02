@@ -214,7 +214,7 @@ git tag -a v1.0.1 -m "Epigrapho 1.0.1" -m "- Qué cambió, en español."
 git push epigrapho v1.0.1
 ```
 
-Las verificaciones de extremo a extremo están en `apps/desktop/scripts/a0-*.mjs`, `a1-*.mjs`, `a2-*.mjs`, `s1-*.mjs` y `a3-*.mjs`. Se ejecutan con `npm run start:desktop` corriendo. `a3-update-notice-check.mjs` prueba el aviso de actualización (novedades, "Instalar ahora" y "Recordarme más tarde"). `s1-sync-check.mjs`, `a3-templates-check.mjs` y `a3-reading-plans-check.mjs` usan una cuenta de prueba con verificación en dos pasos por app, dada en `S1_EMAIL`, `S1_PASSWORD` y `S1_TOTP_SECRET`. Las guías para contribuir están en [CONTRIBUTING.md](./CONTRIBUTING.md).
+Las verificaciones de extremo a extremo están en `apps/desktop/scripts/a0-*.mjs`, `a1-*.mjs`, `a2-*.mjs`, `s1-*.mjs`, `a3-*.mjs` y `a4-*.mjs`. Se ejecutan con `npm run start:desktop` corriendo. `a3-update-notice-check.mjs` prueba el aviso de actualización (novedades, "Instalar ahora" y "Recordarme más tarde"). `s1-sync-check.mjs`, `a3-templates-check.mjs` y `a3-reading-plans-check.mjs` usan una cuenta de prueba con verificación en dos pasos por app, dada en `S1_EMAIL`, `S1_PASSWORD` y `S1_TOTP_SECRET`. `a4-consent-check.mjs` prueba los correos de novedades contra un servidor de cuentas local (lo que necesita está en `deploy/marketing-consent-check.mjs` de `epigrapho-sync-server`). Los 21 temas incluidos salen de `packages/theme/scripts/community-themes.mjs`. Las guías para contribuir están en [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## Soporte
 

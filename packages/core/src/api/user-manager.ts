@@ -380,7 +380,11 @@ class UserManager {
     });
   }
 
-  async changeMarketingConsent(enabled: boolean) {
+  /**
+   * Epigrapho: the news emails are opt-in, and the interface language goes
+   * along so the emails come in it.
+   */
+  async changeMarketingConsent(enabled: boolean, locale?: string) {
     const token = await this.tokenManager.getAccessToken();
     if (!token) return;
 
@@ -388,7 +392,8 @@ class UserManager {
       `${constants.AUTH_HOST}${ENDPOINTS.patchUser}`,
       {
         type: "change_marketing_consent",
-        enabled: enabled
+        enabled: enabled,
+        ...(locale ? { locale } : {})
       },
       token
     );

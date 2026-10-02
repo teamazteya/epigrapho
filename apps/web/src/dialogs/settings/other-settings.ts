@@ -34,6 +34,7 @@ import { desktop } from "../../common/desktop-bridge";
 import { TaskManager } from "../../common/task-manager";
 import { useStore as useSettingStore } from "../../stores/setting-store";
 import { STUDY_PROVENANCE } from "@notesnook/scripture-provider";
+import { CommunityThemes } from "@notesnook/theme";
 
 export const AboutSettings: SettingsGroup[] = [
   {
@@ -197,6 +198,27 @@ export const AboutSettings: SettingsGroup[] = [
       key: `study-data-${resource.id}`,
       title: resource.name,
       description: resource.attribution,
+      components: []
+    }))
+  },
+  {
+    // The community themes' licenses (GPL and MIT) ask for the credit too.
+    key: "theme-credits",
+    section: "about",
+    header: strings.themeCredits(),
+    settings: CommunityThemes.map((theme) => ({
+      key: `theme-credit-${theme.id}`,
+      title: theme.name,
+      description: strings.themeCredit(
+        theme.basedOn || theme.name,
+        // A name that ends in a period ("Kenneth V.") would end the
+        // sentence twice.
+        theme.authors
+          .map((author) => author.name)
+          .join(", ")
+          .replace(/\.$/, ""),
+        theme.license
+      ),
       components: []
     }))
   }

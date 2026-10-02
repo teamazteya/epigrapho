@@ -1,0 +1,129 @@
+{
+  "name": "Jacinto",
+  "id": "epigrapho-jacinto",
+  "version": 1.2,
+  "license": "MIT",
+  "homepage": "https://github.com/streetwriters/notesnook-themes/tree/ec0b47e6a374356f5e49e905f7a948a609839de0/themes/dracula",
+  "description": "Based on Dracula.",
+  "colorScheme": "dark",
+  "compatibilityVersion": 1,
+  "authors": [
+    {
+      "name": "c4ssiopei4",
+      "email": "dev@privly.ch"
+    }
+  ],
+  "scopes": {
+    "base": {
+      "primary": {
+        "accent": "#ff79c6",
+        "accentForeground": "#ffffff",
+        "paragraph": "#f8f8f2",
+        "background": "#282a36",
+        "border": "#6272a4",
+        "heading": "#ff79c6",
+        "icon": "#f8f8f2",
+        "separator": "#6272a4",
+        "placeholder": "#6272a4",
+        "hover": "#44475a",
+        "backdrop": "#282a3680"
+      },
+      "secondary": {
+        "accent": "#bd93f9",
+        "accentForeground": "#ffffff",
+        "paragraph": "#818589",
+        "background": "#44475a",
+        "border": "#6272a4",
+        "heading": "#ff79c6",
+        "icon": "#808080",
+        "separator": "#6272a4",
+        "placeholder": "#6272a4",
+        "hover": "#44475a",
+        "backdrop": "#282a3680"
+      },
+      "disabled": {
+        "accent": "#bd93f9",
+        "accentForeground": "#ffffff",
+        "paragraph": "#505050",
+        "background": "#f8f8f2",
+        "border": "#6272a4",
+        "heading": "#ff79c6",
+        "icon": "#808080",
+        "separator": "#6272a4",
+        "placeholder": "#6272a4",
+        "hover": "#44475a",
+        "backdrop": "#282a3680"
+      },
+      "selected": {
+        "accent": "#bd93f9",
+        "accentForeground": "#ffffff",
+        "paragraph": "#f8f8f2",
+        "background": "#44475a",
+        "border": "#6272a4",
+        "heading": "#ff79c6",
+        "icon": "#bd93f9",
+        "separator": "#6272a4",
+        "placeholder": "#6272a4",
+        "hover": "#44475a",
+        "backdrop": "#282a3680"
+      },
+      "error": {
+        "accent": "#ff5555",
+        "accentForeground": "#ffffff",
+        "paragraph": "#ff5555",
+        "background": "#282a36",
+        "border": "#6272a4",
+        "heading": "#ff5555",
+        "icon": "#ff5555",
+        "separator": "#6272a4",
+        "placeholder": "#6272a4",
+        "hover": "#44475a",
+        "backdrop": "#282a3680"
+      },
+      "success": {
+        "accent": "#50fa7b",
+        "accentForeground": "#ffffff",
+        "paragraph": "#50fa7b",
+        "background": "#282a36",
+        "border": "#6272a4",
+        "heading": "#50fa7b",
+        "icon": "#50fa7b",
+        "separator": "#6272a4",
+        "placeholder": "#6272a4",
+        "hover": "#44475a",
+        "backdrop": "#282a3680"
+      }
+    },
+    "editor": {
+      "primary": {
+        "icon": "#bd93f9",
+        "placeholder": "#bd93f9"
+      },
+      "secondary": {
+        "heading": "#ff79c6",
+        "paragraph": "#989ea2"
+      }
+    },
+    "editorToolbar": {
+      "primary": {
+        "accent": "#bd93f9",
+        "paragraph": "#bd93f9",
+        "icon": "#bd93f9"
+      }
+    },
+    "navigationMenu": {
+      "primary": {
+        "icon": "#bd93f9"
+      },
+      "selected": {
+        "icon": "#ff79c6"
+      }
+    },
+    "sheet": {
+      "selected": {
+        "paragraph": "#7C5CFF"
+      }
+    }
+  },
+  "basedOn": "Dracula"
+}

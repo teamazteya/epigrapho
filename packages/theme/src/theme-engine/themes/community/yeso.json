@@ -1,0 +1,109 @@
+{
+  "name": "Yeso",
+  "id": "epigrapho-yeso",
+  "version": 2,
+  "license": "GPL-3.0-or-later",
+  "homepage": "https://github.com/streetwriters/notesnook-themes/tree/ec0b47e6a374356f5e49e905f7a948a609839de0/themes/proton-snow",
+  "description": "Based on Proton Snow.",
+  "colorScheme": "light",
+  "compatibilityVersion": 1,
+  "authors": [
+    {
+      "name": "Anastasis M.",
+      "email": "notesnook.ktzyd@slmail.me"
+    }
+  ],
+  "scopes": {
+    "base": {
+      "primary": {
+        "accent": "#6243E6",
+        "paragraph": "#303030",
+        "background": "#ffffff",
+        "border": "#D1CFCD",
+        "heading": "#303030",
+        "icon": "#292930",
+        "separator": "#D1CFCD",
+        "placeholder": "#999794",
+        "hover": "#F3F3F3",
+        "accentForeground": "#ffffff",
+        "backdrop": "#0000001a"
+      },
+      "secondary": {
+        "accent": "#6243E6",
+        "paragraph": "#303030",
+        "background": "#f7f7f7",
+        "border": "#D1CFCD",
+        "heading": "#303030",
+        "icon": "#292930",
+        "separator": "#D1CFCD",
+        "placeholder": "#999794",
+        "hover": "#F3F3F3",
+        "accentForeground": "#ffffff",
+        "backdrop": "#0000001a"
+      },
+      "disabled": {
+        "accent": "#6243E6",
+        "paragraph": "#505050",
+        "background": "#ffffff",
+        "border": "#D1CFCD",
+        "heading": "#6D6A79",
+        "icon": "#292930",
+        "separator": "#D1CFCD",
+        "placeholder": "#999794",
+        "hover": "#F3F3F3",
+        "accentForeground": "#ffffff",
+        "backdrop": "#0000001a"
+      },
+      "selected": {
+        "accent": "#6243E6",
+        "paragraph": "#303030",
+        "background": "#F3F3F3",
+        "border": "#6243E6",
+        "heading": "#303030",
+        "icon": "#6243E6",
+        "separator": "#D1CFCD",
+        "placeholder": "#999794",
+        "hover": "#F3F3F3",
+        "accentForeground": "#ffffff",
+        "backdrop": "#0000001a"
+      },
+      "error": {
+        "accent": "#F64C6B",
+        "paragraph": "#F64C6B",
+        "background": "#ffe2df",
+        "border": "#D1CFCD",
+        "heading": "#F64C6B",
+        "icon": "#F64C6B",
+        "separator": "#D1CFCD",
+        "placeholder": "#999794",
+        "hover": "#F3F3F3",
+        "accentForeground": "#ffffff",
+        "backdrop": "#0000001a"
+      },
+      "success": {
+        "accent": "#1EA885",
+        "paragraph": "#1EA885",
+        "background": "#85ce68",
+        "border": "#D1CFCD",
+        "heading": "#1EA885",
+        "icon": "#1EA885",
+        "separator": "#D1CFCD",
+        "placeholder": "#999794",
+        "hover": "#F3F3F3",
+        "accentForeground": "#ffffff",
+        "backdrop": "#0000001a"
+      }
+    },
+    "editor": {
+      "selected": {
+        "background": "#D8D0F9"
+      }
+    },
+    "sheet": {
+      "selected": {
+        "paragraph": "#6243E6"
+      }
+    }
+  },
+  "basedOn": "Proton Snow"
+}

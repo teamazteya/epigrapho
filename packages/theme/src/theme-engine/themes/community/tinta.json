@@ -1,0 +1,115 @@
+{
+  "name": "Tinta",
+  "id": "epigrapho-tinta",
+  "version": 1.3,
+  "license": "GPL-3.0-or-later",
+  "homepage": "https://github.com/streetwriters/notesnook-themes/tree/ec0b47e6a374356f5e49e905f7a948a609839de0/themes/flexoki-dark",
+  "description": "Based on Flexoki Dark.",
+  "colorScheme": "dark",
+  "compatibilityVersion": 1,
+  "authors": [
+    {
+      "name": "riiku",
+      "email": "pixelated@posteo.org",
+      "url": "https://tech.lgbt/@riiku"
+    }
+  ],
+  "scopes": {
+    "base": {
+      "primary": {
+        "accent": "#879A39",
+        "paragraph": "#CECDC3",
+        "background": "#100F0F",
+        "border": "#282726",
+        "heading": "#FFFCF0",
+        "icon": "#878580",
+        "separator": "#403E3C",
+        "placeholder": "#575653",
+        "hover": "#282726",
+        "accentForeground": "#FFFCF0",
+        "backdrop": "#403E3C80"
+      },
+      "secondary": {
+        "accent": "#879A39",
+        "paragraph": "#878580",
+        "background": "#1C1B1A",
+        "border": "#282726",
+        "heading": "#878580",
+        "icon": "#878580",
+        "separator": "#403E3C",
+        "placeholder": "#575653",
+        "hover": "#FFFCF010",
+        "accentForeground": "#FFFCF0",
+        "backdrop": "#403E3C80"
+      },
+      "disabled": {
+        "accent": "#879A39",
+        "paragraph": "#575653",
+        "background": "#FFFCF0",
+        "border": "#403E3C",
+        "heading": "#100F0F",
+        "icon": "#878580",
+        "separator": "#403E3C",
+        "placeholder": "#575653",
+        "hover": "#FFFCF010",
+        "accentForeground": "#FFFCF0",
+        "backdrop": "#403E3C80"
+      },
+      "selected": {
+        "accent": "#879A39",
+        "paragraph": "#FFFCF0",
+        "background": "#575653",
+        "border": "#879A39",
+        "heading": "#FFFCF0",
+        "icon": "#879A39",
+        "separator": "#403E3C",
+        "placeholder": "#575653",
+        "hover": "#FFFCF010",
+        "accentForeground": "#FFFCF0",
+        "backdrop": "#403E3C80"
+      },
+      "error": {
+        "accent": "#AF3029",
+        "paragraph": "#AF3029",
+        "background": "#261312",
+        "border": "#403E3C",
+        "heading": "#AF3029",
+        "icon": "#AF3029",
+        "separator": "#403E3C",
+        "placeholder": "#575653",
+        "hover": "#FFFCF010",
+        "accentForeground": "#FFFCF0",
+        "backdrop": "#403E3C80"
+      },
+      "success": {
+        "accent": "#66800B",
+        "paragraph": "#66800B",
+        "background": "#1A1E0C",
+        "border": "#403E3C",
+        "heading": "#66800B",
+        "icon": "#66800B",
+        "separator": "#403E3C",
+        "placeholder": "#575653",
+        "hover": "#FFFCF010",
+        "accentForeground": "#FFFCF0",
+        "backdrop": "#403E3C80"
+      }
+    },
+    "list": {
+      "selected": {
+        "background": "#1C1B1A"
+      }
+    },
+    "contextMenu": {
+      "primary": {
+        "background": "#1C1B1A"
+      }
+    },
+    "sheet": {
+      "selected": {
+        "paragraph": "#879A39"
+      }
+    }
+  },
+  "basedOn": "Flexoki Dark"
+}

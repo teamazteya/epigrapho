@@ -20,6 +20,7 @@ import { useCallback } from "react";
 import { Box, Button, Flex, Text } from "@theme-ui/components";
 import { CheckCircleOutline, Loading } from "../../../components/icons";
 import {
+  CommunityThemes,
   ThemeDark,
   ThemeDefinition,
   ThemeLight,
@@ -36,9 +37,10 @@ import { ThemeDetailsDialog } from "../../theme-details-dialog";
 import { strings } from "@notesnook/intl";
 
 /**
- * Epigrapho: the themes on offer are the ones that ship with the app, plus any
- * the person loads from a file. Upstream listed its online theme store here,
- * which asked a Notesnook server on every visit to Appearance.
+ * Epigrapho: the themes on offer are the ones that ship with the app (its own
+ * two, then the community ones, light before dark), plus any the person loads
+ * from a file. Upstream listed its online theme store here, which asked a
+ * Notesnook server on every visit to Appearance.
  */
 export function ThemesSelector() {
   const setCurrentTheme = useThemeStore((store) => store.setTheme);
@@ -48,7 +50,11 @@ export function ThemesSelector() {
     (store) => store.isThemeCurrentlyApplied
   );
 
-  const items = [darkTheme, lightTheme, ThemeDark, ThemeLight]
+  const bundled = [ThemeLight, ThemeDark, ...CommunityThemes];
+  const fromFile = [lightTheme, darkTheme].filter(
+    (theme) => !bundled.some((other) => other.id === theme.id)
+  );
+  const items = [...fromFile, ...bundled]
     .filter(
       (theme, index, all) =>
         all.findIndex((other) => other.id === theme.id) === index
@@ -153,14 +159,16 @@ function ThemeItem(props: ThemeItemProps) {
     >
       <ThemePreview theme={theme} />
       <Text variant="title" sx={{ mt: 1 }}>
-        {theme.name}
+        {themeName(theme)}
       </Text>
-      <Text variant="body">{theme.authors[0].name}</Text>
+      <Text variant="body">
+        {theme.basedOn
+          ? strings.themeBasedOn(theme.basedOn)
+          : theme.authors[0].name}
+      </Text>
       <Flex sx={{ justifyContent: "space-between", alignItems: "center" }}>
         <Text variant="subBody">
-          {theme.colorScheme === "dark" ? "Dark" : "Light"}
-          &nbsp;&nbsp;
-          {theme.totalInstalls ? `${theme.totalInstalls} installs` : ""}
+          {theme.colorScheme === "dark" ? strings.dark() : strings.light()}
         </Text>
         {isApplied ? (
           <CheckCircleOutline color="accent" size={20} />
@@ -187,4 +195,14 @@ function ThemeItem(props: ThemeItemProps) {
       </Flex>
     </Flex>
   );
+}
+
+/**
+ * Epigrapho: the app's own two themes carry an English name in their file;
+ * the list shows it in the interface language.
+ */
+export function themeName(theme: { id: string; name: string }) {
+  if (theme.id === ThemeLight.id) return strings.epigraphoLightTheme();
+  if (theme.id === ThemeDark.id) return strings.epigraphoDarkTheme();
+  return theme.name;
 }

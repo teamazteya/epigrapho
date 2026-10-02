@@ -72,6 +72,11 @@ export type ThemeDefinition = {
    */
   homepage?: string;
   /**
+   * Epigrapho: the name of the theme this one was made from, for the credit
+   * the license asks for.
+   */
+  basedOn?: string;
+  /**
    * A short description of the theme.
    */
   description: string;

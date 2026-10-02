@@ -16,6 +16,8 @@ const UPSTREAM = /notesnook|streetwriters|discord|telegram|mastodon/i;
 // The one place Notesnook may be named: the importer, as an app to bring
 // notes from.
 const IMPORT_SOURCE = /^Notesnook$/;
+// A4: the credit the community themes' licenses ask for, in Acerca de.
+const THEME_CREDIT = /^Basado en .+\. Licencia [\w.-]+\.$/;
 
 const profile = await mkdtemp(path.join(profilesRoot(), "epigrapho-brand-"));
 const app = await _electron.launch({
@@ -36,13 +38,22 @@ page.on("request", (request) => {
 /** Lines of `text` still in English, which the Spanish interface should not have. */
 const ENGLISH =
   /\b(the|your|you|and|with|enable|disable|select|never|minutes?|hours?|failed|please|click|lock|restore|short|long|sunday|monday|text|files?)\b/i;
-const english = (text) => text.split("\n").filter((line) => ENGLISH.test(line));
+// A theme credit carries its authors' names as they wrote them.
+const english = (text) =>
+  text
+    .split("\n")
+    .filter((line) => ENGLISH.test(line) && !THEME_CREDIT.test(line.trim()));
 
 /** Lines of `text` that name upstream. */
 const upstream = (text) =>
   text
     .split("\n")
-    .filter((line) => UPSTREAM.test(line) && !IMPORT_SOURCE.test(line.trim()));
+    .filter(
+      (line) =>
+        UPSTREAM.test(line) &&
+        !IMPORT_SOURCE.test(line.trim()) &&
+        !THEME_CREDIT.test(line.trim())
+    );
 
 try {
   await page.locator('[data-test-id="create-new-note"]').first().waitFor();

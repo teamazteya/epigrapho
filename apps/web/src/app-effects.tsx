@@ -37,6 +37,7 @@ import { updateStatus, removeStatus, getStatus } from "./hooks/use-status";
 import { hashNavigate, navigate } from "./navigation";
 import { desktop } from "./common/desktop-bridge";
 import { FeatureDialog, hasFeatureToShow } from "./dialogs/feature-dialog";
+import { askMarketingOnce } from "./common/marketing";
 import { logger } from "./utils/logger";
 import { showToast } from "./utils/toast";
 import { strings } from "@notesnook/intl";
@@ -68,6 +69,8 @@ export default function AppEffects() {
 
         if (hasFeatureToShow("highlights"))
           await FeatureDialog.show({ featureName: "highlights" });
+        // Not awaited: it waits for the first sync before asking.
+        askMarketingOnce().catch(logger.error);
         await scheduleBackups();
         await scheduleFullBackups();
         await scheduleExpiredNotesDeletion();

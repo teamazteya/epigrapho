@@ -24,6 +24,7 @@ import { BaseDialogProps, DialogManager } from "../common/dialog-manager";
 import Dialog from "../components/dialog";
 import { ThemePreview } from "../components/theme-preview";
 import { useStore as useThemeStore } from "../stores/theme-store";
+import { themeName } from "./settings/components/themes-selector";
 
 export type ThemeDetailsDialogProps = BaseDialogProps<boolean> & {
   theme: ThemeMetadata;
@@ -53,13 +54,15 @@ export const ThemeDetailsDialog = DialogManager.register(
         <ThemePreview theme={theme} />
         <Flex sx={{ flexDirection: "column", mt: 2 }}>
           <Text variant="heading">
-            {theme.name}{" "}
+            {themeName(theme)}{" "}
             <Text variant="subBody" sx={{ fontSize: "subtitle" }}>
               v{theme.version}
             </Text>
           </Text>
           <Text variant="body" sx={{ fontSize: "title" }}>
-            {theme.description}
+            {theme.basedOn
+              ? strings.themeBasedOn(theme.basedOn)
+              : theme.description}
           </Text>
           <Text variant="subBody" sx={{ fontSize: "subtitle" }}>
             {theme.authors.map((author) => author.name).join(", ")}

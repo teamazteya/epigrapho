@@ -1,6 +1,6 @@
 # Aviso de privacidad de Epigrapho
 
-Última actualización: 1 de octubre de 2026.
+Última actualización: 2 de octubre de 2026.
 
 Epigrapho es una app de notas para estudiar la Biblia. La hace Azteya. Este aviso explica qué datos tuyos guarda Epigrapho, dónde los guarda y cómo los borras.
 
@@ -26,13 +26,19 @@ Tu cuenta de Epigrapho vive en el servidor de Epigrapho y no tiene ninguna relac
 - **Datos técnicos para que el sync funcione**: el tamaño de cada elemento y de tus adjuntos, las fechas en que cambiaron, y un identificador por cada computadora donde inicias sesión.
 - **Registros técnicos del servidor**, que pueden incluir la dirección IP desde la que te conectas. Sirven para atender fallas y ataques. Se borran solos: el servidor conserva unos pocos megabytes por servicio y descarta lo más viejo.
 
-No guardamos tu contraseña, ni tu llave de cifrado, ni el contenido de tus notas sin cifrar. No hay analíticas, ni publicidad, ni venta de datos.
+No guardamos tu contraseña, ni tu llave de cifrado, ni el contenido de tus notas sin cifrar. No hay analíticas ni venta de datos, y solo recibes correos de novedades si los pides.
 
 ### Dónde
 
 El servidor corre en Oracle Cloud, en la región de Querétaro, México. Los respaldos del servidor se guardan en la misma región, también cifrados, durante 28 días como máximo.
 
 Los correos los envía Brevo, el servicio de correo que usamos. Brevo recibe tu dirección y el texto del correo (por ejemplo, un código de verificación), pero nunca tus notas.
+
+### Correos de novedades
+
+Solo si lo aceptas (al crear tu cuenta o en Ajustes → Privacidad), te enviamos novedades y ofertas de Epigrapho, una vez al mes como máximo. Para eso guardamos en El Dugout, el sistema de contactos de Azteya, tu correo, el idioma de la app, la fecha en que creaste tu cuenta y si aceptaste. Nada más: ni tus notas ni cómo usas la app.
+
+Si desmarcas la opción en la app, dejas de recibirlos en ese momento. Cada correo trae además un enlace para darte de baja de todos los correos de Azteya. Si borras tu cuenta, también dejas de recibir los correos de novedades de Epigrapho. Tu correo se queda en El Dugout, así que puedes seguir recibiendo los correos generales de Azteya, que también traen el enlace para darte de baja.
 
 ### Quién lo opera
 

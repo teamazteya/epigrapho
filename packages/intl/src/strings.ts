@@ -1170,6 +1170,19 @@ $day$: Current day (eg. Monday)`,
   marketingEmails: () => t`Marketing emails`,
   marketingEmailsDesc: () =>
     t`We will send you occasional promotional offers & product updates on your email (sent once every month).`,
+  marketingOptIn: () =>
+    t`I want to receive news and offers from Epigrapho by email (one a month at most)`,
+  marketingAsk: () => t`Do you want to receive Epigrapho news by email?`,
+  marketingAskDesc: () =>
+    t`At most one email a month, with what's new in Epigrapho and the odd offer. You can change it anytime in Settings > Privacy.`,
+  marketingAskYes: () => t`Yes, I do`,
+  marketingAskNo: () => t`No, thanks`,
+  themeBasedOn: (name: string) => t`Based on ${name}`,
+  themeCredits: () => t`Theme credits`,
+  themeCredit: (basedOn: string, authors: string, license: string) =>
+    t`Based on ${basedOn}, by ${authors}. ${license} license.`,
+  epigraphoLightTheme: () => t`Epigrapho Light`,
+  epigraphoDarkTheme: () => t`Epigrapho Dark`,
   corsBypass: () => t`CORS bypass`,
   corsBypassDesc: () =>
     t`You can set a custom proxy URL to increase your privacy.`,

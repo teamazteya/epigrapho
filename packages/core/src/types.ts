@@ -503,6 +503,9 @@ export type SettingItemMap = {
   "epigrapho:templates": EpigraphoTemplate[];
   // A3: the reading plan the person follows, and how far they are.
   "epigrapho:readingPlan": EpigraphoReadingPlan | undefined;
+  // A4: whether the person already answered about the news emails, so the
+  // question is asked once per account and not once per computer.
+  "epigrapho:marketingAsked": boolean | undefined;
 } & Record<`groupOptions:${GroupingKey}`, GroupOptions> &
   Record<
     | `groupOptions:notes:notebooks`

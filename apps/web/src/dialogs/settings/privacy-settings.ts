@@ -21,11 +21,11 @@ import { SettingsGroup } from "./types";
 import { useStore as useSettingStore } from "../../stores/setting-store";
 import { useStore as useUserStore } from "../../stores/user-store";
 import { getPlatform } from "../../utils/platform";
-import { db } from "../../common/db";
 import Config from "../../utils/config";
 import { showToast } from "../../utils/toast";
 import { PromptDialog } from "../prompt";
 import { strings } from "@notesnook/intl";
+import { setMarketingConsent } from "../../common/marketing";
 
 export const PrivacySettings: SettingsGroup[] = [
   {
@@ -36,7 +36,7 @@ export const PrivacySettings: SettingsGroup[] = [
       {
         key: "marketing",
         title: strings.marketingEmails(),
-        description: strings.marketingEmailsDesc(),
+        description: strings.marketingOptIn(),
         onStateChange: (listener) =>
           useUserStore.subscribe((s) => s.user?.marketingConsent, listener),
         isHidden: () => !useUserStore.getState().isLoggedIn,
@@ -44,12 +44,10 @@ export const PrivacySettings: SettingsGroup[] = [
           {
             type: "toggle",
             isToggled: () => !!useUserStore.getState().user?.marketingConsent,
-            toggle: async () => {
-              await db.user.changeMarketingConsent(
+            toggle: () =>
+              setMarketingConsent(
                 !useUserStore.getState().user?.marketingConsent
-              );
-              await useUserStore.getState().refreshUser();
-            }
+              )
           }
         ]
       },

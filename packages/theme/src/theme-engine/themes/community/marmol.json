@@ -1,0 +1,211 @@
+{
+  "name": "Mármol",
+  "id": "epigrapho-marmol",
+  "version": 1.5,
+  "license": "GPL-3.0-or-later",
+  "homepage": "https://github.com/streetwriters/notesnook-themes/tree/ec0b47e6a374356f5e49e905f7a948a609839de0/themes/cloud",
+  "description": "Based on Cloud.",
+  "colorScheme": "light",
+  "compatibilityVersion": 1,
+  "authors": [
+    {
+      "name": "Kenneth V."
+    }
+  ],
+  "scopes": {
+    "base": {
+      "primary": {
+        "accent": "#1c6978",
+        "paragraph": "#3b4c4e",
+        "background": "#f0f5ff",
+        "border": "#ccd2e1",
+        "heading": "#0b4651",
+        "icon": "#7d9497",
+        "separator": "#cbdce1",
+        "placeholder": "#adc0cc",
+        "hover": "#dde7f3",
+        "accentForeground": "#f0f5ff",
+        "backdrop": "#0000001a"
+      },
+      "secondary": {
+        "accent": "#1c6978",
+        "paragraph": "#415558",
+        "background": "#f0f5ff",
+        "border": "#dee9f6",
+        "heading": "#415558",
+        "icon": "#7d9497",
+        "separator": "#13131a",
+        "placeholder": "#404040",
+        "hover": "#00000012",
+        "accentForeground": "#f0f5ff",
+        "backdrop": "#0000001a"
+      },
+      "disabled": {
+        "accent": "#1c6978",
+        "paragraph": "#415558",
+        "background": "#f0f5ff",
+        "border": "#13131a",
+        "heading": "#444141",
+        "icon": "#808080",
+        "separator": "#2b2b36",
+        "placeholder": "#a9a9a9",
+        "hover": "#ffffff10",
+        "accentForeground": "#f0f5ff",
+        "backdrop": "#35353580"
+      },
+      "selected": {
+        "accent": "#1c6978",
+        "paragraph": "#1c6978",
+        "background": "#f0f5ff",
+        "border": "#1c6978",
+        "heading": "#415558",
+        "icon": "#1c6978",
+        "separator": "#131311",
+        "placeholder": "#030202",
+        "hover": "#00000010",
+        "accentForeground": "#f0f5ff",
+        "backdrop": "#0000001a"
+      },
+      "error": {
+        "accent": "#f54b42",
+        "paragraph": "#f54b42",
+        "background": "#ffe2df",
+        "border": "#E8E8E8",
+        "heading": "#f54b42",
+        "icon": "#ff817a",
+        "separator": "#E8E8E8",
+        "placeholder": "#a9a9a9",
+        "hover": "#00000010",
+        "accentForeground": "#f0f5ff",
+        "backdrop": "#0000001a"
+      },
+      "success": {
+        "accent": "#1c6978",
+        "paragraph": "#1c6978",
+        "background": "#1d4249",
+        "border": "#E8E8E8",
+        "heading": "#1c6978",
+        "icon": "#6dba8f",
+        "separator": "#E8E8E8",
+        "placeholder": "#a9a9a9",
+        "hover": "#00000010",
+        "accentForeground": "#f0f5ff",
+        "backdrop": "#0000001a"
+      }
+    },
+    "statusBar": {
+      "primary": {
+        "accent": "#1c6978",
+        "paragraph": "#415558",
+        "background": "#f0f5ff",
+        "separator": "#f0f5ff"
+      }
+    },
+    "list": {
+      "primary": {
+        "paragraph": "#597173",
+        "background": "#dee9f6",
+        "icon": "#1c6978",
+        "hover": "#d8e7f3"
+      },
+      "secondary": {
+        "background": "#ebf2ff"
+      },
+      "selected": {
+        "background": "#d8e7f3",
+        "hover": "#d8e7f3"
+      }
+    },
+    "editor": {
+      "primary": {
+        "background": "#dee9f6",
+        "border": "#adc0cc",
+        "hover": "#759caa"
+      },
+      "secondary": {
+        "background": "#e8effc"
+      },
+      "selected": {
+        "background": "#82a9b0"
+      }
+    },
+    "editorToolbar": {
+      "primary": {
+        "background": "#f0f5ff",
+        "border": "#dee9f6",
+        "icon": "#7d9497",
+        "separator": "#dbe4f5"
+      },
+      "selected": {
+        "background": "#c4dae9"
+      }
+    },
+    "editorSidebar": {
+      "primary": {
+        "background": "#f0f5ff",
+        "separator": "#f0f5ff"
+      },
+      "secondary": {
+        "icon": "#cedee4"
+      }
+    },
+    "dialog": {
+      "primary": {
+        "accent": "#1c6978",
+        "background": "#f0f5ff",
+        "icon": "#1c6978",
+        "separator": "#cedee4"
+      },
+      "secondary": {
+        "accent": "#1c6978",
+        "background": "#dee9f6",
+        "icon": "#cedee4"
+      }
+    },
+    "navigationMenu": {
+      "primary": {
+        "paragraph": "#728688",
+        "background": "#f0f5ff",
+        "border": "#f0f5ff",
+        "separator": "#f0f5ff",
+        "hover": "#dee9f6"
+      },
+      "secondary": {
+        "paragraph": "#437784",
+        "background": "#dee9f6",
+        "icon": "#81a3a7"
+      },
+      "selected": {
+        "paragraph": "#09424e",
+        "icon": "#1c6978",
+        "hover": "#dee9f6"
+      }
+    },
+    "contextMenu": {
+      "primary": {
+        "background": "#f0f5ff",
+        "icon": "#1c6978"
+      },
+      "secondary": {
+        "icon": "#f0f5ff"
+      }
+    },
+    "sheet": {
+      "primary": {
+        "accent": "#1c6978"
+      },
+      "secondary": {
+        "background": "#e8effc",
+        "border": "#e7f2fd",
+        "icon": "#83a2a5"
+      },
+      "disabled": {
+        "icon": "#6a868a"
+      },
+      "selected": {
+        "icon": "#1c6978"
+      }
+    }
+  },
+  "basedOn": "Cloud"
+}

@@ -21,6 +21,7 @@ import { createContext, useContext, useMemo } from "react";
 import { create } from "zustand";
 import _ThemeDark from "./themes/default-dark.json";
 import _ThemeLight from "./themes/default-light.json";
+import _CommunityThemes from "./themes/community/index.js";
 import {
   ThemeCompatibilityVersion,
   ThemeDefinition,
@@ -31,6 +32,20 @@ import { buildVariants } from "./utils.js";
 
 const ThemeLight = _ThemeLight as ThemeDefinition;
 const ThemeDark = _ThemeDark as ThemeDefinition;
+/**
+ * Epigrapho: the community themes that ship with the app, renamed. Their files
+ * carry no code block colors, so each borrows the ones of the default theme
+ * with the same color scheme.
+ */
+const CommunityThemes = (
+  _CommunityThemes as Omit<ThemeDefinition, "codeBlockCSS">[]
+).map(
+  (theme): ThemeDefinition => ({
+    ...theme,
+    codeBlockCSS: (theme.colorScheme === "dark" ? ThemeDark : ThemeLight)
+      .codeBlockCSS
+  })
+);
 
 type ThemeScope = {
   colors: VariantsWithStaticColors<true>;
@@ -85,6 +100,12 @@ export function getThemeScope(
 export const useCurrentThemeScope = () => useContext(ThemeScopeContext);
 export const ScopedThemeProvider = ThemeScopeContext.Provider;
 export const THEME_COMPATIBILITY_VERSION: ThemeCompatibilityVersion = 1;
-export { ThemeLight, ThemeDark, useThemeEngineStore, type ThemeEngineState };
+export {
+  ThemeLight,
+  ThemeDark,
+  CommunityThemes,
+  useThemeEngineStore,
+  type ThemeEngineState
+};
 export { getPreviewColors, themeToCSS } from "./utils.js";
 export { validateTheme } from "./validator.js";

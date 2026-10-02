@@ -18,7 +18,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Button, Flex, Link, Text } from "@theme-ui/components";
+import {
+  Button,
+  Checkbox,
+  Flex,
+  Label,
+  Link,
+  Text
+} from "@theme-ui/components";
 import {
   CheckCircle,
   Loading,
@@ -42,6 +49,8 @@ import { AuthenticatorType, User } from "@notesnook/core";
 import { showLogoutConfirmation } from "../dialogs/confirm";
 import { TaskManager } from "../common/task-manager";
 import { RecoveryKeyDialog } from "../dialogs/recovery-key-dialog";
+import { setMarketingConsent } from "../common/marketing";
+import { logger } from "../utils/logger";
 import { strings } from "@notesnook/intl";
 import { ScrollContainer } from "@notesnook/ui";
 import {
@@ -66,6 +75,8 @@ type MFALoginFormData = {
 type SignupFormData = EmailFormData &
   PasswordFormData & {
     "confirm-password": string;
+    // Epigrapho: the news emails checkbox, "on" when ticked.
+    marketing?: string;
   };
 
 type AccountRecoveryFormData = {
@@ -359,6 +370,11 @@ function Signup(props: BaseAuthComponentProps<"signup">) {
         }
 
         await userstore.signup(form);
+        // Epigrapho: a new account answered with the checkbox, so it is never
+        // asked again. A failure here must not undo the signup.
+        await setMarketingConsent(form.marketing === "on").catch((e) =>
+          logger.error(e, "Could not save the news emails choice")
+        );
         // Epigrapho: the recovery key is the only way back into the notes if
         // the password is lost, so it is handed over before anything else.
         await RecoveryKeyDialog.show({});
@@ -389,6 +405,18 @@ function Signup(props: BaseAuthComponentProps<"signup">) {
             label={strings.confirmPassword()}
             defaultValue={form?.["confirm-password"]}
           />
+          <Label
+            variant="text.body"
+            sx={{ alignItems: "flex-start", gap: 1, mt: 2, cursor: "pointer" }}
+          >
+            <Checkbox
+              name="marketing"
+              data-test-id="signup-marketing"
+              defaultChecked={form?.marketing === "on"}
+              sx={{ width: 18, height: 18, color: "accent", flexShrink: 0 }}
+            />
+            {strings.marketingOptIn()}
+          </Label>
           <SubmitButton text={strings.createAccount()} />
           <Text
             mt={4}

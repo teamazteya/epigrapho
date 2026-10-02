@@ -1,0 +1,169 @@
+{
+  "name": "Índigo",
+  "id": "epigrapho-indigo",
+  "version": 2.2,
+  "license": "GPL-3.0-or-later",
+  "homepage": "https://github.com/streetwriters/notesnook-themes/tree/ec0b47e6a374356f5e49e905f7a948a609839de0/themes/kanagawa-dark",
+  "description": "Based on Kanagawa Dark.",
+  "colorScheme": "dark",
+  "compatibilityVersion": 1,
+  "authors": [
+    {
+      "name": "ahbh",
+      "email": "ahbh@tuta.io",
+      "url": "https://streetwriters.co"
+    }
+  ],
+  "scopes": {
+    "base": {
+      "primary": {
+        "accent": "#e6c384",
+        "paragraph": "#dcd7ba",
+        "background": "#1f1f28",
+        "border": "#2a2a37",
+        "heading": "#e6c384",
+        "icon": "#dcd7ba",
+        "separator": "#2a2a37",
+        "placeholder": "#54546d",
+        "hover": "#363646",
+        "accentForeground": "#1f1f28",
+        "backdrop": "#16161d99"
+      },
+      "secondary": {
+        "accent": "#dcd7ba",
+        "paragraph": "#dcd7ba",
+        "background": "#16161d",
+        "border": "#2a2a37",
+        "heading": "#dcd7ba",
+        "icon": "#525255",
+        "separator": "#2a2a37",
+        "placeholder": "#54546d",
+        "hover": "#363646",
+        "accentForeground": "#16161d",
+        "backdrop": "#16161d99"
+      },
+      "disabled": {
+        "accent": "#dcd7ba",
+        "paragraph": "#54546d",
+        "background": "#363646",
+        "border": "#2a2a37",
+        "heading": "#54546d",
+        "icon": "#54546d",
+        "separator": "#2a2a37",
+        "placeholder": "#54546d",
+        "hover": "#525255",
+        "accentForeground": "#16161d",
+        "backdrop": "#16161d99"
+      },
+      "selected": {
+        "accent": "#e6c384",
+        "paragraph": "#dcd7ba",
+        "background": "#525255",
+        "border": "#34495e",
+        "heading": "#e6c384",
+        "icon": "#dcd7ba",
+        "separator": "#34495e",
+        "placeholder": "#dcd7ba",
+        "hover": "#525255",
+        "accentForeground": "#ffffff",
+        "backdrop": "#2c3e5099"
+      },
+      "error": {
+        "accent": "#e82424",
+        "paragraph": "#e82424",
+        "background": "#1f1f28",
+        "border": "#2a2a37",
+        "heading": "#e82424",
+        "icon": "#e82424",
+        "separator": "#2a2a37",
+        "placeholder": "#54546d",
+        "hover": "#363646",
+        "accentForeground": "#16161d",
+        "backdrop": "#16161d99"
+      },
+      "success": {
+        "accent": "#98bb6c",
+        "paragraph": "#98bb6c",
+        "background": "#1f1f28",
+        "border": "#2a2a37",
+        "heading": "#98bb6c",
+        "icon": "#98bb6c",
+        "separator": "#2a2a37",
+        "placeholder": "#54546d",
+        "hover": "#363646",
+        "accentForeground": "#16161d",
+        "backdrop": "#16161d99"
+      }
+    },
+    "statusBar": {
+      "primary": {
+        "paragraph": "#c4bd96",
+        "background": "#16161d",
+        "separator": "#16161d"
+      }
+    },
+    "list": {
+      "primary": {
+        "accent": "#dcd7ba",
+        "paragraph": "#dcd7ba",
+        "background": "#1f1f28",
+        "heading": "#c9bf96",
+        "icon": "#dcd7ba",
+        "hover": "#2a2a37"
+      },
+      "secondary": {
+        "paragraph": "#e6e1d4",
+        "background": "#16161d"
+      },
+      "selected": {
+        "paragraph": "#dcd7ba",
+        "background": "#16161d",
+        "border": "#2a2a37",
+        "heading": "#e6c384",
+        "hover": "#2a2a37"
+      }
+    },
+    "editor": {
+      "primary": {
+        "background": "#1f1f28",
+        "border": "#2a2a37"
+      },
+      "secondary": {
+        "paragraph": "#dcd7ba",
+        "background": "#16161d",
+        "border": "#16161d"
+      }
+    },
+    "editorToolbar": {
+      "primary": {
+        "background": "#16161d",
+        "hover": "#363646"
+      },
+      "secondary": {
+        "background": "#16161d"
+      }
+    },
+    "navigationMenu": {
+      "primary": {
+        "background": "#16161d",
+        "icon": "#dcd7ba"
+      },
+      "selected": {
+        "paragraph": "#e6c384",
+        "background": "#2a2a37",
+        "icon": "#e6c384"
+      }
+    },
+    "contextMenu": {
+      "primary": {
+        "hover": "#16161d"
+      }
+    },
+    "sheet": {
+      "selected": {
+        "paragraph": "#dcd7ba"
+      }
+    }
+  },
+  "basedOn": "Kanagawa Dark"
+}

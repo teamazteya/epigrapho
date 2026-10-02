@@ -50,6 +50,12 @@ async function launch(name) {
   page.on("pageerror", (error) =>
     console.error(`[${name}] pageerror:`, error.message)
   );
+  // A4: the test account is asked once about the news emails. Whichever
+  // session sees the question says no and carries on.
+  await page.addLocatorHandler(
+    page.getByText("¿Quieres recibir novedades de Epigrapho por correo?"),
+    () => page.getByRole("button", { name: "No, gracias" }).click()
+  );
   const session = { name, profile, app, page };
   sessions.push(session);
   await page.locator('[data-test-id="create-new-note"]').first().waitFor();
