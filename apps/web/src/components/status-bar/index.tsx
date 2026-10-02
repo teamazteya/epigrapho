@@ -38,10 +38,10 @@ import { hardNavigate, hashNavigate } from "../../navigation";
 import { useAutoUpdater, UpdateStatus } from "../../hooks/use-auto-updater";
 import useStatus, { statusToString } from "../../hooks/use-status";
 import { ScopedThemeProvider } from "../theme-provider";
-import { checkForUpdate, installUpdate } from "../../utils/updater";
+import { checkForUpdate } from "../../utils/updater";
 import { getTimeAgo, toTitleCase } from "@notesnook/common";
 import { User } from "@notesnook/core";
-import { showUpdateAvailableNotice } from "../../dialogs/confirm";
+import { offerUpdate } from "../../dialogs/confirm";
 import { strings } from "@notesnook/intl";
 import { useVault } from "../../hooks/use-vault";
 import { useKeyStore } from "../../interfaces/key-store";
@@ -161,10 +161,11 @@ function StatusBar() {
             <Button
               variant="statusitem"
               onClick={async () => {
-                if (updateStatus.type === "available") {
-                  await showUpdateAvailableNotice(updateStatus);
-                } else if (updateStatus.type === "completed") {
-                  installUpdate();
+                if (
+                  updateStatus.type === "available" ||
+                  updateStatus.type === "completed"
+                ) {
+                  await offerUpdate(updateStatus, true);
                 } else {
                   checkForUpdate();
                 }

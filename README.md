@@ -56,6 +56,12 @@ Epigrapho la hace Azteya. Está construida sobre [Notesnook](https://github.com/
 - **Backlinks por pasaje y búsqueda por referencia.** Notas dispersas se vuelven un corpus que puedes consultar.
 - **Traducciones sin conexión:** VBL (CC BY-SA 4.0), BSB, KJV y PdDpt (CC BY 4.0) vienen dentro de la app.
 - **Traducciones en línea:** NTV, NBLA y NASB se piden a API.Bible. Solo se envía la referencia; el texto de tus notas nunca sale del equipo.
+- **Referencias cruzadas.** La vista previa de un versículo sugiere otros pasajes ("Ver también", datos de OpenBible.info) y los inserta con un clic.
+- **Comparar traducciones.** Un bloque de Escritura muestra hasta tres traducciones lado a lado, guardadas en la nota.
+- **Plantillas.** Sermón expositivo, devocional SOAP, estudio inductivo y notas de clase, más las que guardes tú; viajan con tu cuenta.
+- **Planes de lectura.** M'Cheyne, cronológico en un año, Nuevo Testamento en 90 días, y Salmos y Proverbios en un mes, con recordatorio diario y avance sincronizado.
+- **Modo sermón.** Tu nota a pantalla completa, en letra grande, con cronómetro; un toque despliega cada referencia.
+- **Exportar a PDF y Word** con portada, los bloques de Escritura en recuadro y el versículo completo de cada referencia como nota.
 - **Corrector ortográfico sin conexión** en español e inglés, con un paquete de términos bíblicos y tu propio diccionario.
 - **Sincronización opcional** entre tus computadoras, en vivo y cifrada de extremo a extremo.
 - **Importa tus notas** de Notesnook, Evernote, Google Keep, Simplenote, Joplin, Markdown y más.
@@ -158,7 +164,9 @@ La app todavía no está firmada por Apple. Si macOS no la deja abrir la primera
 
 Desde la versión 1.0.0 la app avisa cuando hay una versión nueva y la descarga por su cuenta. No hace falta desinstalar nada, y tus notas se conservan.
 
-- **Windows**: la actualización queda descargada. Con un clic en la barra de estado ("v… descargada (clic para instalar)") se instala y la app se reinicia.
+Desde la 1.2.0, cuando la versión nueva está lista, la app abre un aviso con sus novedades y dos botones: **Instalar ahora** y **Recordarme más tarde**. Si eliges más tarde, no vuelve a preguntar en 24 horas; mientras tanto, la barra de estado la sigue mostrando y un clic abre el aviso.
+
+- **Windows**: la actualización queda descargada. Con "Instalar ahora" (o un clic en la barra de estado, "v… descargada (clic para instalar)") se instala y la app se reinicia.
 - **Linux**: igual que en Windows. Con los paquetes .deb, .rpm y .pacman el sistema pide tu contraseña para instalarla. La AppImage se reemplaza sola.
 - **macOS**: la app descarga el .dmg de la versión nueva y lo abre. Arrastra Epigrapho a Aplicaciones y elige **Reemplazar**. Si instalaste con Homebrew, usa `brew upgrade --cask epigrapho`.
 
@@ -206,7 +214,7 @@ git tag -a v1.0.1 -m "Epigrapho 1.0.1" -m "- Qué cambió, en español."
 git push epigrapho v1.0.1
 ```
 
-Las verificaciones de extremo a extremo están en `apps/desktop/scripts/a0-*.mjs`, `a1-*.mjs`, `a2-*.mjs` y `s1-*.mjs`. Se ejecutan con `npm run start:desktop` corriendo. `s1-sync-check.mjs` usa una cuenta de prueba con verificación en dos pasos por app, dada en `S1_EMAIL`, `S1_PASSWORD` y `S1_TOTP_SECRET`. Las guías para contribuir están en [CONTRIBUTING.md](./CONTRIBUTING.md).
+Las verificaciones de extremo a extremo están en `apps/desktop/scripts/a0-*.mjs`, `a1-*.mjs`, `a2-*.mjs`, `s1-*.mjs` y `a3-*.mjs`. Se ejecutan con `npm run start:desktop` corriendo. `a3-update-notice-check.mjs` prueba el aviso de actualización (novedades, "Instalar ahora" y "Recordarme más tarde"). `s1-sync-check.mjs`, `a3-templates-check.mjs` y `a3-reading-plans-check.mjs` usan una cuenta de prueba con verificación en dos pasos por app, dada en `S1_EMAIL`, `S1_PASSWORD` y `S1_TOTP_SECRET`. Las guías para contribuir están en [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## Soporte
 

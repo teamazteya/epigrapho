@@ -46,7 +46,8 @@ import {
   SortBy,
   Tag as TagIcon,
   InternalLink,
-  ClearTrash
+  ClearTrash,
+  ReadingPlan
 } from "../icons";
 import { SortableNavigationItem } from "./navigation-item";
 import {
@@ -117,7 +118,14 @@ import { shouldShowWrapped } from "../../utils/should-show-wrapped";
 import { writeToClipboard } from "../../utils/clipboard";
 
 type Route = {
-  id: "notes" | "favorites" | "reminders" | "monographs" | "trash" | "archive";
+  id:
+    | "notes"
+    | "favorites"
+    | "reminders"
+    | "readingPlans"
+    | "monographs"
+    | "trash"
+    | "archive";
   title: string;
   path: string;
   icon: Icon;
@@ -138,6 +146,12 @@ const routes: Route[] = [
     title: strings.routes.Reminders(),
     path: "/reminders",
     icon: Reminders
+  },
+  {
+    id: "readingPlans",
+    title: strings.readingPlans.title(),
+    path: "/reading-plans",
+    icon: ReadingPlan
   },
   {
     id: "monographs",
@@ -847,6 +861,8 @@ function ItemCount({ item }: { item: Route | Color | Notebook | Tag }) {
       }
     })().then((c) => setCount(c || 0));
   }, [item, notes, trash, monographs, reminders]);
+  // Epigrapho (A3): a reading plan has no items to count.
+  if (!("type" in item) && item.id === "readingPlans") return null;
   return <Text variant="subBody">{count}</Text>;
 }
 

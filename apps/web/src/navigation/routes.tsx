@@ -24,6 +24,7 @@ import { NotebookHeader } from "../components/notebook-header";
 import Trash from "../views/trash";
 import { useStore as useNoteStore } from "../stores/note-store";
 import Reminders from "../views/reminders";
+import ReadingPlans from "../views/reading-plans";
 import { RouteResult, defineRoutes } from "./types";
 import { CREATE_BUTTON_MAP } from "../common";
 import { strings } from "@notesnook/intl";
@@ -93,6 +94,15 @@ const routes = defineRoutes({
       buttons: {
         create: CREATE_BUTTON_MAP.reminders
       }
+    });
+  },
+  "/reading-plans": () => {
+    useNoteStore.getState().setContext();
+    return defineRoute({
+      key: "readingPlans",
+      title: strings.readingPlans.title(),
+      type: "readingPlans",
+      component: ReadingPlans
     });
   },
   "/trash": () => {

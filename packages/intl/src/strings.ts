@@ -3051,6 +3051,10 @@ Continue without attachments?`,
   macUpdateSteps: () =>
     t`Epigrapho will close and open the installer. Drag Epigrapho to the Applications folder and choose Replace. Your notes are kept.`,
   macUpdateOpen: () => t`Open installer`,
+  updateReady: (version: string) => t`Epigrapho ${version} is ready`,
+  updateWhatsNew: () => t`What's new in this version:`,
+  installNow: () => t`Install now`,
+  remindMeLater: () => t`Remind me later`,
   embedNeedsIframe: () => t`Embed code must include an iframe.`,
   embedNeedsIframeSrc: () =>
     t`Embed code must include an iframe with an src attribute.`,
@@ -3128,6 +3132,8 @@ Continue without attachments?`,
   scriptureNoTextForRef: (translationId: string) =>
     t`${translationId} has no text for this reference.`,
   copyVerse: () => t`Copy verse`,
+  compareTranslations: () => t`Compare`,
+  compareMax: () => t`A passage can be compared in up to three translations.`,
   verseCopied: () => t`Verse copied with its attribution.`,
   verseCopyFailed: () => t`Could not copy the verse.`,
   uiLanguage: () => t`Interface language`,
@@ -3174,5 +3180,118 @@ Continue without attachments?`,
   storageLimitReached: () =>
     t`Your account already stores 500 MB of attachments, the most it can hold. Delete attachments you no longer need to upload this one.`,
   serverNotResponding: (reference: string) =>
-    t`The Epigrapho server is not responding. Check your internet connection and try again. If it keeps happening, write to support@azteya.tech. (Reference: ${reference})`
+    t`The Epigrapho server is not responding. Check your internet connection and try again. If it keeps happening, write to support@azteya.tech. (Reference: ${reference})`,
+
+  // Epigrapho A3: note templates.
+  templates: {
+    title: () => t`Templates`,
+    desc: () =>
+      t`Start a note with a ready-made structure. The ones you save travel with your account.`,
+    newFromTemplate: () => t`New note from template`,
+    saveAsTemplate: () => t`Save as template`,
+    templateName: () => t`Template name`,
+    saved: (name: string) => t`Saved "${name}" as a template.`,
+    builtIn: () => t`Built in`,
+    yours: () => t`Your templates`,
+    none: () =>
+      t`You have not saved any templates yet. Use "Save as template" in a note's menu.`,
+    cannotSaveLocked: () =>
+      t`A locked note cannot be saved as a template. Unlock it first.`,
+    sermon: () => t`Expository sermon`,
+    soap: () => t`SOAP devotional`,
+    inductive: () => t`Inductive study`,
+    classNotes: () => t`Class or Sunday school notes`,
+    baseText: () => t`Text`,
+    bigIdea: () => t`Big idea`,
+    context: () => t`Context`,
+    outline: () => t`Outline`,
+    firstPoint: () => t`First point`,
+    secondPoint: () => t`Second point`,
+    thirdPoint: () => t`Third point`,
+    illustrations: () => t`Illustrations`,
+    application: () => t`Application`,
+    conclusion: () => t`Conclusion`,
+    scripture: () => t`Scripture`,
+    observation: () => t`Observation`,
+    prayer: () => t`Prayer`,
+    passage: () => t`Passage`,
+    interpretation: () => t`Interpretation`,
+    questions: () => t`Questions`,
+    topic: () => t`Topic`,
+    teacher: () => t`Teacher`,
+    mainPoints: () => t`Main points`,
+    classQuestions: () => t`Questions for the class`,
+    homework: () => t`Homework`
+  },
+
+  // Epigrapho A3: cross references in the verse preview.
+  crossReferences: {
+    seeAlso: () => t`See also`,
+    seeAll: (count: number) => t`See all (${count})`,
+    insert: () => t`Insert this reference in the note`
+  },
+
+  // Epigrapho A3: reading plans.
+  readingPlans: {
+    title: () => t`Reading plans`,
+    choose: () =>
+      t`Choose a plan. You can start today or on another date; your progress travels with your account.`,
+    mcheyne: () => t`M'Cheyne`,
+    mcheyneDesc: () =>
+      t`One year, four readings a day: the Old Testament once, the New Testament and the Psalms twice.`,
+    chronological: () => t`Chronological`,
+    chronologicalDesc: () =>
+      t`The whole Bible in one year, in the order the events happened.`,
+    nt90: () => t`New Testament in 90 days`,
+    nt90Desc: () => t`Two or three chapters a day.`,
+    psalmsProverbs: () => t`Psalms and Proverbs in a month`,
+    psalmsProverbsDesc: () => t`Five psalms and one proverb a day.`,
+    startDate: () => t`Start date`,
+    start: () => t`Start plan`,
+    dayOf: (day: number, total: number) => t`Day ${day} of ${total}`,
+    notStarted: (date: string) => t`Starts on ${date}.`,
+    finished: () => t`You finished this plan.`,
+    progress: (done: number, total: number) => t`${done} of ${total} days read`,
+    pending: (count: number) =>
+      plural(count, {
+        one: `# earlier day not read yet`,
+        other: `# earlier days not read yet`
+      }),
+    markRead: () => t`Mark as read`,
+    today: () => t`Back to today`,
+    read: () => t`Read`,
+    writeAbout: () => t`Write about this`,
+    showText: () => t`Show text`,
+    hideText: () => t`Hide text`,
+    reminder: () => t`Daily reminder`,
+    reminderTitle: (plan: string) => t`Today's reading: ${plan}`,
+    stop: () => t`Leave this plan`,
+    stopConfirm: () =>
+      t`Leave this plan? Your progress and its reminder will be deleted. Notes you wrote stay.`,
+    noteTitle: (plan: string, day: number, date: string) =>
+      t`${plan}, day ${day} — ${date}`
+  },
+
+  // Epigrapho A3: sermon mode.
+  sermonMode: {
+    title: () => t`Sermon mode`,
+    smaller: () => t`Smaller text`,
+    larger: () => t`Larger text`,
+    start: () => t`Start`,
+    pause: () => t`Pause`,
+    reset: () => t`Reset`,
+    exit: () => t`Exit`
+  },
+
+  // Epigrapho A3: PDF and Word export.
+  studyExport: {
+    authorTitle: () => t`Name on the cover`,
+    authorDesc: () =>
+      t`Exported documents carry it on their cover. It is remembered on this computer; leave it empty to export without a name.`,
+    notes: () => t`Notes`,
+    noText: () => t`The verse could not be read.`,
+    translationsUsed: (list: string) => t`Translations: ${list}`,
+    shownInstead: (shown: string, asked: string) =>
+      t`${shown} is shown because ${asked} needs an internet connection`
+  }
 };

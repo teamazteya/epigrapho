@@ -499,6 +499,10 @@ export type SettingItemMap = {
   "epigrapho:translation": string | undefined;
   "epigrapho:words": string[];
   "epigrapho:wordsByNote": Record<string, string[]>;
+  // A3: the note templates the person saved.
+  "epigrapho:templates": EpigraphoTemplate[];
+  // A3: the reading plan the person follows, and how far they are.
+  "epigrapho:readingPlan": EpigraphoReadingPlan | undefined;
 } & Record<`groupOptions:${GroupingKey}`, GroupOptions> &
   Record<
     | `groupOptions:notes:notebooks`
@@ -509,6 +513,26 @@ export type SettingItemMap = {
   Record<`toolbarConfig:${ToolbarConfigPlatforms}`, ToolbarConfig | undefined> &
   Record<`sideBarOrder:${SideBarSection}`, string[]> &
   Record<`sideBarHiddenItems:${SideBarHideableSection}`, string[]>;
+
+/** A note saved as a template (A3). */
+export type EpigraphoTemplate = {
+  id: string;
+  title: string;
+  /** The note's content, as the editor's HTML. */
+  html: string;
+  updatedAt: number;
+};
+
+/** The reading plan being followed (A3). */
+export type EpigraphoReadingPlan = {
+  planId: string;
+  /** The first day, as YYYY-MM-DD on the person's calendar. */
+  start: string;
+  /** Days marked as read, 0-based. */
+  done: number[];
+  /** The daily reminder, if there is one. */
+  reminderId?: string;
+};
 
 /** The keys of the settings above that Epigrapho added. */
 export type EpigraphoSettingKey = Extract<

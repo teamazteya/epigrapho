@@ -258,9 +258,12 @@ const DataMappers: Partial<Record<ItemType, (row: any) => void>> = {
         row.key.startsWith("sideBarOrder") ||
         row.key.startsWith("sideBarHiddenItems") ||
         row.key.startsWith("profile") ||
-        // Epigrapho's two word lists (Fase 7). The other two preferences it
-        // stores are plain strings and must not be parsed.
-        row.key.startsWith("epigrapho:words"))
+        // Epigrapho's two word lists (Fase 7) and its templates (A3). The
+        // other two preferences it stores are plain strings and must not be
+        // parsed.
+        row.key.startsWith("epigrapho:words") ||
+        row.key === "epigrapho:templates" ||
+        row.key === "epigrapho:readingPlan")
     )
       row.value = JSON.parse(row.value);
   },

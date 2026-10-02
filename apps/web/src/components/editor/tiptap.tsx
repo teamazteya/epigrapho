@@ -40,7 +40,10 @@ import {
   LinkAttributes,
   type Selection,
   attachScripturePopover,
-  attachScriptureCopy
+  attachScriptureCopy,
+  MAX_PARALLEL,
+  type ParallelColumn,
+  type ScriptureBlockAttributes
 } from "@notesnook/editor";
 import { Box, Flex } from "@theme-ui/components";
 import {
@@ -80,10 +83,12 @@ import {
   parseRef,
   parseReferences
 } from "@notesnook/scripture-parser";
-import { getTranslation } from "../../common/translation";
+import { getTranslation, TRANSLATIONS } from "../../common/translation";
+import { Menu } from "../../hooks/use-menu";
 import { getBookNameLocale } from "../../common/ui-locale";
 import { resolveVerse } from "../../common/scripture";
-import { attributionOf } from "@notesnook/scripture-provider";
+import { attributionOf, STUDY_PROVENANCE } from "@notesnook/scripture-provider";
+import { crossReferences } from "@notesnook/original-languages";
 import { PromptDialog } from "../../dialogs/prompt";
 import { loadDictionaryEntry } from "../../common/dictionary";
 import {
@@ -280,6 +285,7 @@ function TipTap(props: TipTapProps) {
       enableFontLigatures: fontLigatures,
       parseScriptureReferences: detectScriptureReferences,
       scriptureAttribution: attributionOf,
+      compareScripture,
       insertScripture,
       insertInterlinear,
       loadInterlinear,
@@ -549,6 +555,10 @@ function TipTap(props: TipTapProps) {
     const container = editorContainer() || editor.view.dom;
     // Epigrapho: the two behaviours are the editor package's; what the app
     // supplies is where the words come from and how they reach the clipboard.
+    const readableRef = (ref: string) => {
+      const range = parseRef(ref);
+      return range ? formatReadableRef(range, getBookNameLocale()) : ref;
+    };
     const detachScripturePopover = attachScripturePopover(container, {
       translation: getTranslation,
       resolve: (ref, translationId) => {
@@ -556,13 +566,27 @@ function TipTap(props: TipTapProps) {
         if (!range) throw new Error(`Not a reference: ${ref}`);
         return resolveVerse(range, translationId);
       },
-      attributionOf
+      attributionOf,
+      crossReferences: {
+        load: crossReferences,
+        label: readableRef,
+        // After the reference being previewed, never inside it: the text goes
+        // in unmarked and detection marks it as its own reference.
+        insert: (ref, after) => {
+          const end = editor.view.posAtDOM(after, after.childNodes.length);
+          editor
+            .chain()
+            .insertContentAt(end, {
+              type: "text",
+              text: `; ${readableRef(ref)}`
+            })
+            .run();
+        },
+        credit: STUDY_PROVENANCE.OPENBIBLE.attribution
+      }
     });
     const detachScriptureCopy = attachScriptureCopy(container, {
-      formatReference: (ref) => {
-        const range = parseRef(ref);
-        return range ? formatReadableRef(range, getBookNameLocale()) : ref;
-      },
+      formatReference: readableRef,
       attributionOf,
       copy: async (text) => {
         try {
@@ -861,6 +885,68 @@ async function insertScripture(editor: Editor) {
       text: verse.text
     })
     .run();
+}
+
+// Epigrapho (A3): "Comparar" on a scripture block. The menu lists every other
+// translation; a checked one is already a column and unchecks to leave.
+function compareScripture(
+  block: ScriptureBlockAttributes,
+  update: (parallel: ParallelColumn[]) => void
+) {
+  const columns = block.parallel ?? [];
+  Menu.openMenu(
+    TRANSLATIONS.filter(
+      (translation) => translation.id !== block.translationId
+    ).map((translation) => {
+      const shown = columns.some(
+        (column) => column.translationId === translation.id
+      );
+      return {
+        type: "button" as const,
+        key: translation.id,
+        title: `${translation.id} — ${translation.name}`,
+        isChecked: shown,
+        onClick: async () => {
+          if (shown)
+            return update(
+              columns.filter(
+                (column) => column.translationId !== translation.id
+              )
+            );
+          if (columns.length >= MAX_PARALLEL)
+            return showToast("info", strings.compareMax());
+          const range = parseRef(block.ref);
+          if (!range) return;
+          const verse = await resolveVerse(range, translation.id);
+          if (!verse.text)
+            return showToast(
+              "error",
+              strings.scriptureNoTextFor(
+                translation.id,
+                block.label || block.ref
+              )
+            );
+          // Offline, an online translation falls back to a pack: the column
+          // credits what was actually shown, and is not shown twice.
+          if (verse.translationId !== translation.id) {
+            showToast(
+              "info",
+              strings.scriptureShowingInstead(verse.translationId)
+            );
+            if (
+              verse.translationId === block.translationId ||
+              columns.some((c) => c.translationId === verse.translationId)
+            )
+              return;
+          }
+          update([
+            ...columns,
+            { translationId: verse.translationId, text: verse.text }
+          ]);
+        }
+      };
+    })
+  );
 }
 
 // Epigrapho: the editor package does not depend on the parser, so the mapping

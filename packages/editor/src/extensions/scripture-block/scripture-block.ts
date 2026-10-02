@@ -35,7 +35,18 @@ export type ScriptureBlockAttributes = {
   label?: string;
   translationId: string;
   text: string;
+  /**
+   * More translations of the same passage, shown beside the first as columns
+   * (A3, "Comparar"). Each keeps its own words, so the note reads the same
+   * offline and outside the editor.
+   */
+  parallel?: ParallelColumn[];
 };
+
+export type ParallelColumn = { translationId: string; text: string };
+
+/** At most three columns: the block's own translation and two more. */
+export const MAX_PARALLEL = 2;
 
 export type ScriptureBlockOptions = {
   /**
@@ -44,6 +55,15 @@ export type ScriptureBlockOptions = {
    * credits the translation by its id alone.
    */
   attributionOf: (translationId: string) => string;
+  /**
+   * Lets the person pick translations to compare (A3). The app owns the list
+   * of translations and the words; `update` writes the columns to the block.
+   * Without it, the block has no "Compare" button.
+   */
+  compare?: (
+    block: ScriptureBlockAttributes,
+    update: (parallel: ParallelColumn[]) => void
+  ) => void;
 };
 
 declare module "@tiptap/core" {
@@ -101,6 +121,23 @@ export const ScriptureBlock = Node.create<ScriptureBlockOptions>({
         // The text is rendered as the block's own markup, so it does not also
         // travel as an attribute: a note stays readable outside the editor.
         renderHTML: () => ({})
+      },
+      parallel: {
+        default: [],
+        parseHTML: (element) =>
+          [
+            ...element.querySelectorAll(":scope > .scripture-block-parallel")
+          ].map((column) => ({
+            translationId: column.getAttribute("data-translation-id") || "",
+            text:
+              column.querySelector(".scripture-block-text")?.textContent || ""
+          })),
+        // Written as columns of markup (below), plus how many there are, which
+        // is what the layout needs.
+        renderHTML: (attributes) =>
+          attributes.parallel?.length
+            ? { "data-columns": String(attributes.parallel.length + 1) }
+            : {}
       }
     };
   },
@@ -126,7 +163,20 @@ export const ScriptureBlock = Node.create<ScriptureBlockOptions>({
         "p",
         { class: "scripture-block-attribution" },
         this.options.attributionOf(node.attrs.translationId)
-      ]
+      ],
+      ...(node.attrs.parallel as ParallelColumn[]).map((column) => [
+        "div",
+        {
+          class: "scripture-block-parallel",
+          "data-translation-id": column.translationId
+        },
+        ["p", { class: "scripture-block-text" }, column.text],
+        [
+          "p",
+          { class: "scripture-block-attribution" },
+          this.options.attributionOf(column.translationId)
+        ]
+      ])
     ];
   },
 
@@ -142,7 +192,7 @@ export const ScriptureBlock = Node.create<ScriptureBlockOptions>({
    * screen.
    */
   addNodeView() {
-    return ({ node, HTMLAttributes }) => {
+    return ({ node, HTMLAttributes, getPos, editor }) => {
       const dom = document.createElement("div");
       const attributes = mergeAttributes(HTMLAttributes, {
         "data-scripture-block": "true",
@@ -178,7 +228,53 @@ export const ScriptureBlock = Node.create<ScriptureBlockOptions>({
       button.setAttribute("aria-label", `${strings.copyVerse()}: ${label}`);
       button.textContent = strings.copyVerse();
 
-      dom.append(reference, text, attribution, button);
+      const columns = (node.attrs.parallel as ParallelColumn[]).map(
+        (column) => {
+          const element = document.createElement("div");
+          element.className = "scripture-block-parallel";
+          element.setAttribute("data-translation-id", column.translationId);
+          const words = document.createElement("p");
+          words.className = "scripture-block-text";
+          words.textContent = column.text;
+          const credit = document.createElement("p");
+          credit.className = "scripture-block-attribution";
+          credit.textContent = this.options.attributionOf(column.translationId);
+          element.append(words, credit);
+          return element;
+        }
+      );
+
+      const controls = document.createElement("div");
+      controls.className = "scripture-block-controls";
+      controls.contentEditable = "false";
+      controls.append(button);
+      const { compare } = this.options;
+      if (compare && typeof getPos === "function") {
+        const compareButton = document.createElement("button");
+        compareButton.type = "button";
+        compareButton.className = "scripture-block-copy";
+        compareButton.setAttribute("data-scripture-compare", "true");
+        compareButton.setAttribute(
+          "aria-label",
+          `${strings.compareTranslations()}: ${label}`
+        );
+        compareButton.textContent = strings.compareTranslations();
+        compareButton.addEventListener("click", () =>
+          compare(node.attrs as ScriptureBlockAttributes, (parallel) => {
+            const pos = getPos();
+            if (typeof pos !== "number") return;
+            editor.view.dispatch(
+              editor.state.tr.setNodeMarkup(pos, undefined, {
+                ...node.attrs,
+                parallel
+              })
+            );
+          })
+        );
+        controls.append(compareButton);
+      }
+
+      dom.append(reference, text, attribution, ...columns, controls);
       return { dom };
     };
   },
@@ -191,17 +287,25 @@ export const ScriptureBlock = Node.create<ScriptureBlockOptions>({
       // and copying one used to yield an empty line. This is the hook
       // Notesnook's own serializer looks for (extensions/clipboard).
       toText: ({ node }: { node: ProseMirrorNode }) =>
-        formatVerseForClipboard(
-          node.attrs.ref,
-          node.attrs.text,
-          node.attrs.translationId,
-          {
-            // The label is how this person read the reference when they wrote
-            // it, which beats working the name out again at copy time.
-            formatReference: () => node.attrs.label || node.attrs.ref,
-            attributionOf
-          }
-        )
+        [
+          { translationId: node.attrs.translationId, text: node.attrs.text },
+          ...(node.attrs.parallel as ParallelColumn[])
+        ]
+          .map((column) =>
+            formatVerseForClipboard(
+              node.attrs.ref,
+              column.text,
+              column.translationId,
+              {
+                // The label is how this person read the reference when they
+                // wrote it, which beats working the name out again at copy
+                // time.
+                formatReference: () => node.attrs.label || node.attrs.ref,
+                attributionOf
+              }
+            )
+          )
+          .join("\n\n")
     };
   },
 

@@ -96,7 +96,9 @@ const defaultSettings: SettingItemMap = {
   "epigrapho:uiLocale": undefined,
   "epigrapho:translation": undefined,
   "epigrapho:words": [],
-  "epigrapho:wordsByNote": {}
+  "epigrapho:wordsByNote": {},
+  "epigrapho:templates": [],
+  "epigrapho:readingPlan": undefined
 };
 
 // since setting keys are static, we can calculate ids for them

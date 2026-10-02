@@ -52,6 +52,7 @@
     "cronosjs": "^1.7.1",
     "dayjs": "1.11.13",
     "diffblazer": "^1.0.1",
+    "docx": "^9.8.1",
     "electron-trpc": "0.7.1",
     "entities": "^7.0.1",
     "event-source-polyfill": "1.0.31",

@@ -136,6 +136,14 @@ export const SOURCES: Record<
     sha256: "ed0977149a09451567d03ca4ebf39caabd88f676919606291c92be0ba9704350",
     vendored: true
   },
+  // OpenBible.info's cross references (CC BY), the export of 2026-09-28.
+  // Kept in data/, gzipped: the zip at that address is rebuilt as votes come
+  // in, so its checksum moves (A3 Paso 2.1).
+  "openbible-cross-references.txt.gz": {
+    url: "https://a.openbible.info/data/cross-references.zip",
+    sha256: "9476fe037e46889204c6105dcf078ab839bee230dd71ac0e80133230f96e3699",
+    vendored: true
+  },
   // Easton (1897), Smith (1863) and Hitchcock's names, as NEUU parsed them
   // from CCEL: one file per dictionary and letter (A2 Fase 6).
   neuu: {

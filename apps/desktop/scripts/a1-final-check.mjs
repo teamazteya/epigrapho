@@ -111,7 +111,7 @@ const readNote = () =>
     // the language of the moment and they are not stored with the note.
     const withoutControls = editor?.cloneNode(true);
     withoutControls
-      ?.querySelectorAll("[data-scripture-copy]")
+      ?.querySelectorAll("[data-scripture-copy], [data-scripture-compare]")
       .forEach((control) => control.remove());
     return {
       title: document.querySelector('.active [data-test-id="editor-title"]')

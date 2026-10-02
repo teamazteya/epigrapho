@@ -73,6 +73,12 @@ export type TranslationWordsPack = Record<
 export type ConcordancePack = Record<string, Record<string, string[]>>;
 
 /**
+ * A book's cross references (A3): "chapter.verse" → USFM references or
+ * ranges ("ROM.5.8", "PSA.89.11-PSA.89.12"), most voted first.
+ */
+export type CrossReferencePack = Record<string, string[]>;
+
+/**
  * A Bible dictionary: id ("EAS:bethel") → the entry. The note keeps only the
  * id (A2); the words come from here each time the entry is shown.
  */

@@ -24,7 +24,9 @@ import Dialog from "../components/dialog";
 import { BaseDialogProps, DialogManager } from "../common/dialog-manager";
 import { db } from "../common/db";
 import { getChangelog } from "../utils/version";
-import { downloadUpdate } from "../utils/updater";
+import { downloadUpdate, installUpdate } from "../utils/updater";
+import Config from "../utils/config";
+import { isMac } from "../utils/platform";
 import { ErrorText } from "../components/error-text";
 import { strings } from "@notesnook/intl";
 import Field from "../components/field";
@@ -222,42 +224,45 @@ export function showClearSessionsConfirmation() {
   });
 }
 
-export async function showUpdateAvailableNotice({
-  version
-}: {
-  version: string;
-}) {
-  const changelog = await getChangelog(version);
+// Epigrapho: a new version offers itself with its notes (the tag's message,
+// as the release shows them). "Recordarme más tarde" quiets that version for
+// a day; the status bar keeps showing it.
+const SNOOZE = "updateSnooze";
+const DAY = 24 * 60 * 60 * 1000;
+let offering: string | undefined;
+let installWhenReady = false;
 
-  return showUpdateDialog({
-    title: strings.newVersion(),
-    subtitle: strings.newVersionAvailable(version),
-    changelog,
-    action: { text: strings.updateNow(), onClick: () => downloadUpdate() }
-  });
-}
+export async function offerUpdate(
+  status: { type: "available" | "completed"; version: string },
+  asked = false
+) {
+  if (status.type === "completed" && installWhenReady)
+    return installUpdate({ confirmed: true });
+  const snooze = Config.get<{ version: string; until: number } | undefined>(
+    SNOOZE
+  );
+  const snoozed =
+    snooze?.version === status.version && snooze.until > Date.now();
+  if (offering || (snoozed && !asked)) return;
 
-type UpdateDialogProps = {
-  title: string;
-  subtitle: string;
-  changelog: string;
-  action: {
-    text: string;
-    onClick: () => void;
-  };
-};
-async function showUpdateDialog({
-  title,
-  subtitle,
-  changelog,
-  action
-}: UpdateDialogProps) {
-  const result = await ConfirmDialog.show({
-    title,
-    subtitle,
-    message: changelog,
+  offering = status.version;
+  const notes = await getChangelog(status.version);
+  const install = await ConfirmDialog.show({
+    title: strings.updateReady(status.version),
+    subtitle: strings.updateWhatsNew(),
+    // On macOS the install is a .dmg to drag, so the steps go here too.
+    message: isMac() ? `${notes}\n\n${strings.macUpdateSteps()}` : notes,
     width: 500,
-    positiveButtonText: action.text
+    positiveButtonText: strings.installNow(),
+    negativeButtonText: strings.remindMeLater()
   });
-  if (result && action.onClick) action.onClick();
+  offering = undefined;
+  if (!install) {
+    Config.set(SNOOZE, { version: status.version, until: Date.now() + DAY });
+    return;
+  }
+  Config.remove(SNOOZE);
+  if (status.type === "completed") return installUpdate({ confirmed: true });
+  installWhenReady = true;
+  await downloadUpdate();
 }

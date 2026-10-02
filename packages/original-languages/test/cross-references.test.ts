@@ -18,13 +18,20 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// The two layers of ADR 0002 and the registry that says where a verse came
-// from. Everything the app uses comes through here.
-export * from "./provider";
-export * from "./embedded";
-export * from "./packs";
-export * from "./api-bible";
-export * from "./cache";
-export * from "./provenance";
-export * from "./versification";
-export * from "./reading-plans";
+import assert from "node:assert/strict";
+import { test } from "node:test";
+import { buildCrossReferences } from "../scripts/cross-references.ts";
+import { fetchSources } from "../scripts/sources.ts";
+
+test("cross references: USFM, most voted first, ranges kept", async () => {
+  await fetchSources();
+  const books = buildCrossReferences();
+  assert.equal(books.size, 66);
+  const john = books.get("JHN")!["3.16"];
+  assert.equal(john[0], "ROM.5.8");
+  assert.ok(john.includes("1JN.4.9-1JN.4.10"));
+  for (const ref of john)
+    assert.match(ref, /^[1-3A-Z]{3}\.\d+\.\d+(-[1-3A-Z]{3}\.\d+\.\d+)?$/);
+  // A verse nobody linked has no entry rather than an empty list.
+  assert.ok(Object.values(books.get("PSA")!).every((list) => list.length > 0));
+});

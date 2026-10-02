@@ -35,8 +35,11 @@ import {
   Reminder as ReminderIcon,
   Tag as TagIcon,
   FocusMode,
-  NormalMode
+  NormalMode,
+  NoteTemplate
 } from "../../components/icons";
+import { templateMenuItems } from "../../common/templates";
+import { Menu } from "../../hooks/use-menu";
 import { trashMenuItems } from "../../components/trash-item";
 import { hashNavigate, navigate } from "../../navigation";
 import { useEditorStore } from "../../stores/editor-store";
@@ -196,6 +199,14 @@ const staticCommands: Command[] = [
     title: strings.newNote(),
     icon: Plus,
     action: () => useEditorStore.getState().newSession(),
+    group: strings.create(),
+    type: "command"
+  },
+  {
+    id: "new-note-from-template",
+    title: strings.templates.newFromTemplate(),
+    icon: NoteTemplate,
+    action: () => Menu.openMenu(templateMenuItems()),
     group: strings.create(),
     type: "command"
   },

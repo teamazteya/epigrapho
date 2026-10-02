@@ -28,6 +28,7 @@ import { getFonts } from "@notesnook/editor";
 import { useSpellChecker } from "../../hooks/use-spell-checker";
 import { CustomizeToolbar } from "./components/customize-toolbar";
 import { DictionaryWords } from "./components/dictionary-words";
+import { TemplatesList } from "./components/templates-list";
 import { SpellCheckerLanguages } from "./components/spell-checker-languages";
 import { strings } from "@notesnook/intl";
 import { EDITOR_LINE_HEIGHT } from "../../components/editor/common";
@@ -274,6 +275,19 @@ export const EditorSettings: SettingsGroup[] = [
             action: () => useSpellChecker.getState().importWords()
           }
         ]
+      }
+    ]
+  },
+  {
+    key: "templates",
+    section: "editor",
+    header: strings.templates.title(),
+    settings: [
+      {
+        key: "note-templates",
+        title: strings.templates.title(),
+        description: strings.templates.desc(),
+        components: [{ type: "custom", component: TemplatesList }]
       }
     ]
   },

@@ -158,6 +158,15 @@ export const STUDY_PROVENANCE: Record<string, ResourceProvenance> = {
     attribution:
       "Easton, Smith, Hitchcock — dominio público; datos de NEUU (github.com/neuu-org) — CC BY 4.0",
     deliveryMode: "embedded-offline"
+  },
+  // A3: "See also" in the verse preview.
+  OPENBIBLE: {
+    id: "OPENBIBLE",
+    name: "OpenBible.info: Cross References",
+    language: "mul",
+    licence: "CC BY",
+    attribution: "Referencias cruzadas: OpenBible.info — CC BY",
+    deliveryMode: "embedded-offline"
   }
 };
 

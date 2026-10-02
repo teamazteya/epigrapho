@@ -45,6 +45,14 @@ const [useAutoUpdateStore] = createStore<AutoUpdateStore>(
   (set, get) => new AutoUpdateStore(set, get)
 );
 
+// Epigrapho: the desktop app opens the update notice by itself.
+function offer(status: { type: "available" | "completed"; version: string }) {
+  if (!IS_DESKTOP_APP) return;
+  import("../dialogs/confirm")
+    .then(({ offerUpdate }) => offerUpdate(status))
+    .catch(console.error);
+}
+
 let checkingForUpdateTimeout = 0;
 export function useAutoUpdater() {
   const { status, setStatus } = useAutoUpdateStore();
@@ -67,6 +75,7 @@ export function useAutoUpdater() {
         type: "available",
         version: info.version
       });
+      offer({ type: "available", version: info.version });
     }
 
     function updateNotAvailable() {
@@ -76,6 +85,7 @@ export function useAutoUpdater() {
 
     function updateDownloadCompleted(info: { version: string }) {
       changeStatus({ type: "completed", version: info.version });
+      offer({ type: "completed", version: info.version });
     }
 
     function updateDownloadProgress(progressInfo: { percent: number }) {

@@ -194,6 +194,9 @@ import {
   mdiBookmarkRemoveOutline,
   mdiFileImageOutline,
   mdiFileDocumentOutline,
+  mdiFileDocumentEditOutline,
+  mdiCalendarCheckOutline,
+  mdiPresentation,
   mdiFileVideoOutline,
   mdiWeb,
   mdiUploadOutline,
@@ -564,6 +567,9 @@ export const About = createIcon(mdiInformationOutline);
 export const Behaviour = createIcon(mdiHeadCogOutline);
 export const Editor = createIcon(mdiFormTextarea);
 export const Documentation = createIcon(mdiFileDocumentOutline);
+export const NoteTemplate = createIcon(mdiFileDocumentEditOutline);
+export const ReadingPlan = createIcon(mdiCalendarCheckOutline);
+export const Sermon = createIcon(mdiPresentation);
 export const Legal = createIcon(mdiGavel);
 export const Desktop = createIcon(mdiDesktopClassic);
 export const Notification = createIcon(mdiBellBadgeOutline);

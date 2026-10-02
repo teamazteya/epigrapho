@@ -167,6 +167,8 @@ export type TiptapOptions = EditorOptions &
     parseScriptureReferences?: ScriptureReferenceOptions["parse"];
     // Epigrapho: likewise the licence registry, which lives with the provider.
     scriptureAttribution?: ScriptureBlockOptions["attributionOf"];
+    // Epigrapho (A3): and the translations a block can be compared in.
+    compareScripture?: ScriptureBlockOptions["compare"];
     // Epigrapho: and the grammar checker, which runs in the desktop app.
     checkGrammar?: GrammarCheckOptions["check"];
     ignoreGrammar?: GrammarCheckOptions["ignore"];
@@ -205,6 +207,7 @@ const useTiptap = (
     enableFontLigatures,
     parseScriptureReferences,
     scriptureAttribution,
+    compareScripture,
     checkGrammar,
     ignoreGrammar,
     insertInterlinear,
@@ -442,9 +445,12 @@ const useTiptap = (
         FontLigature.configure({ enabled: enableFontLigatures }),
         SearchResult.configure(),
         ScriptureReference.configure({ parse: parseScriptureReferences }),
-        scriptureAttribution
-          ? ScriptureBlock.configure({ attributionOf: scriptureAttribution })
-          : ScriptureBlock,
+        ScriptureBlock.configure({
+          ...(scriptureAttribution
+            ? { attributionOf: scriptureAttribution }
+            : {}),
+          compare: compareScripture
+        }),
         GrammarCheck.configure({ check: checkGrammar, ignore: ignoreGrammar }),
         Interlinear.configure({
           load: loadInterlinear,
@@ -494,6 +500,7 @@ const useTiptap = (
       enableFontLigatures,
       parseScriptureReferences,
       scriptureAttribution,
+      compareScripture,
       checkGrammar,
       ignoreGrammar,
       getLinkData,
@@ -536,7 +543,9 @@ export { type LinkAttributes } from "./extensions/link/index.js";
 // Exported so the app sees the command this extension adds to @tiptap/core.
 export {
   ScriptureBlock,
-  type ScriptureBlockAttributes
+  MAX_PARALLEL,
+  type ScriptureBlockAttributes,
+  type ParallelColumn
 } from "./extensions/scripture-block/scripture-block.js";
 export {
   Interlinear,

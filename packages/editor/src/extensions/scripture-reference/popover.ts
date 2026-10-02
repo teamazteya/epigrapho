@@ -51,12 +51,25 @@ export type ScripturePopoverOptions = {
   translation: () => string;
   resolve: (ref: string, translationId: string) => Promise<ResolvedVerse>;
   attributionOf: (translationId: string) => string;
+  /** "See also" under the verse (A3). Without it the popover is the verse only. */
+  crossReferences?: {
+    load: (ref: string) => Promise<string[]>;
+    /** The name a reader knows a reference by, in the interface's language. */
+    label: (ref: string) => string;
+    /** Puts the reference in the note, after the one being previewed. */
+    insert: (ref: string, after: HTMLElement) => void;
+    credit: string;
+  };
 };
+
+/** How many references "See also" lists before "See all". */
+const SEE_ALSO = 5;
 
 let popover: HTMLElement | undefined;
 let verseElement: HTMLElement | undefined;
 let attributionElement: HTMLElement | undefined;
 let noticeElement: HTMLElement | undefined;
+let seeAlsoElement: HTMLElement | undefined;
 /** The reference the popover describes, so the link can be undone on hide. */
 let describing: HTMLElement | undefined;
 let closeTimer: ReturnType<typeof setTimeout> | undefined;
@@ -103,8 +116,14 @@ function createPopover() {
   notice.dataset.testId = "scripture-popover-notice";
   notice.hidden = true;
 
-  element.append(verse, attribution, notice);
+  const seeAlso = document.createElement("div");
+  seeAlso.className = "scripture-popover-see-also";
+  seeAlso.dataset.testId = "scripture-popover-see-also";
+  seeAlso.hidden = true;
+
+  element.append(verse, attribution, notice, seeAlso);
   document.body.append(element);
+  seeAlsoElement = seeAlso;
   verseElement = verse;
   attributionElement = attribution;
   noticeElement = notice;
@@ -174,6 +193,56 @@ function hide() {
   verseElement = undefined;
   attributionElement = undefined;
   noticeElement = undefined;
+  seeAlsoElement = undefined;
+}
+
+/** The references a verse points to, five at first and all on request. */
+function fillSeeAlso(
+  refs: string[],
+  target: HTMLElement,
+  options: NonNullable<ScripturePopoverOptions["crossReferences"]>,
+  all = false
+) {
+  if (!seeAlsoElement || !refs.length) return;
+  const heading = document.createElement("div");
+  heading.className = "scripture-popover-see-also-heading";
+  heading.textContent = strings.crossReferences.seeAlso();
+
+  const list = document.createElement("div");
+  list.className = "scripture-popover-see-also-list";
+  for (const ref of all ? refs : refs.slice(0, SEE_ALSO)) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.dataset.scriptureRef = ref;
+    button.textContent = options.label(ref);
+    button.title = strings.crossReferences.insert();
+    button.addEventListener("click", () => {
+      options.insert(ref, target);
+      hide();
+    });
+    list.append(button);
+  }
+
+  const children: HTMLElement[] = [heading, list];
+  if (!all && refs.length > SEE_ALSO) {
+    const more = document.createElement("button");
+    more.type = "button";
+    more.className = "scripture-popover-see-all";
+    more.dataset.testId = "scripture-popover-see-all";
+    more.textContent = strings.crossReferences.seeAll(refs.length);
+    more.addEventListener("click", () => {
+      fillSeeAlso(refs, target, options, true);
+      place(target);
+    });
+    children.push(more);
+  }
+  const credit = document.createElement("div");
+  credit.className = "scripture-popover-attribution";
+  credit.textContent = options.credit;
+  children.push(credit);
+
+  seeAlsoElement.replaceChildren(...children);
+  seeAlsoElement.hidden = false;
 }
 
 async function show(target: HTMLElement, options: ScripturePopoverOptions) {
@@ -222,6 +291,16 @@ async function show(target: HTMLElement, options: ScripturePopoverOptions) {
     const notice = noticeFor(verse.notice, verse.translationId);
     noticeElement.textContent = notice;
     noticeElement.hidden = !notice;
+  }
+  if (options.crossReferences) {
+    // The verse is in: placed now, so the box is never drawn off the window
+    // while "See also" is still being read.
+    place(target);
+    const refs = await options.crossReferences
+      .load(ref)
+      .catch(() => [] as string[]);
+    if (current !== request) return;
+    fillSeeAlso(refs, target, options.crossReferences);
   }
   popover?.setAttribute("aria-busy", "false");
   // Placed again now that the verse is in: the box was measured at its

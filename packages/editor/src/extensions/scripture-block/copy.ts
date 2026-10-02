@@ -78,8 +78,25 @@ export function attachScriptureCopy(
     if (!ref || !text) return;
 
     const translationId = block.getAttribute("data-translation-id") || "VBL";
+    // Compared translations (A3) travel with it, each with its own credit.
+    const parallel = [
+      ...block.querySelectorAll(":scope > .scripture-block-parallel")
+    ].map((column) => ({
+      translationId: column.getAttribute("data-translation-id") || "",
+      text:
+        column.querySelector(".scripture-block-text")?.textContent?.trim() || ""
+    }));
     await options.copy(
-      formatVerseForClipboard(ref, text, translationId, options)
+      [{ translationId, text }, ...parallel]
+        .map((column) =>
+          formatVerseForClipboard(
+            ref,
+            column.text,
+            column.translationId,
+            options
+          )
+        )
+        .join("\n\n")
     );
   };
 

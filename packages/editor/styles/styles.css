@@ -1176,6 +1176,66 @@ del.diffdel {
   outline-offset: 2px;
 }
 
+.ProseMirror .scripture-block-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Epigrapho (A3): translations compared side by side. The reference and the
+   controls span the block; each translation is a column with its own credit.
+   A block too narrow for columns stacks them, measured on the block itself so
+   a split view stacks too. */
+.ProseMirror .scripture-block[data-columns] {
+  container-type: inline-size;
+  display: grid;
+  grid-template-columns: repeat(var(--scripture-columns, 2), minmax(0, 1fr));
+  column-gap: 20px;
+  align-items: start;
+}
+
+.ProseMirror .scripture-block[data-columns="2"] {
+  --scripture-columns: 2;
+}
+
+.ProseMirror .scripture-block[data-columns="3"] {
+  --scripture-columns: 3;
+}
+
+.ProseMirror .scripture-block[data-columns] > .scripture-block-reference,
+.ProseMirror .scripture-block[data-columns] > .scripture-block-controls {
+  grid-column: 1 / -1;
+}
+
+.ProseMirror .scripture-block[data-columns] > .scripture-block-text {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.ProseMirror .scripture-block[data-columns] > .scripture-block-attribution {
+  grid-column: 1;
+  grid-row: 3;
+}
+
+.ProseMirror .scripture-block-parallel {
+  grid-row: 2 / span 2;
+}
+
+/* A container query styles the container's children, never the container:
+   so the block stays a grid and each child takes the whole row. */
+@container (max-width: 520px) {
+  .ProseMirror .scripture-block[data-columns] > * {
+    grid-column: 1 / -1;
+    grid-row: auto;
+  }
+
+  .ProseMirror .scripture-block-parallel {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+}
+
 /* Epigrapho: the interlinear block (A2 Fase 3). The same panel as the
    scripture block; inside, one column per word that wraps like text. */
 .ProseMirror .interlinear {
@@ -1365,6 +1425,51 @@ del.diffdel {
   line-height: 1rem;
   font-style: italic;
   color: var(--paragraph);
+}
+
+/* Epigrapho (A3): "See also", the verses this one points to. Each is a plain
+   text button: it reads as a reference, and clicking it puts it in the note. */
+.scripture-popover-see-also {
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px solid var(--border);
+}
+
+.scripture-popover-see-also-heading {
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 600;
+  color: var(--paragraph-secondary);
+}
+
+.scripture-popover-see-also-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 10px;
+  margin-top: 2px;
+  max-height: 30vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.scripture-popover-see-also button {
+  padding: 2px 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: var(--accent);
+  cursor: pointer;
+}
+
+.scripture-popover-see-also button:hover,
+.scripture-popover-see-also button:focus-visible {
+  text-decoration: underline;
+}
+
+.scripture-popover-see-also .scripture-popover-see-all {
+  color: var(--paragraph-secondary);
 }
 
 /* Epigrapho: a grammar finding (ADR-0010). A wavy line in the accent colour,

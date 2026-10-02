@@ -98,8 +98,13 @@ import {
   Tag2,
   Tag as TagIcon,
   Trash,
-  Update
+  Update,
+  NoteTemplate,
+  Sermon,
+  FileDocument
 } from "../icons";
+import { SermonMode } from "../sermon-mode";
+import { promptSaveAsTemplate } from "../../common/templates";
 import { Context } from "../list-container/types";
 import ListItem from "../list-item";
 import { PublishDialog } from "../publish-view";
@@ -329,6 +334,11 @@ const formats = [
     icon: PDF
   },
   {
+    type: "docx",
+    title: "Word (.docx)",
+    icon: FileDocument
+  },
+  {
     type: "md",
     title: "Markdown",
     icon: Markdown
@@ -455,6 +465,20 @@ export const noteMenuItems: (
     { key: "sep2", type: "separator" },
     {
       type: "button",
+      key: "sermon-mode",
+      title: strings.sermonMode.title(),
+      icon: Sermon.path,
+      onClick: () => SermonMode.show({ note })
+    },
+    {
+      type: "button",
+      key: "save-as-template",
+      title: strings.templates.saveAsTemplate(),
+      icon: NoteTemplate.path,
+      onClick: () => promptSaveAsTemplate(note)
+    },
+    {
+      type: "button",
       key: "print",
       title: strings.print(),
       //isDisabled: !isSynced,
@@ -541,7 +565,9 @@ export const noteMenuItems: (
           title: format.title,
           tooltip: strings.exportAs(format.title),
           icon: format.icon.path,
-          isDisabled: format.type === "pdf" && ids.length > 1,
+          // A study export is one note with its cover and notes.
+          isDisabled:
+            (format.type === "pdf" || format.type === "docx") && ids.length > 1,
           multiSelect: true,
           onClick: async () => {
             if (ids.length === 1) {
@@ -550,6 +576,7 @@ export const noteMenuItems: (
               });
             }
 
+            if (format.type === "docx") return;
             await exportNotes(
               format.type,
               db.notes.exportable.where((eb) => eb("id", "in", ids))

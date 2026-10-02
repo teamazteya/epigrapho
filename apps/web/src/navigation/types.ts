@@ -28,6 +28,7 @@ export type RouteResult = {
     | "reminders"
     | "trash"
     | "tags"
+    | "readingPlans"
     | "notFound";
   title?: string | (() => Promise<string | undefined>);
   component:

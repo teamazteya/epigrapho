@@ -30,6 +30,7 @@ import {
   NoteRemove,
   Pin,
   Plus,
+  NoteTemplate,
   Properties,
   References,
   Concordance,
@@ -85,6 +86,7 @@ import { isMac } from "../../utils/platform";
 import { CREATE_BUTTON_MAP } from "../../common";
 import { getDragData } from "../../utils/data-transfer";
 import { saveContent } from "./index";
+import { templateMenuItems } from "../../common/templates";
 
 type ToolButton = {
   title: string;
@@ -355,6 +357,15 @@ const TabStrip = React.memo(function TabStrip() {
           }}
         >
           <Plus size={16} color="accentForeground" />
+        </Button>
+        <Button
+          variant="secondary"
+          title={strings.templates.newFromTemplate()}
+          onClick={() => Menu.openMenu(templateMenuItems())}
+          sx={{ p: 1, bg: "transparent" }}
+          data-test-id="new-note-from-template"
+        >
+          <NoteTemplate size={16} />
         </Button>
         <Button
           disabled={!canGoBack}

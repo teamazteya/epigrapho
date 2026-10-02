@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import { PropsWithChildren, useEffect, useRef } from "react";
-import { Box } from "@theme-ui/components";
+import { Box, Text } from "@theme-ui/components";
 import { Close, AddReminder, Menu } from "../icons";
 import { useStore as useSearchStore } from "../../stores/search-store";
 import useMobile from "../../hooks/use-mobile";
@@ -48,7 +48,20 @@ function RouteContainer(props: PropsWithChildren<RouteContainerProps>) {
   const { children } = props;
   return (
     <>
-      <Header {...props} />
+      {/* Epigrapho (A3): the reading plans are not a list, so there is
+          nothing to search; the header names the screen instead. */}
+      {props.type === "readingPlans" ? (
+        <Text
+          as="h2"
+          variant="heading"
+          sx={{ px: 2, pt: 2, pb: 1, fontSize: "heading" }}
+          data-test-id="routeHeader"
+        >
+          {typeof props.title === "string" ? props.title : null}
+        </Text>
+      ) : (
+        <Header {...props} />
+      )}
       {children}
     </>
   );

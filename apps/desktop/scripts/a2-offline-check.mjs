@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // A2 Fase 8: with the network cut, the release bundle still has every study
-// tool. The interlinear, the lexicon, the concordance, both dictionaries and
-// the grammar checker are served from inside the app (and LanguageTool from
-// 127.0.0.1); anything that tries the internet is refused and reported.
+// tool. The interlinear, the lexicon, the concordance, both dictionaries, the
+// cross references (A3) and the grammar checker are served from inside the
+// app (and LanguageTool from 127.0.0.1); anything that tries the internet is
+// refused and reported.
 //
 // Like a1-release-smoke it runs against the bundle that goes in the
 // installer, which carries no data-test-id: it goes by the words on screen,
@@ -102,9 +103,30 @@ try {
     console.log(`5. diccionario: «${term}» → ${expected}`);
   }
 
+  // 6. "Ver también" (A3): the cross references are a pack like the rest.
+  // The dictionary panel closes from its own button, as it opened.
+  await page.locator('button[title="Diccionario bíblico"]').click();
+  await page.keyboard.press("Control+n");
+  const fresh = page.locator(".ProseMirror").first();
+  await fresh.click();
+  await page.keyboard.type("Hoy lei Juan 3:16 en la mañana.", { delay: 25 });
+  const reference = page
+    .locator('.ProseMirror span[data-scripture-ref="JHN.3.16"]')
+    .first();
+  await reference.waitFor({ timeout: 20000 });
+  await reference.hover();
+  const seeAlso = page.locator('[data-test-id="scripture-popover-see-also"]');
+  await seeAlso.waitFor({ state: "visible" });
+  const first = await seeAlso
+    .locator("button[data-scripture-ref]")
+    .first()
+    .getAttribute("data-scripture-ref");
+  assert.equal(first, "ROM.5.8");
+  console.log("6. ver también: Juan 3:16 → Romanos 5:8, sin red");
+
   console.log("peticiones rechazadas:", JSON.stringify(refused));
   console.log(
-    "GREEN: sin red, el bundle de la release corrige la gramática y muestra el interlineal, el léxico, la concordancia y los dos diccionarios."
+    "GREEN: sin red, el bundle de la release corrige la gramática y muestra el interlineal, el léxico, la concordancia, los dos diccionarios y las referencias cruzadas."
   );
   console.log(`Evidencia: ${profile}`);
 } catch (error) {

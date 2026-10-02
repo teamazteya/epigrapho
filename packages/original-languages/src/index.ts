@@ -24,6 +24,7 @@ import {
   isOldTestament,
   type BookPack,
   type ConcordancePack,
+  type CrossReferencePack,
   type DictionaryPack,
   type DictionarySource,
   type LexiconEntry,
@@ -207,6 +208,19 @@ export type Concordance = {
 };
 
 /** Where a Strong number occurs in the original text (A2 Fase 5). */
+/**
+ * A verse's cross references (OpenBible.info, A3), most voted first, as USFM
+ * references or ranges. Empty for a verse nobody linked.
+ */
+export async function crossReferences(ref: string): Promise<string[]> {
+  const [book, chapter, verse] = ref.split(".");
+  if (!book || !chapter || !verse) return [];
+  const pack = await file<CrossReferencePack>(`xref-${book}.json`).catch(
+    () => ({}) as CrossReferencePack
+  );
+  return pack[`${chapter}.${verse}`] ?? [];
+}
+
 export async function concordance(
   strong: string
 ): Promise<Concordance | undefined> {

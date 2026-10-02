@@ -22,7 +22,7 @@
     "build": "node --experimental-strip-types scripts/import.ts --build ../../apps/web/public && tsdown src/index.ts",
     "import": "node --experimental-strip-types scripts/import.ts",
     "watch": "tsdown src/index.ts --watch",
-    "test": "node --experimental-strip-types --test test/import.test.ts",
+    "test": "node --experimental-strip-types --test test/import.test.ts test/cross-references.test.ts",
     "rand-sample": "node --experimental-strip-types scripts/rand-sample.ts",
     "rand-ocr-fixes": "node --experimental-strip-types scripts/rand-ocr-fixes.ts"
   },

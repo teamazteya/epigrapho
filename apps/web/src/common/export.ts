@@ -154,17 +154,15 @@ const FORMAT_TO_EXT = {
 export async function exportNote(
   note: Note,
   options: {
-    format: keyof typeof FORMAT_TO_EXT;
+    format: keyof typeof FORMAT_TO_EXT | "docx";
   }
 ) {
-  if (options.format === "pdf") {
-    const content = await exportContent(note, {
-      format: "pdf",
-      unlockVault: Vault.unlockVault
-    });
-    if (!content) return false;
-    console.log(content);
-    return await exportToPDF(note.title, content);
+  // Epigrapho (A3 Fase 6): the PDF and Word come from the study export, with
+  // a cover and the verses of inline references in full.
+  const { format } = options;
+  if (format === "pdf" || format === "docx") {
+    const { exportStudy } = await import("./study-export");
+    return await exportStudy(note, format);
   }
 
   return await TaskManager.startTask({
@@ -176,7 +174,7 @@ export async function exportNote(
         (await db.relations.from(note, "attachment").count()) > 0;
       const stream = fromAsyncIterator(
         _exportNote(note, {
-          format: options.format,
+          format,
           unlockVault: Vault.unlockVault
         })
       ).pipeThrough(

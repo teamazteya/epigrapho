@@ -80,10 +80,11 @@ export async function downloadUpdate() {
   }
 }
 
-export async function installUpdate() {
+export async function installUpdate(options?: { confirmed?: boolean }) {
   // Epigrapho: on macOS the update is a .dmg the person drags into
-  // Applications (desktop utils/mac-update), so they are told first.
-  if (IS_DESKTOP_APP && isMac()) {
+  // Applications (desktop utils/mac-update), so they are told first, unless
+  // the update notice already told them.
+  if (IS_DESKTOP_APP && isMac() && !options?.confirmed) {
     const { ConfirmDialog } = await import("../dialogs/confirm");
     const version = useAutoUpdateStore.getState().status;
     const confirmed = await ConfirmDialog.show({

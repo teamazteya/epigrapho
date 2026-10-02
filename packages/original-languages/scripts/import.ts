@@ -36,6 +36,7 @@ import {
   readSource
 } from "./sources.ts";
 import { buildRand } from "./rand.ts";
+import { buildCrossReferences } from "./cross-references.ts";
 
 /** The 30-entry sample of Rand was reviewed and approved, with the OCR
  * corrections, on 2026-09-27 (A2 Paso 7.2). */
@@ -468,6 +469,8 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       `${out}/dictionary-es-rand.json`,
       JSON.stringify(RAND_APPROVED ? buildRand() : {})
     );
+    for (const [book, pack] of buildCrossReferences())
+      writeFileSync(`${out}/xref-${book}.json`, JSON.stringify(pack));
     for (const [language, index] of Object.entries(buildConcordance(books)))
       writeFileSync(
         `${out}/concordance-${language}.json`,
