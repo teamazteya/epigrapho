@@ -648,6 +648,10 @@ msgstr ""
 msgid "{type} does not match"
 msgstr ""
 
+#: src/strings.ts:3166
+msgid "{used} of {total} of attachments"
+msgstr ""
+
 #: src/strings.ts:1723
 msgid "{words, plural, one {# word} other {# words}}"
 msgstr ""
@@ -951,6 +955,10 @@ msgstr ""
 
 #: src/strings.ts:2399
 msgid "Amount"
+msgstr ""
+
+#: src/strings.ts:3173
+msgid "An account keeps your notes in sync between your computers. They are encrypted on your device before they leave it, so only you can read them."
 msgstr ""
 
 #: src/strings.ts:250
@@ -1456,6 +1464,10 @@ msgstr ""
 msgid "By"
 msgstr ""
 
+#: src/strings.ts:3152
+msgid "By creating an account you accept the"
+msgstr ""
+
 #: src/strings.ts:2755
 msgid "By joining you agree to our"
 msgstr ""
@@ -1892,6 +1904,10 @@ msgstr ""
 msgid "Code block"
 msgstr ""
 
+#: src/strings.ts:3155
+msgid "Code from the recovery page"
+msgstr ""
+
 #: src/strings.ts:2447
 msgid "Code remove"
 msgstr ""
@@ -2111,6 +2127,10 @@ msgstr ""
 msgid "Could not activate trial. Please try again later."
 msgstr ""
 
+#: src/strings.ts:3169
+msgid "Could not change the account password."
+msgstr ""
+
 #: src/strings.ts:2170
 msgid "Could not clear trash."
 msgstr ""
@@ -2230,6 +2250,10 @@ msgstr ""
 #. placeholder {0}: type === "full" ? " full" : ""
 #: src/strings.ts:1349
 msgid "Creating a{0} backup"
+msgstr ""
+
+#: src/strings.ts:2059
+msgid "Creating your account"
 msgstr ""
 
 #: src/strings.ts:2843
@@ -5314,6 +5338,10 @@ msgstr ""
 msgid "Open source."
 msgstr ""
 
+#: src/strings.ts:3157
+msgid "Open the link in the email we sent you, copy the code that page shows and paste it here."
+msgstr ""
+
 #: src/strings.ts:988
 msgid "Open the two-factor authentication (TOTP) app to view your authentication code."
 msgstr ""
@@ -5805,6 +5833,10 @@ msgstr ""
 
 #: src/strings.ts:1185
 msgid "Privacy mode"
+msgstr ""
+
+#: src/strings.ts:3153
+msgid "privacy notice"
 msgstr ""
 
 #: src/strings.ts:2756
@@ -7309,6 +7341,10 @@ msgstr ""
 msgid "Sync"
 msgstr ""
 
+#: src/strings.ts:3162
+msgid "Sync between computers"
+msgstr ""
+
 #: src/strings.ts:3067
 msgid "Sync disabled"
 msgstr ""
@@ -7586,6 +7622,10 @@ msgstr ""
 msgid "Thank you. You are the proof that privacy always comes first."
 msgstr ""
 
+#: src/strings.ts:3159
+msgid "That code is incomplete. Copy the whole code from the recovery page."
+msgstr ""
+
 #: src/strings.ts:1767
 msgid "The {title} at {url} is not compatible with this client."
 msgstr ""
@@ -7597,6 +7637,10 @@ msgstr ""
 #: src/strings.ts:2785
 msgid "The Epigrapho Circle is exclusive to subscribers. Please consider subscribing to gain access to Epigrapho Circle and enjoy additional benefits."
 msgstr "<<<<<<< HEAD"
+
+#: src/strings.ts:3177
+msgid "The Epigrapho server is not responding. Check your internet connection and try again. If it keeps happening, write to support@azteya.tech. (Reference: {reference})"
+msgstr ""
 
 #: src/strings.ts:3008
 msgid "The grammar checker stopped working. Turn it off and on again to retry."
@@ -7642,6 +7686,10 @@ msgstr ""
 
 #: src/strings.ts:2261
 msgid "The security key for unlocking the app. This is the most secure method."
+msgstr ""
+
+#: src/strings.ts:3168
+msgid "The server did not accept that code. It may have expired: ask for a new recovery email."
 msgstr ""
 
 #: src/strings.ts:1765
@@ -7704,6 +7752,10 @@ msgstr ""
 msgid "This feature is not available on this plan."
 msgstr ""
 
+#: src/strings.ts:3161
+msgid "This file is larger than 500 MB, the most an account can store."
+msgstr ""
+
 #: src/strings.ts:2100
 msgid "This image cannot be previewed"
 msgstr ""
@@ -7743,6 +7795,10 @@ msgstr ""
 
 #: src/strings.ts:264
 msgid "This note will be published to a public URL."
+msgstr ""
+
+#: src/strings.ts:3171
+msgid "This sign-in attempt expired. Start again from the email step."
 msgstr ""
 
 #: src/strings.ts:2267
@@ -8539,6 +8595,10 @@ msgstr ""
 msgid "Width"
 msgstr ""
 
+#: src/strings.ts:3164
+msgid "With a free account your notes stay the same on every computer where you sign in, encrypted so only you can read them. Without one, everything stays on this computer."
+msgstr ""
+
 #: src/strings.ts:2668
 msgid "Words"
 msgstr ""
@@ -8811,6 +8871,10 @@ msgstr ""
 
 #: src/strings.ts:2017
 msgid "You will receive instructions on how to recover your account on this email"
+msgstr ""
+
+#: src/strings.ts:3175
+msgid "Your account already stores 500 MB of attachments, the most it can hold. Delete attachments you no longer need to upload this one."
 msgstr ""
 
 #: src/strings.ts:467

@@ -123,6 +123,6 @@ export function hardNavigate(route: string, search?: string) {
 export function makeURL(route: string, hash?: string, search?: string) {
   const url = new URL(route, window.location.origin);
   if (!url.hash) url.hash = hash || getCurrentHash();
-  url.search = search || getQueryString();
+  url.search = search || url.search || getQueryString();
   return url;
 }

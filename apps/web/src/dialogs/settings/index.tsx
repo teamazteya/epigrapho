@@ -108,7 +108,8 @@ const sectionGroups: SectionGroup[] = [
         key: "inbox",
         title: "Inbox",
         icon: Inbox,
-        isHidden: () => !useUserStore.getState().isLoggedIn
+        // Epigrapho: the sync server runs no inbox API.
+        isHidden: () => true
       }
     ]
   },

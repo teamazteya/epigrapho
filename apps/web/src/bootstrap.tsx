@@ -17,7 +17,9 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { getCurrentPath } from "./navigation";
+import { getCurrentHash, getCurrentPath, makeURL } from "./navigation";
+import Config from "./utils/config";
+import type { AuthProps } from "./views/auth";
 import {
   initializeFeatureChecks,
   isFeatureSupported
@@ -41,24 +43,88 @@ type RouteWithPath<T = null> = {
 
 export type Routes = keyof typeof routes;
 
+// Epigrapho: accounts are optional (S1). The sign-in screens are reached only
+// from Settings > Account, so unlike upstream nothing redirects a person to
+// them; the one exception is an account whose session expired.
 const routes = {
   "/wrapped": {
     component: () => import("./views/wrapped"),
     props: null
   },
+  "/account/recovery": {
+    component: () => import("./views/recovery"),
+    props: { route: "methods" }
+  },
+  "/signup": {
+    component: () => import("./views/auth"),
+    props: { route: "signup" }
+  },
+  "/sessionexpired": {
+    component: () => import("./views/auth"),
+    props: { route: "sessionExpiry" }
+  },
+  "/login": {
+    component: () => import("./views/auth"),
+    props: { route: "login:email" }
+  },
+  "/login/password": {
+    component: () => import("./views/auth"),
+    props: { route: "login:email" }
+  },
+  "/recover": {
+    component: () => import("./views/auth"),
+    props: { route: "recover" }
+  },
+  "/login/mfa/code": {
+    component: () => import("./views/auth"),
+    props: { route: "login:email" }
+  },
+  "/login/mfa/select": {
+    component: () => import("./views/auth"),
+    props: { route: "login:email" }
+  },
   default: { component: () => import("./app"), props: null }
 } as const;
 
-function getRoute(): RouteWithPath {
-  const path = getCurrentPath() as Routes;
-  const route = routes[path] ? { route: routes[path], path } : null;
+const sessionExpiryExceptions: Routes[] = [
+  "/recover",
+  "/account/recovery",
+  "/sessionexpired",
+  "/login/mfa/code",
+  "/login/mfa/select",
+  "/login/password"
+];
 
-  // Epigrapho has no accounts, so there is nowhere else a person can land:
-  // anything that is not a known route is the app itself.
+function getRoute(): RouteWithPath<AuthProps> | RouteWithPath {
+  let path = getCurrentPath() as Routes;
+  if (isAccountRecoveryRoute(path)) path = "/account/recovery";
+
+  const route = (
+    routes[path] ? { route: routes[path], path } : null
+  ) as RouteWithPath<AuthProps> | null;
+
   if (route?.path === "/wrapped" && !shouldShowWrapped())
     return { route: routes.default, path: "default" };
 
-  return route || { route: routes.default, path: "default" };
+  return (
+    isSessionExpired(path) ||
+    route || { route: routes.default, path: "default" }
+  );
+}
+
+function isAccountRecoveryRoute(path: Routes): boolean {
+  return path.startsWith("/account/recovery");
+}
+
+function isSessionExpired(path: Routes): RouteWithPath<AuthProps> | null {
+  if (!Config.get("sessionExpired", false)) return null;
+  if (sessionExpiryExceptions.includes(path)) return null;
+  window.history.replaceState(
+    {},
+    "",
+    makeURL("/sessionexpired", getCurrentHash())
+  );
+  return { route: routes["/sessionexpired"], path: "/sessionexpired" };
 }
 
 function checkPrerequisites() {
@@ -86,7 +152,11 @@ export async function init() {
     initializeLogger()
   ]);
 
-  const persistence = "db" as const;
+  // A recovery signs in from scratch and re-encrypts everything in memory, so
+  // it never touches this computer's database.
+  const persistence = isAccountRecoveryRoute(path)
+    ? ("memory" as const)
+    : ("db" as const);
 
   logger.info(
     `Initializing key store with persistence: ${persistence} for path: ${path}`

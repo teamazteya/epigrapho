@@ -135,6 +135,23 @@ try {
   assert.equal(comma.text, "Juan 3,16");
   assert.equal(comma.ref, "JHN.3.16");
 
+  // A reference typed right before Enter is still marked: detection covers
+  // the blocks that changed, not only the one the cursor ends up in.
+  await page.keyboard.type(" Al final Hebreos 8:10");
+  await page.keyboard.press("Enter");
+  await page.keyboard.type("Otra línea.");
+  await page.waitForFunction(
+    () =>
+      [
+        ...document.querySelectorAll(
+          ".active .ProseMirror span[data-scripture-ref]"
+        )
+      ].some((mark) => mark.getAttribute("data-scripture-ref") === "HEB.8.10"),
+    undefined,
+    { timeout: 5000 }
+  );
+  console.log("referencia antes de Enter: marcada");
+
   console.log(
     "GREEN: referencias detectadas con debounce y sin tocar el texto."
   );

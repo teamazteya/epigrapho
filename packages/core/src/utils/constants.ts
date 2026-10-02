@@ -31,15 +31,19 @@ function isProduction() {
   );
 }
 
+// Epigrapho: sync, auth and events run on Epigrapho's own server (S1). The
+// other hosts have no Epigrapho server: nothing the app shows calls them
+// (plans, billing, publishing and the inbox are hidden), so they stay as
+// upstream left them.
 export const hosts = {
   API_HOST: isProduction()
-    ? "https://api.notesnook.com"
+    ? "https://sync.azteya.tech"
     : "http://localhost:5264",
   AUTH_HOST: isProduction()
-    ? "https://auth.streetwriters.co"
+    ? "https://auth.azteya.tech"
     : "http://localhost:8264",
   SSE_HOST: isProduction()
-    ? "https://events.streetwriters.co"
+    ? "https://events.azteya.tech"
     : "http://localhost:7264",
   SUBSCRIPTIONS_HOST: isProduction()
     ? "https://subscriptions.streetwriters.co"

@@ -101,7 +101,8 @@ type VerifyAuthenticatorFormProps = PropsWithChildren<{
 
 type SetupAuthenticatorProps = { onSubmitCode: SubmitCodeFunction };
 
-const defaultAuthenticators: AuthenticatorType[] = ["app", "sms", "email"];
+// Epigrapho: the sync server sends no SMS (no Twilio), so 2FA is by app or email.
+const defaultAuthenticators: AuthenticatorType[] = ["app", "email"];
 const Authenticators: Authenticator[] = [
   {
     type: "app",

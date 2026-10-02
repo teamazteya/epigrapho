@@ -493,7 +493,6 @@ function Routes({
 }) {
   const customizableSidebar = useIsFeatureAvailable("customizableSidebar");
   const hiddenRoutes = useAppStore((store) => store.hiddenRoutes);
-  const isLoggedIn = useUserStore((store) => store.isLoggedIn);
   return (
     <ReorderableList
       items={routes
@@ -502,7 +501,9 @@ function Routes({
             ? (r) => !hiddenRoutes.includes(r.id)
             : () => true
         )
-        .filter((r) => (r.loginRequired ? isLoggedIn : true))}
+        // Epigrapho: the sync server has no monograph site, so the only
+        // login-gated route (published notes) never shows.
+        .filter((r) => !r.loginRequired)}
       orderKey={`sidebarOrder:routes`}
       order={() => db.settings.getSideBarOrder("routes")}
       onOrderChanged={(order) => db.settings.setSideBarOrder("routes", order)}
@@ -890,7 +891,10 @@ function NavigationDropdown() {
               icon: Documentation.path,
               key: "help-and-support",
               onClick: () => {
-                window.open("https://github.com/teamazteya/epigrapho", "_blank");
+                window.open(
+                  "https://github.com/teamazteya/epigrapho",
+                  "_blank"
+                );
               }
             }
           ],

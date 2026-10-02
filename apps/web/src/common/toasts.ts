@@ -19,10 +19,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import { FeatureResult } from "@notesnook/common";
 import { showToast } from "../utils/toast";
+import { strings } from "@notesnook/intl";
 
 export function showFeatureNotAllowedToast(
   result: FeatureResult<any> | undefined
 ) {
   if (!result) return;
-  showToast("error", result.error);
+  // Epigrapho: the attachment size is the only limit a person can reach, and
+  // the feature table's errors are not in the catalog.
+  showToast(
+    "error",
+    result.id === "fileSize" ? strings.attachmentTooLarge() : result.error
+  );
 }

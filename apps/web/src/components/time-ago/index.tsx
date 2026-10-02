@@ -21,6 +21,7 @@ import React, { useRef } from "react";
 import { Text, TextProps } from "@theme-ui/components";
 import { type TDate } from "timeago.js";
 import { useTimeAgo } from "@notesnook/common";
+import { getUiLocale } from "../../common/ui-locale";
 
 type TimeAgoProps = {
   datetime: TDate;
@@ -28,6 +29,12 @@ type TimeAgoProps = {
   live?: boolean;
   interval?: number;
 };
+/** Epigrapho: the relative time follows the interface language. */
+export function timeAgoLocale(locale: "short" | "en_short" = "short") {
+  if (!getUiLocale().startsWith("es")) return locale;
+  return locale === "short" ? "es_short" : "es_ago";
+}
+
 function TimeAgo({
   datetime,
   live,
@@ -38,7 +45,11 @@ function TimeAgo({
 }: TimeAgoProps & TextProps) {
   const timeRef = useRef<HTMLDivElement>(null);
 
-  const time = useTimeAgo(datetime, { live, locale, interval });
+  const time = useTimeAgo(datetime, {
+    live,
+    locale: timeAgoLocale(locale),
+    interval
+  });
 
   return (
     <Text

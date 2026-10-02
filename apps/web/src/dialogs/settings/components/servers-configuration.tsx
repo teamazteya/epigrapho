@@ -27,12 +27,7 @@ import { TaskManager } from "../../../common/task-manager";
 import { isServerCompatible } from "@notesnook/core";
 import { strings } from "@notesnook/intl";
 
-export const ServerIds = [
-  "notesnook-sync",
-  "auth",
-  "sse",
-  "monograph"
-] as const;
+export const ServerIds = ["notesnook-sync", "auth", "sse"] as const;
 export type ServerId = (typeof ServerIds)[number];
 type Server = {
   id: ServerId;
@@ -71,14 +66,6 @@ const SERVERS: Server[] = [
     example: "http://localhost:7326",
     description: strings.sseServerDesc(),
     versionEndpoint: "/version"
-  },
-  {
-    id: "monograph",
-    host: "MONOGRAPH_HOST",
-    title: strings.monographServer(),
-    example: "http://localhost:6326",
-    description: strings.monographServerDesc(),
-    versionEndpoint: "/api/version"
   }
 ];
 export function ServersConfiguration() {

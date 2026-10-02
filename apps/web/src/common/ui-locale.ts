@@ -22,7 +22,6 @@ import { i18n } from "@lingui/core";
 import type { Messages } from "@notesnook/intl";
 import type { SupportedLocale } from "@notesnook/scripture-parser";
 import Config from "../utils/config";
-import { setPreference } from "./synced-preferences";
 
 /**
  * Epigrapho keeps three locales apart, and this file is where the only one a
@@ -87,8 +86,9 @@ export async function activateUiLocale(locale: UiLocale) {
  */
 export async function setUiLocale(locale: UiLocale) {
   if (locale === getUiLocale()) return;
-  // The choice belongs to the person, not to this machine, so it is written
-  // where it syncs and only then read back from the copy (Fase 7).
-  await setPreference("uiLocale", locale);
+  // Each computer keeps its own interface language (S1): two people sharing
+  // an account, or one person with a Spanish and an English machine, each
+  // read the app the way they chose there.
+  Config.set("uiLocale", locale);
   window.location.reload();
 }

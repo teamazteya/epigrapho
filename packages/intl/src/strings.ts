@@ -2056,7 +2056,7 @@ All attachments will be downloaded & cached again on access.
   authWait: () => t`Please wait while you are authenticated.`,
   accountPassDesc: () =>
     t`Your password is always hashed before leaving this device.`,
-  creatingAccount: () => `Creating your account`,
+  creatingAccount: () => t`Creating your account`,
   creatingAccountDesc: () => t`Please wait while we finalize your account.`,
   sendingRecoveryEmail: () => t`Sending recovery email`,
   sendingRecoveryEmailDesc: () =>
@@ -3145,5 +3145,34 @@ Continue without attachments?`,
   verseBacklinks: () => t`Notes on the same passage`,
   noteCitesNoPassages: () =>
     t`No passages here yet. Write a reference such as John 3:16 and this note will find the others that study it.`,
-  noVerseBacklinks: () => t`No other note cites the passages of this note yet.`
+  noVerseBacklinks: () => t`No other note cites the passages of this note yet.`,
+
+  // Epigrapho S1: accounts and sync.
+  signupPrivacy: {
+    0: () => t`By creating an account you accept the`,
+    1: () => t`privacy notice`
+  },
+  accountRecoveryCode: () => t`Code from the recovery page`,
+  accountRecoveryCodeDesc: () =>
+    t`Open the link in the email we sent you, copy the code that page shows and paste it here.`,
+  accountRecoveryCodeIncomplete: () =>
+    t`That code is incomplete. Copy the whole code from the recovery page.`,
+  attachmentTooLarge: () =>
+    t`This file is larger than 500 MB, the most an account can store.`,
+  syncAccount: () => t`Sync between computers`,
+  syncAccountDesc: () =>
+    t`With a free account your notes stay the same on every computer where you sign in, encrypted so only you can read them. Without one, everything stays on this computer.`,
+  attachmentsStored: (used: string, total: string) =>
+    t`${used} of ${total} of attachments`,
+  recoveryCodeRejected: () =>
+    t`The server did not accept that code. It may have expired: ask for a new recovery email.`,
+  couldNotResetPassword: () => t`Could not change the account password.`,
+  loginAttemptExpired: () =>
+    t`This sign-in attempt expired. Start again from the email step.`,
+  authPanelDesc: () =>
+    t`An account keeps your notes in sync between your computers. They are encrypted on your device before they leave it, so only you can read them.`,
+  storageLimitReached: () =>
+    t`Your account already stores 500 MB of attachments, the most it can hold. Delete attachments you no longer need to upload this one.`,
+  serverNotResponding: (reference: string) =>
+    t`The Epigrapho server is not responding. Check your internet connection and try again. If it keeps happening, write to support@azteya.tech. (Reference: ${reference})`
 };

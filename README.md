@@ -24,7 +24,7 @@
 
 Epigrapho es una app de notas para quien estudia la Biblia y escribe mientras lo hace: estudio personal, preparación de enseñanza, notas de seminario. En ella una referencia bíblica es un objeto, no un texto suelto. Al escribir «Juan 3:16» (o «Juan 3,16», o «John 3:16») la app la reconoce, la guarda en formato USFM (`JHN.3.16`) y muestra el versículo al pasar el cursor, sin salir de la nota. Después puedes encontrar todas las notas que citan ese mismo pasaje.
 
-Tus notas son tuyas. Viven en tu equipo, cifradas, y funcionan sin conexión. No hay cuentas, suscripciones ni funciones de pago.
+Tus notas son tuyas. Viven en tu equipo, cifradas, y funcionan sin conexión. No hay suscripciones ni funciones de pago. La cuenta es opcional y gratuita: solo sirve para sincronizar tus notas entre computadoras.
 
 ### De dónde viene el nombre
 
@@ -57,6 +57,7 @@ Epigrapho la hace Azteya. Está construida sobre [Notesnook](https://github.com/
 - **Traducciones sin conexión:** VBL (CC BY-SA 4.0), BSB, KJV y PdDpt (CC BY 4.0) vienen dentro de la app.
 - **Traducciones en línea:** NTV, NBLA y NASB se piden a API.Bible. Solo se envía la referencia; el texto de tus notas nunca sale del equipo.
 - **Corrector ortográfico sin conexión** en español e inglés, con un paquete de términos bíblicos y tu propio diccionario.
+- **Sincronización opcional** entre tus computadoras, en vivo y cifrada de extremo a extremo.
 - **Importa tus notas** de Notesnook, Evernote, Google Keep, Simplenote, Joplin, Markdown y más.
 
 ## Capturas
@@ -163,6 +164,19 @@ Desde la versión 1.0.0 la app avisa cuando hay una versión nueva y la descarga
 
 Si tienes una versión anterior a la 1.0.0 (por ejemplo, la 3.4.8), instala la 1.0.0 una vez a mano, encima de la que tienes. Esas versiones no saben dónde buscar las de Epigrapho, y podrían ofrecerte una versión de Notesnook, que no debes aceptar. Tus notas se conservan.
 
+## Sincronización
+
+Si usas Epigrapho en más de una computadora, crea una cuenta en Ajustes → Perfil → **Crear cuenta**. Es gratuita y opcional: sin ella la app funciona igual, con todo dentro de tu equipo.
+
+- Tus notas, libretas, etiquetas, recordatorios y adjuntos se cifran en tu computadora antes de subir. El servidor no puede leerlos.
+- Un cambio llega a tus otras computadoras en unos segundos.
+- También viajan tu traducción preferida y tu diccionario. El idioma de la interfaz es de cada computadora.
+- Cada cuenta puede guardar hasta 500 MB de adjuntos.
+- Al crear la cuenta, la app te muestra tu llave de recuperación. Guárdala: si olvidas la contraseña, es la única forma de recuperar tus notas.
+- Al iniciar sesión por primera vez, las notas que ya tenías en esa computadora se suben a tu cuenta.
+
+El servidor es propio de Epigrapho y su código es libre: [teamazteya/epigrapho-sync-server](https://github.com/teamazteya/epigrapho-sync-server). Qué guarda y cómo borrar tu cuenta: [PRIVACY.md](./PRIVACY.md).
+
 ## Desarrollo
 
 Requisitos: Node 22.23.2 y npm.
@@ -192,7 +206,7 @@ git tag -a v1.0.1 -m "Epigrapho 1.0.1" -m "- Qué cambió, en español."
 git push epigrapho v1.0.1
 ```
 
-Las verificaciones de extremo a extremo están en `apps/desktop/scripts/a0-*.mjs` y `a1-*.mjs`. Se ejecutan con `npm run start:desktop` corriendo. Las guías para contribuir están en [CONTRIBUTING.md](./CONTRIBUTING.md).
+Las verificaciones de extremo a extremo están en `apps/desktop/scripts/a0-*.mjs`, `a1-*.mjs`, `a2-*.mjs` y `s1-*.mjs`. Se ejecutan con `npm run start:desktop` corriendo. `s1-sync-check.mjs` usa una cuenta de prueba con verificación en dos pasos por app, dada en `S1_EMAIL`, `S1_PASSWORD` y `S1_TOTP_SECRET`. Las guías para contribuir están en [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## Soporte
 

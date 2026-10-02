@@ -106,7 +106,7 @@ export async function attachFiles(
           value: file.size
         });
         if (!allowed) {
-          throw new Error(strings.fileSizeLimitExceededPleaseUpgrade());
+          throw new Error(strings.attachmentTooLarge());
         }
 
         const attachment =

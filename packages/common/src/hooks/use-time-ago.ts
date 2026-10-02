@@ -52,7 +52,29 @@ const enShortLocale: [string, string][] = [
   ["1yr ago", "in 1yr"],
   ["%syr ago", "in %syr"]
 ];
+// Epigrapho: the short form in Spanish, for the es-MX interface.
+const esShortLocale: [string, string][] = [
+  ["ahora", "ahora"],
+  ["%s s", "en %s s"],
+  ["1 min", "en 1 min"],
+  ["%s min", "en %s min"],
+  ["1 h", "en 1 h"],
+  ["%s h", "en %s h"],
+  ["1 d", "en 1 d"],
+  ["%s d", "en %s d"],
+  ["1 sem", "en 1 sem"],
+  ["%s sem", "en %s sem"],
+  ["1 mes", "en 1 mes"],
+  ["%s meses", "en %s meses"],
+  ["1 año", "en 1 año"],
+  ["%s años", "en %s años"]
+];
 register("short", (_n, index) => shortLocale[index]);
+const esAgoLocale: [string, string][] = esShortLocale.map(([ago, ahead], i) =>
+  i < 2 ? [ago, ahead] : [`hace ${ago}`, ahead]
+);
+register("es_short", (_n, index) => esShortLocale[index]);
+register("es_ago", (_n, index) => esAgoLocale[index]);
 register("en_short", (_n, index) => enShortLocale[index]);
 
 export function getTimeAgo(datetime: TDate, locale = "short", opts?: Opts) {
@@ -60,7 +82,7 @@ export function getTimeAgo(datetime: TDate, locale = "short", opts?: Opts) {
 }
 
 type TimeAgoOptions = {
-  locale?: "short" | "en_short";
+  locale?: "short" | "en_short" | "es_short" | "es_ago";
   live?: boolean;
   interval?: number;
   onUpdate?: (timeAgo: string) => void;

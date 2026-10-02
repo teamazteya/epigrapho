@@ -46,9 +46,9 @@ async function initializeDatabase(persistence: DatabasePersistence) {
   }
 
   db.host({
-    API_HOST: getHostUrl("API_HOST", "https://api.notesnook.com"),
-    AUTH_HOST: getHostUrl("AUTH_HOST", "https://auth.streetwriters.co"),
-    SSE_HOST: getHostUrl("SSE_HOST", "https://events.streetwriters.co"),
+    API_HOST: getHostUrl("API_HOST", "https://sync.azteya.tech"),
+    AUTH_HOST: getHostUrl("AUTH_HOST", "https://auth.azteya.tech"),
+    SSE_HOST: getHostUrl("SSE_HOST", "https://events.azteya.tech"),
     ISSUES_HOST: getHostUrl("ISSUES_HOST", "https://issues.streetwriters.co"),
     SUBSCRIPTIONS_HOST: getHostUrl(
       "SUBSCRIPTIONS_HOST",

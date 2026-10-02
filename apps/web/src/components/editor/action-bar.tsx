@@ -74,7 +74,6 @@ import { CSS } from "@dnd-kit/utilities";
 import { AppEventManager, AppEvents } from "../../common/app-events";
 import { useWindowControls } from "../../hooks/use-window-controls";
 import { useStore as useMonographStore } from "../../stores/monograph-store";
-import { useStore as useUserStore } from "../../stores/user-store";
 import { db } from "../../common/db";
 import { showPublishView } from "../publish-view";
 import { restrictToHorizontalAxis } from "@dnd-kit/modifiers";
@@ -107,7 +106,6 @@ export function EditorActionBar() {
   const editorManager = useEditorManager((store) =>
     activeSession?.id ? store.editors[activeSession?.id] : undefined
   );
-  const isLoggedIn = useUserStore((store) => store.isLoggedIn);
   const arePropertiesVisible = useEditorStore(
     (store) => store.arePropertiesVisible
   );
@@ -153,7 +151,8 @@ export function EditorActionBar() {
     {
       title: isNotePublished ? strings.published() : strings.publish(),
       icon: isNotePublished ? Published : Publish,
-      hidden: !isLoggedIn,
+      // Epigrapho: no monograph site to publish to.
+      hidden: true,
       hideOnMobile: true,
       enabled:
         activeSession &&

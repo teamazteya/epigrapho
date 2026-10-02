@@ -31,12 +31,8 @@ import * as openpgp from "openpgp";
 import { InboxPGPKeysDialog } from "../dialogs/inbox-pgp-keys-dialog";
 import { strings } from "@notesnook/intl";
 
-export const HostIds = [
-  "API_HOST",
-  "AUTH_HOST",
-  "SSE_HOST",
-  "MONOGRAPH_HOST"
-] as const;
+// Epigrapho: no monograph server, so "Servidores" asks only for these three.
+export const HostIds = ["API_HOST", "AUTH_HOST", "SSE_HOST"] as const;
 export type HostId = (typeof HostIds)[number];
 
 export enum ImageCompressionOptions {

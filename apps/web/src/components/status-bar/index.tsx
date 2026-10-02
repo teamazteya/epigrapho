@@ -47,6 +47,7 @@ import { useVault } from "../../hooks/use-vault";
 import { useKeyStore } from "../../interfaces/key-store";
 import { STATUS_BAR_HEIGHT } from "../../common/constants";
 import { CommandPaletteDialog } from "../../dialogs/command-palette";
+import { timeAgoLocale } from "../time-ago";
 
 function StatusBar() {
   const user = useUserStore((state) => state.user);
@@ -307,7 +308,9 @@ const syncStatusFilters: SyncStatusFilter[] = [
     text: ({ lastSynced }) =>
       lastSynced
         ? strings.syncedTimeAgo(
-            getTimeAgo(lastSynced, "en_short", { minInterval: 1000 })
+            getTimeAgo(lastSynced, timeAgoLocale("en_short"), {
+              minInterval: 1000
+            })
           )
         : strings.clickToSync(),
     tooltip: strings.allChangesSynced()
@@ -350,7 +353,9 @@ const syncStatusFilters: SyncStatusFilter[] = [
     icon: SyncOff,
     text: ({ lastSynced }) =>
       strings.syncedTimeAgoOffline(
-        getTimeAgo(lastSynced, "en_short", { minInterval: 1000 })
+        getTimeAgo(lastSynced, timeAgoLocale("en_short"), {
+          minInterval: 1000
+        })
       ),
     tooltip: strings.youAreOffline()
   },

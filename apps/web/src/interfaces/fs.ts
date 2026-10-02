@@ -274,6 +274,13 @@ async function uploadFile(
   } catch (e) {
     console.error(e);
     reportProgress(undefined, { type: "upload", hash: filename });
+    // Epigrapho: the sync server answers 413 once the account stores 500 MB.
+    const cause = e instanceof WrappedError ? e.error : e;
+    if (axios.isAxiosError(cause) && cause.response?.status === 413) {
+      await resetUpload(fileHandle);
+      showToast("error", strings.storageLimitReached());
+      return false;
+    }
     const error = toS3Error(e);
     if (
       [

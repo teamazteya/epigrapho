@@ -21,7 +21,6 @@ import ListItem from "../list-item";
 import { Restore, DeleteForver } from "../icons";
 import { Flex, Text } from "@theme-ui/components";
 import TimeAgo from "../time-ago";
-import { toTitleCase } from "@notesnook/common";
 import { MenuItem } from "@notesnook/ui";
 import { TrashItem as TrashItemType } from "@notesnook/core";
 import { useEditorStore } from "../../stores/editor-store";
@@ -57,7 +56,9 @@ function TrashItem(props: TrashItemProps) {
             •
           </Text>
           <Text sx={{ color: "accent" }}>
-            {toTitleCase(item.itemType as string)}
+            {item.itemType === "note"
+              ? strings.dataTypesCamelCase.note()
+              : strings.dataTypesCamelCase.notebook()}
           </Text>
         </Flex>
       }

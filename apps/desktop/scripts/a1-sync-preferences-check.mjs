@@ -1,13 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // The preferences that belong to the person, not to the machine (Fase 7): the
-// interface language, the translation being read and the words taught to the
-// spell checker are settings in the database, so they travel with the account
-// and arrive in a second profile — the note's references with them.
+// translation being read and the words taught to the spell checker are
+// settings in the database, so they travel with the account and arrive in a
+// second profile — the note's references with them. The interface language
+// is the exception since S1: each computer keeps its own, so it must NOT
+// arrive.
 //
-// The account itself is not part of this: signing in would send the data to a
-// third party's server, which Epigrapho does not do. What is exercised here
-// is everything up to the wire — the same collection, written and read by a
-// second profile through a backup of it.
+// What is exercised here is everything up to the wire — the same collection,
+// written and read by a second profile through a backup of it. The live sync
+// through the server is s1-sync-check.mjs.
 //
 // Run while npm run start:desktop is serving the app on localhost:3000.
 import assert from "node:assert/strict";
@@ -249,8 +250,7 @@ try {
   await restore.locator("button").click();
   await (await chooser).setFiles(backupFile);
 
-  // The language arrives with everything else, and changing it reloads the
-  // window; this is the app coming back up in English.
+  // Everything arrives except the language, which stays this computer's.
   await fresh.waitForTimeout(3000);
   await fresh.waitForLoadState("load");
   await fresh.locator('[data-test-id="create-new-note"]').first().waitFor();
@@ -268,7 +268,7 @@ try {
     palabras: (await dictionaryWords(fresh)).sort()
   };
   console.log("perfil B después:", JSON.stringify(arrived));
-  assert.equal(arrived.idioma, "en-US");
+  assert.equal(arrived.idioma, "es-MX");
   assert.equal(arrived.traducción, "BSB");
   assert.deepEqual(arrived.palabras, [ADOPTED, ADDED].sort());
 
@@ -299,7 +299,7 @@ try {
   assert.equal(marked, "");
 
   console.log(
-    "GREEN: en un segundo perfil aparecen la traducción elegida, el idioma y las palabras del diccionario, con las referencias de la nota intactas."
+    "GREEN: en un segundo perfil aparecen la traducción elegida y las palabras del diccionario, con las referencias de la nota intactas; el idioma de la interfaz se queda el de ese perfil."
   );
   console.log(`Evidencia: ${first} · ${second}`);
 } catch (error) {

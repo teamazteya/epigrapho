@@ -102,8 +102,6 @@ export function UserProfile({ minimal }: Props) {
   const user = useUserStore((store) => store.user);
   const profile = useSettingStore((store) => store.profile);
 
-  const { title, trial } = getSubscriptionInfo(user);
-
   // Epigrapho has no accounts, so there is nobody to invite to sign in: the
   // block that used to ask for it simply has nothing to say here.
   if (!user || !user.id) return null;
@@ -168,15 +166,6 @@ export function UserProfile({ minimal }: Props) {
           </Flex>
         </Flex>
         <Flex sx={{ flexDirection: "column", flex: 1 }}>
-          <Text
-            variant="subBody"
-            sx={{
-              color: "accent"
-            }}
-          >
-            {`${title}${trial ? " (trial)" : ""}`}
-          </Text>
-
           <Text variant={minimal ? "body" : "subtitle"}>
             {profile?.fullName || strings.yourFullName()}{" "}
             {minimal ? null : (
@@ -226,11 +215,10 @@ export function UserProfile({ minimal }: Props) {
                 color="var(--accent)"
               />
               <Text variant="subBody" sx={{ flexShrink: 0 }}>
-                {formatBytes(user.storageUsed || 0)}/
-                {user.totalStorage === -1
-                  ? "Unlimited"
-                  : formatBytes(user.totalStorage)}{" "}
-                used
+                {strings.attachmentsStored(
+                  formatBytes(user.storageUsed || 0),
+                  formatBytes(user.totalStorage)
+                )}
               </Text>
             </Flex>
           ) : null}

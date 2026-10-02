@@ -21,6 +21,7 @@ import { EV, EVENTS } from "../common.js";
 import { logger } from "../logger.js";
 import { getServerNameFromHost } from "./constants.js";
 import { extractHostname } from "./hostname.js";
+import { strings } from "@notesnook/intl";
 
 type ContentType = "application/json" | "application/x-www-form-urlencoded";
 type RequestBody = Record<string, string | number | boolean | undefined> | null;
@@ -153,11 +154,7 @@ async function fetchWrapped(
     const host = extractHostname(input);
     const serverName = getServerNameFromHost(host);
     if (serverName)
-      throw new Error(
-        `${serverName} is not responding. Please check your internet connection. If the problem persists, feel free email us at support@azteya.tech. (Reference error: ${
-          (e as Error).message
-        })`
-      );
+      throw new Error(strings.serverNotResponding((e as Error).message));
 
     throw e;
   } finally {

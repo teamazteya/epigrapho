@@ -25,9 +25,7 @@ import Config from "../utils/config";
 import { hashNavigate } from "../navigation";
 import { AuthenticatorType, User } from "@notesnook/core";
 import { ConfirmDialog } from "../dialogs/confirm";
-import { OnboardingDialog } from "../dialogs/onboarding-dialog";
 import { strings } from "@notesnook/intl";
-import { isUserSubscribed } from "../hooks/use-is-user-premium";
 import { resetFeatures } from "../common";
 
 class UserStore extends BaseStore<UserStore> {
@@ -62,13 +60,12 @@ class UserStore extends BaseStore<UserStore> {
     db.eventManager.subscribe(
       EVENTS.userSubscriptionUpdated,
       (subscription) => {
-        const wasSubscribed = isUserSubscribed();
+        // Epigrapho has no plans, so there is no "welcome to your plan" here.
         this.refreshUser();
         this.set((state) => {
           if (!state.user) return;
           state.user.subscription = subscription;
         });
-        if (!wasSubscribed && isUserSubscribed()) OnboardingDialog.show({});
         resetFeatures();
       }
     );

@@ -356,7 +356,14 @@ class AppStore extends BaseStore<AppStore> {
         )
           return;
 
-        showToast("error", err.message);
+        // Epigrapho: the sync server answers in English; the one message a
+        // person meets in normal use is said in their language.
+        showToast(
+          "error",
+          err.message.includes("confirm your email")
+            ? strings.syncDisabledActionText()
+            : err.message
+        );
       }
     }, 300) as unknown as number;
   };

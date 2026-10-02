@@ -33,6 +33,8 @@ import AppLock from "./views/app-lock";
 import { Text } from "@theme-ui/components";
 import { EV, EVENTS } from "@notesnook/core";
 import { useEffect, useState } from "react";
+import { AuthProps } from "./views/auth";
+import { isAuthRoute } from "./navigation/auth-routes";
 
 export async function startApp(children?: React.ReactNode) {
   const rootElement = document.getElementById("root");
@@ -50,13 +52,13 @@ export async function startApp(children?: React.ReactNode) {
     : await import("./components/title-bar").then((m) => m.TitleBar);
 
   try {
-    const { Component, path, persistence } = await init();
+    const { Component, props, path, persistence } = await init();
 
     await useKeyStore.getState().init({ persistence });
 
     root.render(
       <>
-        <TitleBar />
+        <TitleBar force={isAuthRoute()} />
         <ErrorBoundary>
           <GlobalErrorHandler>
             <BaseThemeProvider
@@ -67,6 +69,7 @@ export async function startApp(children?: React.ReactNode) {
                 <RouteWrapper
                   Component={Component}
                   path={path}
+                  routeProps={props}
                   persistence={persistence}
                 />
               </AppLock>
@@ -91,12 +94,13 @@ export async function startApp(children?: React.ReactNode) {
 }
 
 function RouteWrapper(props: {
-  Component: () => JSX.Element;
+  Component: (props: AuthProps) => JSX.Element;
   path: Routes;
+  routeProps: AuthProps | null;
   persistence?: "db" | "memory";
 }) {
   const [isMigrating, setIsMigrating] = useState(false);
-  const { Component, path, persistence } = props;
+  const { Component, path, routeProps, persistence } = props;
 
   useEffect(() => {
     EV.subscribe(EVENTS.migrationStarted, (name) =>
@@ -151,7 +155,7 @@ function RouteWrapper(props: {
       </div>
     );
   performance.mark("render:app");
-  return <Component />;
+  return <Component route={routeProps?.route || "login:email"} />;
 }
 
 if (import.meta.hot) import.meta.hot.accept();

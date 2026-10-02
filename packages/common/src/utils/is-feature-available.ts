@@ -127,7 +127,9 @@ const features = {
       free: createLimit("50MB/mo", 50 * 1024 * 1024),
       essential: createLimit("1GB/mo", 1024 * 1024 * 1024),
       pro: createLimit("10GB/mo", 10 * 1024 * 1024 * 1024),
-      believer: createLimit("25GB/mo", 25 * 1024 * 1024 * 1024),
+      // Epigrapho: the plan every account has; the sync server caps what each
+      // account stores at 500 MB (EPIGRAPHO_STORAGE_LIMIT_MB).
+      believer: createLimit("500 MB", 500 * 1024 * 1024),
       legacyPro: createLimit("infinity", Infinity)
     }
   }),
@@ -140,7 +142,7 @@ const features = {
       free: createLimit("10MB", 10 * 1024 * 1024),
       essential: createLimit("100MB", 100 * 1024 * 1024),
       pro: createLimit("1GB", 1024 * 1024 * 1024),
-      believer: createLimit("5GB", 5 * 1024 * 1024 * 1024),
+      believer: createLimit("500 MB", 500 * 1024 * 1024),
       legacyPro: createLimit("512MB", 512 * 1024 * 1024)
     }
   }),

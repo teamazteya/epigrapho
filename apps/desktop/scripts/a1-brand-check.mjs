@@ -159,6 +159,20 @@ try {
   console.log("título por defecto:", title);
   assert.match(title, /^Nota /);
 
+  // The sign-in screens S1 brought back, reached from Settings > Profile.
+  for (const route of ["/login", "/signup", "/recover"]) {
+    await page.evaluate((route) => window.location.assign(`${route}#/`), route);
+    await page.locator("#authForm").waitFor();
+    await page.waitForTimeout(1500);
+    const text = await page.locator("body").innerText();
+    if (upstream(text).length) found[route] = upstream(text);
+    if (english(text).length) inEnglish[route] = english(text);
+  }
+  console.log(
+    "pantallas de cuenta:",
+    JSON.stringify({ found, inEnglish }, null, 1)
+  );
+
   const named = Object.fromEntries(
     Object.entries(found).filter(([, lines]) => lines.length)
   );
@@ -170,7 +184,7 @@ try {
   assert.deepEqual(requests, []);
 
   console.log(
-    "GREEN: ni el inicio ni ninguna sección de Ajustes nombra a Notesnook, y nada pidió a sus servidores."
+    "GREEN: ni el inicio, ni ninguna sección de Ajustes, ni las pantallas de cuenta nombran a Notesnook, y nada pidió a sus servidores."
   );
   console.log(`Evidencia: ${profile}`);
 } catch (error) {

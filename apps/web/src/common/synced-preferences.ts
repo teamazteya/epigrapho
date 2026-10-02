@@ -25,16 +25,17 @@ import Config from "../utils/config";
 
 /**
  * The preferences that belong to the person rather than to the machine
- * (Fase 7): the interface language, the translation they read in, and the
- * words they taught the spell checker.
+ * (Fase 7): the translation they read in and the words they taught the spell
+ * checker. The interface language was one of them until S1 made it a choice
+ * of each computer (ui-locale.ts); a value an older version left in the
+ * account is simply never read.
  *
  * They are kept in the database's settings collection, which syncs encrypted
  * exactly like a note does, so a second machine that signs in finds them
  * already chosen. What each machine keeps beside the database is a copy:
  *
- * - `Config` (localStorage) holds the two strings, because the interface
- *   language has to be known before the database is open, and because reading
- *   a preference while drawing the editor cannot be an await;
+ * - `Config` (localStorage) holds the translation, because reading a
+ *   preference while drawing the editor cannot be an await;
  * - the desktop main process holds the two word lists, because the spell
  *   checker answers there, once per keystroke, and cannot ask the database.
  *
@@ -45,7 +46,6 @@ import Config from "../utils/config";
 
 /** The preferences that are a single string, and where each one is cached. */
 const PREFERENCES = {
-  uiLocale: "epigrapho:uiLocale",
   translation: "epigrapho:translation"
 } as const;
 
@@ -114,7 +114,6 @@ export async function ignoreWordInNote(word: string, noteId: string) {
  * opens, after a sync, and after a backup is restored.
  */
 export async function pullSyncedPreferences() {
-  let languageChanged = false;
   for (const name of Object.keys(PREFERENCES) as Preference[]) {
     const synced = db.settings.getEpigrapho(PREFERENCES[name]);
     const local = Config.get<string | undefined>(name, undefined);
@@ -123,9 +122,7 @@ export async function pullSyncedPreferences() {
       if (local) await db.settings.setEpigrapho(PREFERENCES[name], local);
       continue;
     }
-    if (synced === local) continue;
-    Config.set(name, synced);
-    if (name === "uiLocale") languageChanged = true;
+    if (synced !== local) Config.set(name, synced);
   }
 
   // Words this machine kept on its own before Fase 7 are adopted instead of
@@ -143,10 +140,6 @@ export async function pullSyncedPreferences() {
     await db.settings.setEpigrapho("epigrapho:wordsByNote", byNote);
   }
   await copyWordsToSpellChecker();
-
-  // Every string is read at render time, so reloading is how the app changes
-  // language — the same thing setUiLocale does when the person picks one.
-  if (languageChanged) window.location.reload();
 }
 
 declare global {

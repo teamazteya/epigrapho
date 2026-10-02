@@ -36,6 +36,7 @@ import { RecoveryKeyDialog } from "../recovery-key-dialog";
 import { UserProfile } from "./components/user-profile";
 import { SettingsGroup } from "./types";
 import Config from "../../utils/config";
+import { hardNavigate } from "../../navigation";
 
 export const ProfileSettings: SettingsGroup[] = [
   {
@@ -46,6 +47,29 @@ export const ProfileSettings: SettingsGroup[] = [
       return useUserStore.subscribe((s) => s.isLoggedIn, listener);
     },
     settings: [
+      {
+        // Epigrapho S1: the only way into an account. Without one the app is
+        // exactly the 1.0.0, so nothing else ever asks a person to sign in.
+        key: "account-sign-in",
+        title: strings.syncAccount(),
+        description: strings.syncAccountDesc(),
+        keywords: [strings.login(), strings.signUp(), strings.sync()],
+        isHidden: () => Boolean(useUserStore.getState().isLoggedIn),
+        components: [
+          {
+            type: "button",
+            title: strings.login(),
+            variant: "primary",
+            action: () => hardNavigate("/login#/")
+          },
+          {
+            type: "button",
+            title: strings.signUp(),
+            variant: "secondary",
+            action: () => hardNavigate("/signup#/")
+          }
+        ]
+      },
       {
         key: "email",
         title: strings.changeEmail(),
