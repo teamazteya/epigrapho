@@ -492,11 +492,10 @@ export const noteMenuItems: (
     {
       type: "button",
       key: "publish",
-      // Epigrapho: no monograph site to publish to.
-      isHidden: true,
+      // Epigrapho (A5): shared notes live at notas.azteya.tech.
       isDisabled: !db.monographs.isPublished(note.id) && context?.locked,
       icon: Publish.path,
-      title: strings.publish(),
+      title: strings.shareNote(),
       menu: db.monographs.isPublished(note.id)
         ? {
             items: [

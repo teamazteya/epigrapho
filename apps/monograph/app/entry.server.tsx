@@ -1,0 +1,109 @@
+/*
+This file is part of the Notesnook project (https://notesnook.com/)
+
+Copyright (C) 2023 Streetwriters (Private) Limited
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+import { CacheProvider } from "@emotion/react";
+import createEmotionServer from "@emotion/server/create-instance";
+import type { EntryContext } from "@remix-run/node";
+import { RemixServer } from "@remix-run/react";
+import { renderToString } from "react-dom/server";
+import { createEmotionCache } from "./styles/createEmotionCache";
+import { Head } from "./root";
+import { activate, loadCatalog, localeOf } from "./utils/locale";
+
+await loadCatalog("es-MX");
+await loadCatalog("en");
+
+export default function handleRequest(
+  request: Request,
+  responseStatusCode: number,
+  responseHeaders: Headers,
+  remixContext: EntryContext
+) {
+  // Rendering is synchronous (renderToString), so the language set here
+  // cannot leak into another request.
+  const locale = localeOf(request.headers.get("accept-language"));
+  activate(locale);
+
+  // swap out default component with <Head>
+  const defaultRoot = remixContext.routeModules.root;
+  remixContext.routeModules.root = {
+    ...defaultRoot,
+    default: Head
+  };
+
+  const head = renderToString(
+    <RemixServer context={remixContext} url={request.url} />
+  );
+
+  // restore the default root component
+  remixContext.routeModules.root = defaultRoot;
+
+  const cache = createEmotionCache();
+  const { extractCriticalToChunks, constructStyleTagsFromChunks } =
+    createEmotionServer(cache);
+
+  const body = renderToString(
+    <CacheProvider value={cache}>
+      <RemixServer context={remixContext} url={request.url} />
+    </CacheProvider>
+  );
+
+  const styles = constructStyleTagsFromChunks(extractCriticalToChunks(body));
+  const html = `<!DOCTYPE html><html lang="${locale}"><head><!--start head-->${head}${styles}<!--end head--></head><body class="theme-scope-base"><div id="root">${body}</div></body></html>`;
+
+  responseHeaders.set("Content-Type", "text/html; charset=utf-8");
+
+  const nonce =
+    remixContext.staticHandlerContext?.loaderData?.root?.cspScriptNonce;
+  if (nonce)
+    responseHeaders.set(
+      "Content-Security-Policy",
+      getContentSecurityPolicy(nonce)
+    );
+
+  return new Response(html, {
+    status: responseStatusCode,
+    headers: responseHeaders
+  });
+}
+
+function getContentSecurityPolicy(nonce?: string) {
+  let script_src: string;
+  if (typeof nonce === "string") {
+    script_src = `'self' 'report-sample' 'nonce-${nonce}'`;
+  } else if (process.env.NODE_ENV === "development") {
+    // Allow the <LiveReload /> component to load without a nonce in the error pages
+    script_src = "'self' 'report-sample'";
+  } else {
+    script_src = "'self' 'report-sample'";
+  }
+
+  const connect_src =
+    process.env.NODE_ENV === "development"
+      ? "'self' ws://localhost:*"
+      : "'self'";
+
+  return (
+    `script-src ${script_src} 'strict-dynamic'; ` +
+    `connect-src ${connect_src}; ` +
+    "form-action 'self'; " +
+    "object-src 'none'; " +
+    "block-all-mixed-content; " +
+    "base-uri 'self'; manifest-src 'self'"
+  );
+}

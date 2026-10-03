@@ -3,6 +3,10 @@
 // an empty box: the fresh cache first, then the saved copy, then the embedded
 // translation, each one labelled for what it is (PRD §31.3, Paso 4.3).
 // Run while npm run start:desktop is serving the app on localhost:3000.
+//
+// With EPIGRAPHO_VERSE_HOST set (for instance http://localhost:5173, the page
+// from apps/monograph started with API_BIBLE_KEY), the app runs without a key
+// file, as an installed copy does, and reads the brand text from that server.
 import assert from "node:assert/strict";
 import { mkdtemp } from "node:fs/promises";
 import path from "node:path";
@@ -14,13 +18,19 @@ import { profilesRoot } from "./profiles-root.mjs";
 const root = fileURLToPath(new URL("../", import.meta.url));
 const TITLE = "Epigrapho 4.3";
 const CACHE_DB = "epigrapho-scripture-cache";
+const VERSE_HOST = process.env.EPIGRAPHO_VERSE_HOST;
 
 const profile = await mkdtemp(
   path.join(profilesRoot(), "epigrapho-degradacion-")
 );
 const app = await _electron.launch({
   args: [path.join(root, "build", "electron.js")],
-  env: { ...process.env, CUSTOM_USER_DATA_DIR: profile },
+  env: {
+    ...process.env,
+    CUSTOM_USER_DATA_DIR: profile,
+    // An empty config folder: no api-bible.key, so the server is asked.
+    ...(VERSE_HOST ? { APPDATA: profile, XDG_CONFIG_HOME: profile } : {})
+  },
   timeout: 60000
 });
 const page = await app.firstWindow();
@@ -159,15 +169,16 @@ const expireCacheRow = (key) =>
  * What the app sees is the same either way: the API cannot be reached.
  */
 async function goOffline() {
-  await app.evaluate(({ BrowserWindow, session }) => {
+  const verseHosts = VERSE_HOST ? [`${VERSE_HOST}/*`] : [];
+  await app.evaluate(({ BrowserWindow, session }, verseHosts) => {
     session.defaultSession.enableNetworkEmulation({ offline: true });
     session.defaultSession.webRequest.onBeforeRequest(
-      { urls: ["https://api.scripture.api.bible/*"] },
+      { urls: ["https://api.scripture.api.bible/*", ...verseHosts] },
       (_details, callback) => callback({ cancel: true })
     );
     for (const window of BrowserWindow.getAllWindows())
       window.webContents.session.enableNetworkEmulation({ offline: true });
-  });
+  }, verseHosts);
   await page
     .context()
     .setOffline(true)

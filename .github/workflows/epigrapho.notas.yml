@@ -1,0 +1,59 @@
+# Builds the public page of shared notes (apps/monograph, served at
+# notas.azteya.tech) as a Docker image for the Oracle VM, which is arm64, and
+# for amd64. A tag vX.Y.Z publishes ghcr.io/teamazteya/epigrapho-notas:vX.Y.Z;
+# run by hand, it publishes :sha-<commit>, so the page can be deployed and
+# tried before the release reaches anyone. The sync server's
+# deploy/docker-compose.yml pins one of them.
+name: Epigrapho notas
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  image:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.23.2
+          cache: npm
+
+      - name: Install packages
+        run: |
+          npm ci --ignore-scripts --prefer-offline --no-audit
+          npm run bootstrap -- --scope=monograph
+
+      # Builds the packages it uses first, including the Bible data that
+      # bible-pack and original-languages write for the page to copy.
+      - name: Build the page
+        run: npm run tx monograph:build
+
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Choose the image tag
+        id: tag
+        run: |
+          if [ "${GITHUB_REF_TYPE}" = tag ]; then echo "tag=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+          else echo "tag=sha-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"; fi
+
+      - name: Build and push the image
+        uses: docker/build-push-action@v6
+        with:
+          context: apps/monograph
+          platforms: linux/arm64,linux/amd64
+          push: true
+          tags: ghcr.io/teamazteya/epigrapho-notas:${{ steps.tag.outputs.tag }}

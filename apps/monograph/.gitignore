@@ -1,0 +1,14 @@
+node_modules
+
+/.cache
+/build
+.env
+.dev.vars
+
+.wrangler
+/output
+/fonts
+# Epigrapho: copied from apps/web/public by scripts/data.mjs.
+public/vbl.json
+public/bsb.json
+public/original

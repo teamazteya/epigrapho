@@ -26,6 +26,7 @@ import { homedir } from "os";
 import path from "path";
 import {
   API_BIBLE_IDS,
+  apiBiblePassageId,
   createApiBibleProvider
 } from "@notesnook/scripture-provider";
 
@@ -71,10 +72,35 @@ async function readKey() {
  * stack, so it honours the app's proxy settings and, in a test, the offline
  * emulation that cuts the network.
  */
-const provider = createApiBibleProvider({
+const direct = createApiBibleProvider({
   apiKey: readKey,
   fetch: (...args) => net.fetch(...(args as Parameters<typeof net.fetch>))
 });
+
+/**
+ * Installed apps carry no key: they ask Epigrapho's server, which holds it
+ * (apps/monograph, /api/verse). Only the reference goes out.
+ */
+type VerseRange = Parameters<typeof apiBiblePassageId>[0];
+const VERSE_HOST =
+  process.env.EPIGRAPHO_VERSE_HOST || "https://notas.azteya.tech";
+
+async function viaServer(ref: VerseRange, translationId: string) {
+  const response = await net.fetch(
+    `${VERSE_HOST}/api/verse?ref=${apiBiblePassageId(ref)}&t=${translationId}`
+  );
+  if (!response.ok)
+    throw new Error(`verse server responded ${response.status}`);
+  const { text } = (await response.json()) as { text?: string };
+  return text || "";
+}
+
+/** A key file on this machine (development, tests) wins over the server. */
+async function verseText(ref: VerseRange, translationId: string) {
+  return (await readKey())
+    ? direct.getVerseText(ref, translationId)
+    : viaServer(ref, translationId);
+}
 
 const reference = z.object({
   book: z.string().max(3),
@@ -100,7 +126,5 @@ export const scriptureRouter = t.router({
         )
       })
     )
-    .query(({ input }) =>
-      provider.getVerseText(input.reference, input.translationId)
-    )
+    .query(({ input }) => verseText(input.reference, input.translationId))
 });

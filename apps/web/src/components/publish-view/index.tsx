@@ -36,6 +36,12 @@ import { createRoot, Root } from "react-dom/client";
 import { PopupPresenter } from "@notesnook/ui";
 import { BaseDialogProps, DialogManager } from "../../common/dialog-manager";
 import Dialog from "../../components/dialog";
+import { useStore as useUserStore } from "../../stores/user-store";
+import { hardNavigate } from "../../navigation";
+
+/** Epigrapho (A5): where PRIVACY.md lists what may be published. */
+const RULES_URL =
+  "https://github.com/teamazteya/epigrapho/blob/main/PRIVACY.md#notas-compartidas";
 
 type PublishViewProps = {
   note: Note;
@@ -61,6 +67,12 @@ function PublishView(props: PublishViewProps) {
   const [monograph, setMonograph] = useState(props.monograph);
   const [copied, setCopied] = useState(false);
   const monographAnalytics = useIsFeatureAvailable("monographAnalytics");
+  const isLoggedIn = useUserStore((store) => store.isLoggedIn);
+  // Only images travel with a shared note; anything else is left behind.
+  const otherAttachments = usePromise(
+    () => db.attachments.ofNote(note.id, "files").count(),
+    [note.id]
+  );
   const metadata = usePromise(async () => {
     if (!monograph) return { publishUrl: "", analytics: { totalViews: 0 } };
     return await db.monographs.metadata(monograph.id);
@@ -104,8 +116,40 @@ function PublishView(props: PublishViewProps) {
     };
   }, [note.id]);
 
+  if (!isLoggedIn)
+    return (
+      <>
+        <Text variant="body">{strings.shareNeedsAccount()}</Text>
+        <Button
+          variant="accent"
+          onClick={() => {
+            onClose(false);
+            hardNavigate("/signup#/");
+          }}
+        >
+          {strings.createAccount()}
+        </Button>
+      </>
+    );
+
   return (
     <>
+      <Text variant="subBody">
+        {strings.shareWarning()}{" "}
+        <Link
+          href={RULES_URL}
+          target="_blank"
+          rel="noreferrer"
+          sx={{ color: "accent" }}
+        >
+          {strings.shareRulesLink()}
+        </Link>
+      </Text>
+      {otherAttachments.status === "fulfilled" && otherAttachments.value > 0 ? (
+        <Text variant="subBody" sx={{ color: "paragraph-error" }}>
+          {strings.shareHasAttachments()}
+        </Text>
+      ) : null}
       {monograph?.id ? (
         <Flex
           sx={{
@@ -332,7 +376,7 @@ function PublishView(props: PublishViewProps) {
               const title = titleInput.current?.value;
 
               if (!title || title.trim().length === 0) {
-                showToast("error", "Title cannot be empty.");
+                showToast("error", strings.shareTitleRequired());
                 return;
               }
 
@@ -344,11 +388,12 @@ function PublishView(props: PublishViewProps) {
               showToast("success", strings.actions.published.note(1));
             } catch (e) {
               console.error(e);
+              const message = (e as Error).message;
               showToast(
                 "error",
-                `${strings.actionErrors.published.note(1)}: ${
-                  (e as Error).message
-                }`
+                /too big/i.test(message)
+                  ? strings.shareTooBig()
+                  : `${strings.actionErrors.published.note(1)}: ${message}`
               );
             } finally {
               setStatus(undefined);
@@ -362,7 +407,7 @@ function PublishView(props: PublishViewProps) {
           ) : monograph?.id ? (
             strings.update()
           ) : (
-            strings.publish()
+            strings.shareWithLink()
           )}
         </Button>
       </Flex>
@@ -423,8 +468,7 @@ export async function showPublishView(note: Note, target?: HTMLElement) {
           overflow: "hidden"
         }}
       >
-        <Text variant="subtitle">{strings.publishToTheWeb()}</Text>
-        <Text variant="subBody">{strings.monographDesc()}</Text>
+        <Text variant="subtitle">{strings.shareWithLink()}</Text>
         <PublishView
           note={note}
           monograph={monograph}
@@ -447,8 +491,7 @@ export const PublishDialog = DialogManager.register(function PublishDialog(
   return (
     <Dialog
       isOpen={true}
-      title={strings.publishToTheWeb()}
-      description={strings.monographDesc()}
+      title={strings.shareWithLink()}
       width={400}
       onClose={() => props.onClose(false)}
     >

@@ -33,6 +33,7 @@ const scopes = {
   mobile: "apps/mobile",
   web: "apps/web",
   desktop: "apps/desktop",
+  monograph: "apps/monograph",
   core: "packages/core",
   editor: "packages/editor"
 };

@@ -53,7 +53,10 @@ const s3 = createServer((req, res) => {
   res.end(
     '<?xml version="1.0" encoding="UTF-8"?><ListBucketResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><Name>attachments</Name><KeyCount>0</KeyCount><IsTruncated>false</IsTruncated></ListBucketResult>'
   );
-}).listen(9000);
+})
+  // Another stand-in may already be serving 9000; that one will do.
+  .on("error", () => {})
+  .listen(9000);
 
 async function launch(profile) {
   const app = await _electron.launch({
