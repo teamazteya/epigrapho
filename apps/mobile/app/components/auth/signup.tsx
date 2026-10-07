@@ -28,10 +28,13 @@ import {
   useWindowDimensions
 } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import { db } from "../../common/database";
+import { DatabaseLogger, db } from "../../common/database";
+import { eSendEvent } from "../../services/event-manager";
 import { DDS } from "../../services/device-detection";
+import { setMarketingConsent } from "../../services/marketing";
 import { clearMessage, setEmailVerifyMessage } from "../../services/message";
 import { useUserStore } from "../../stores/use-user-store";
+import { eOpenRecoveryKeyDialog } from "../../utils/events";
 import { openLinkInBrowser } from "../../utils/functions";
 import { AppFontSize } from "../../utils/size";
 import { DefaultAppStyles } from "../../utils/styles";
@@ -40,6 +43,8 @@ import { Button } from "../ui/button";
 import FormInput, { createFormRef, validators } from "../ui/input/form-input";
 import Heading from "../ui/typography/heading";
 import Paragraph from "../ui/typography/paragraph";
+import { sleep } from "../../utils/time";
+import { hideAuth } from "./common";
 import { AuthHeader } from "./header";
 import { SignupContext } from "./signup-context";
 import { RouteParams } from "../../stores/use-navigation-store";
@@ -72,6 +77,8 @@ export const Signup = ({
   const confirmPasswordInputRef = useRef<TextInput>(null);
   const [errorMessage, setErrorMessage] = useState<string>();
   const [loading, setLoading] = useState(false);
+  // Epigrapho (A4): the news emails are opt-in, so the box starts unticked.
+  const [marketing, setMarketing] = useState(false);
   const setUser = useUserStore((state) => state.setUser);
   const setLastSynced = useUserStore((state) => state.setLastSynced);
   const { width, height } = useWindowDimensions();
@@ -89,11 +96,22 @@ export const Signup = ({
     try {
       setCurrentStep(SignupSteps.createAccount);
       await db.user.signup(values.email.toLowerCase(), values.password);
+      // A new account answered with the checkbox, so it is never asked again.
+      // A failure here must not undo the signup.
+      await setMarketingConsent(marketing).catch((e) =>
+        DatabaseLogger.error(e, "Could not save the news emails choice")
+      );
       const user = await db.user.getUser();
       setUser(user);
       setLastSynced(await db.lastSynced());
       clearMessage();
       setEmailVerifyMessage();
+      // Epigrapho S1: upstream went on to the plans here. The recovery key is
+      // the only way back into the notes if the password is lost, so it is
+      // handed over right away, as on the desktop.
+      hideAuth(route.params?.context);
+      await sleep(300);
+      eSendEvent(eOpenRecoveryKeyDialog, true);
       return true;
     } catch (e) {
       setCurrentStep(SignupSteps.signup);
@@ -270,6 +288,31 @@ export const Signup = ({
                   }}
                 />
 
+                <TouchableOpacity
+                  testID="signup.marketing"
+                  activeOpacity={0.8}
+                  onPress={() => setMarketing(!marketing)}
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "flex-start",
+                    gap: DefaultAppStyles.GAP_SMALL,
+                    marginBottom: DefaultAppStyles.GAP_VERTICAL
+                  }}
+                >
+                  <AppIcon
+                    name={
+                      marketing ? "checkbox-marked" : "checkbox-blank-outline"
+                    }
+                    color={
+                      marketing ? colors.primary.accent : colors.primary.icon
+                    }
+                    size={AppFontSize.lg}
+                  />
+                  <Paragraph style={{ flex: 1 }} size={AppFontSize.xs}>
+                    {strings.marketingOptIn()}
+                  </Paragraph>
+                </TouchableOpacity>
+
                 <Button
                   title={!loading ? strings.continue() : null}
                   type="accent"
@@ -341,23 +384,8 @@ export const Signup = ({
                   size={AppFontSize.xxs}
                   color={colors.secondary.paragraph}
                 >
-                  {strings.signupAgreement[0]()}
-                  <Paragraph
-                    size={AppFontSize.xxs}
-                    onPress={() => {
-                      openLinkInBrowser(
-                        "https://github.com/teamazteya/epigrapho/blob/main/LICENSE"
-                      );
-                    }}
-                    style={{
-                      textDecorationLine: "underline"
-                    }}
-                    color={colors.primary.accent}
-                  >
-                    {" "}
-                    {strings.signupAgreement[1]()}
-                  </Paragraph>{" "}
-                  {strings.signupAgreement[2]()}
+                  {/* Epigrapho S1: the same notice as the desktop's sign-up. */}
+                  {strings.signupPrivacy[0]()}
                   <Paragraph
                     size={AppFontSize.xxs}
                     onPress={() => {
@@ -371,9 +399,9 @@ export const Signup = ({
                     color={colors.primary.accent}
                   >
                     {" "}
-                    {strings.signupAgreement[3]()}
-                  </Paragraph>{" "}
-                  {strings.signupAgreement[4]()}
+                    {strings.signupPrivacy[1]()}
+                  </Paragraph>
+                  .
                 </Paragraph>
               </View>
             </View>
@@ -382,8 +410,8 @@ export const Signup = ({
       ) : (
         <>
           <Loading
-            title={"Setting up your account..."}
-            description="Your account is almost ready, please wait..."
+            title={strings.settingUpAccount()}
+            description={strings.settingUpAccountDesc()}
           />
         </>
       )}

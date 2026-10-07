@@ -28,12 +28,7 @@ import { DayFormat, WeekFormat, Reminder } from "@notesnook/core";
 import { db } from "../common/database";
 import { EDITOR_LINE_HEIGHT } from "../utils/constants";
 import { ShortcutItem } from "react-native-actions-shortcuts";
-export const HostIds = [
-  "API_HOST",
-  "AUTH_HOST",
-  "SSE_HOST",
-  "MONOGRAPH_HOST"
-] as const;
+export const HostIds = ["API_HOST", "AUTH_HOST", "SSE_HOST"] as const;
 export type HostId = (typeof HostIds)[number];
 
 export type Settings = {

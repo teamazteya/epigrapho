@@ -65,6 +65,8 @@ import { AppFontSize } from "../../utils/size";
 import { sleep } from "../../utils/time";
 import { DefaultAppStyles } from "../../utils/styles";
 import PaywallSheet from "../../components/sheets/paywall";
+// Epigrapho: the sync server sends no SMS (no Twilio), so 2FA is by app or
+// email, as on the desktop.
 const mfaMethods: MFAMethod[] = [
   {
     id: "app",
@@ -72,12 +74,6 @@ const mfaMethods: MFAMethod[] = [
     body: strings.mfaAuthAppDesc(),
     icon: "cellphone-key",
     recommended: true
-  },
-  {
-    id: "sms",
-    title: strings.mfaSmsTitle(),
-    body: strings.mfaSmsDesc(),
-    icon: "message-plus-outline"
   },
   {
     id: "email",
@@ -249,10 +245,9 @@ export const MFASetup = ({
   }, [authenticatorDetails.sharedKey, methodId, user?.email]);
 
   const codeHelpText = {
-    app: "After putting the above code in authenticator app, the app will display a code that you can enter below.",
-    sms: "You will receive a 2FA code on your phone number which you can enter below",
-    email:
-      "You will receive a 2FA code on your email address which you can enter below"
+    app: strings.mfaCodeHelpApp(),
+    sms: "",
+    email: strings.mfaCodeHelpEmail()
   };
 
   const targetValidators =

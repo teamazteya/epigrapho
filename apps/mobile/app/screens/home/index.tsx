@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import { strings } from "@notesnook/intl";
 import React from "react";
 import { FloatingButton } from "../../components/container/floating-button";
+import Templates from "../../components/sheets/templates";
 import DelayLayout from "../../components/delay-layout";
 import { Header } from "../../components/header";
 import List from "../../components/list";
@@ -66,6 +67,13 @@ export const Home = ({ navigation, route }: NavigationProps<"Notes">) => {
         }}
         id={route.name}
         onPressDefaultRightButton={openEditor}
+        // Epigrapho (A3): next to the new note button, as on the desktop.
+        rightButton={{
+          name: "file-document-multiple-outline",
+          testID: "new-note-from-template",
+          accessibilityLabel: strings.templates.newFromTemplate(),
+          onPress: Templates.present
+        }}
       />
 
       <DelayLayout wait={loading}>

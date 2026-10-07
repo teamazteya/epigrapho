@@ -19,8 +19,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import { strings } from "@notesnook/intl";
+import {
+  MAX_PARALLEL,
+  type ParallelColumn,
+  type ScriptureBlockAttributes
+} from "@notesnook/editor";
 import { formatRef, parseReferences } from "@notesnook/scripture-parser";
-import { ask } from "./prompt";
+import { PROVENANCE } from "@notesnook/scripture-provider";
+import { ask, choose } from "./prompt";
 import { formatReference, getTranslation, resolveVerse } from "./scripture";
 
 export type ScriptureToInsert = {
@@ -67,6 +73,54 @@ export function askForScripture(): Promise<ScriptureToInsert | undefined> {
         console.error("could not read the verse", failure);
         return { error: strings.scriptureLookupFailed() };
       }
+    }
+  });
+}
+
+/**
+ * "Comparar" on a scripture block (A3 Fase 5), as on the desktop
+ * (compareScripture in apps/web/src/components/editor/tiptap.tsx): every
+ * other translation, checked when it is already a column.
+ */
+export function compareScripture(
+  block: ScriptureBlockAttributes,
+  update: (parallel: ParallelColumn[]) => void
+) {
+  const columns = block.parallel ?? [];
+  return choose({
+    id: "compare-prompt",
+    title: strings.compareTranslations(),
+    items: Object.values(PROVENANCE)
+      .filter((translation) => translation.id !== block.translationId)
+      .map((translation) => ({
+        key: translation.id,
+        label: `${translation.id} — ${translation.name}`,
+        checked: columns.some((c) => c.translationId === translation.id)
+      })),
+    pick: async (translationId) => {
+      if (columns.some((c) => c.translationId === translationId)) {
+        update(columns.filter((c) => c.translationId !== translationId));
+        return;
+      }
+      if (columns.length >= MAX_PARALLEL) return strings.compareMax();
+      const verse = await resolveVerse(block.ref, translationId);
+      if (!verse.text)
+        return strings.scriptureNoTextFor(
+          translationId,
+          block.label || block.ref
+        );
+      // Offline, an online translation falls back to a pack: the column
+      // credits what was actually shown, and is not shown twice.
+      if (
+        verse.translationId !== translationId &&
+        (verse.translationId === block.translationId ||
+          columns.some((c) => c.translationId === verse.translationId))
+      )
+        return strings.scriptureShowingInstead(verse.translationId);
+      update([
+        ...columns,
+        { translationId: verse.translationId, text: verse.text }
+      ]);
     }
   });
 }

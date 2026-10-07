@@ -125,9 +125,17 @@ jobs:
           xcrun simctl launch "$device" tech.azteya.epigrapho
           sleep 30
           xcrun simctl io "$device" screenshot ../dist/epigrapho_ios_simulator.png
-          xcrun simctl spawn "$device" launchctl list | grep -q tech.azteya.epigrapho
+          if ! xcrun simctl spawn "$device" launchctl list | grep -q tech.azteya.epigrapho; then
+            # Why it closed, next to the screenshot.
+            cp ~/Library/Logs/DiagnosticReports/*.ips ../dist/ 2>/dev/null || true
+            xcrun simctl spawn "$device" log show --last 2m --style compact --predicate 'process == "Notesnook"' > ../dist/epigrapho_ios_log.txt || true
+            exit 1
+          fi
 
       - uses: actions/upload-artifact@v4
+        # Also when the app did not stay open: the screenshot and the crash
+        # report say why.
+        if: always()
         with:
           name: epigrapho-${{ matrix.name }}
           path: apps/mobile/dist/*

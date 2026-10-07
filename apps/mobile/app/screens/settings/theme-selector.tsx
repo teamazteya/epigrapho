@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import { LegendList } from "@legendapp/list";
 import { strings } from "@notesnook/intl";
 import {
+  CommunityThemes,
   ThemeDark,
   ThemeDefinition,
   ThemeLight,
@@ -69,7 +70,15 @@ export default function ThemeSelector() {
   );
 
   const query = searchQuery?.trim().toLowerCase();
-  const themes = [lightTheme, darkTheme, ThemeLight, ThemeDark]
+  // As on the desktop: one loaded from a file first, then the two Epigrapho
+  // themes and the 21 of A4.
+  const themes = [
+    lightTheme,
+    darkTheme,
+    ThemeLight,
+    ThemeDark,
+    ...CommunityThemes
+  ]
     .filter(
       (theme, index, all) =>
         all.findIndex((other) => other.id === theme.id) === index
@@ -509,11 +518,6 @@ const ThemeSetter = ({
       theme.colorScheme === "dark"
         ? useThemeStore.getState().setDarkTheme(fullTheme)
         : useThemeStore.getState().setLightTheme(fullTheme);
-      ToastManager.show({
-        heading: `${theme.name} applied successfully`,
-        type: "success",
-        context: "global"
-      });
     } catch (e) {
       DatabaseLogger.error(e);
     }
@@ -690,7 +694,7 @@ const ThemeSetter = ({
               size={AppFontSize.xs}
               color={themeColors.colors.secondary.paragraph}
             >
-              ${strings.version()} {theme.version}
+              {strings.version()} {theme.version}
             </Paragraph>
 
             <Paragraph

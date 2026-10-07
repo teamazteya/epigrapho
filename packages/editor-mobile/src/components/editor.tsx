@@ -27,14 +27,16 @@ import {
   toBlobURL,
   usePermissionHandler
 } from "@notesnook/editor";
+import { crossReferences } from "@notesnook/original-languages";
 import { formatRef, parseReferences } from "@notesnook/scripture-parser";
+import { STUDY_PROVENANCE } from "@notesnook/scripture-provider";
 import {
   attributionOf,
   formatReference,
   getTranslation,
   resolveVerse
 } from "../common/scripture";
-import { askForScripture } from "../common/scripture-prompt";
+import { askForScripture, compareScripture } from "../common/scripture-prompt";
 import {
   insertInterlinear,
   loadDictionaryEntry,
@@ -116,7 +118,26 @@ const Tiptap = ({
     const detachPopover = attachScripturePopover(content, {
       translation: getTranslation,
       resolve: resolveVerse,
-      attributionOf
+      attributionOf,
+      // A3 Fase 2, as on the desktop: inserted after the reference being
+      // previewed, unmarked, and detection marks it.
+      crossReferences: {
+        load: crossReferences,
+        label: formatReference,
+        insert: (ref, after) => {
+          const editor = editors[tabRef.current.id];
+          if (!editor) return;
+          const end = editor.view.posAtDOM(after, after.childNodes.length);
+          editor
+            .chain()
+            .insertContentAt(end, {
+              type: "text",
+              text: `; ${formatReference(ref)}`
+            })
+            .run();
+        },
+        credit: STUDY_PROVENANCE.OPENBIBLE.attribution
+      }
     });
     const detachCopy = attachScriptureCopy(content, {
       formatReference,
@@ -277,6 +298,7 @@ const Tiptap = ({
           indices: reference.indices
         })),
       scriptureAttribution: attributionOf,
+      compareScripture,
       insertScripture: async (editor) => {
         const scripture = await askForScripture();
         if (scripture)

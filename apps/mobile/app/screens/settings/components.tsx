@@ -18,6 +18,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import React, { ReactElement } from "react";
+import { View } from "react-native";
+import { AttachmentDialog } from "../../components/attachments";
+import { ChangePassword } from "../../components/auth/change-password";
+import { DefaultAppStyles } from "../../utils/styles";
+import { AttachmentGroupProgress } from "./attachment-group-progress";
+import { ChangeEmail } from "./change-email";
 import DebugLogs from "./debug";
 import { ConfigureToolbar } from "./editor/configure-toolbar";
 import { Licenses } from "./licenses";
@@ -39,6 +45,7 @@ import {
   VaultLockTimerPicker
 } from "./picker/pickers";
 import { RestoreBackup } from "./restore-backup";
+import { ServersConfiguration } from "./server-config";
 import SoundPicker from "./sound-picker";
 import ThemeSelector from "./theme-selector";
 import { TitleFormat } from "./title-format";
@@ -65,5 +72,14 @@ export const components: { [name: string]: ReactElement } = {
   "vault-lock-timer": <VaultLockTimerPicker />,
   autobackupsattachments: <BackupWithAttachmentsReminderPicker />,
   backuprestore: <RestoreBackup />,
-  "sidebar-tab-selector": <SidebarTabPicker />
+  "server-config": <ServersConfiguration />,
+  "attachments-manager": <AttachmentDialog note={undefined} isSheet={false} />,
+  "offline-mode-progress": (
+    <View style={{ paddingHorizontal: DefaultAppStyles.GAP }}>
+      <AttachmentGroupProgress groupId="offline-mode" />
+    </View>
+  ),
+  "sidebar-tab-selector": <SidebarTabPicker />,
+  "change-password": <ChangePassword />,
+  "change-email": <ChangeEmail />
 };

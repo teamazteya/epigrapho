@@ -37,6 +37,7 @@
     "abortcontroller-polyfill": "^1.7.3",
     "better-sqlite3-multiple-ciphers": "11.5.0",
     "bson-objectid": "^2.0.4",
+    "docx": "^9.8.1",
     "dotenv": "16.4.7",
     "event-source-polyfill": "1.0.31",
     "eventsource": "^2.0.2",

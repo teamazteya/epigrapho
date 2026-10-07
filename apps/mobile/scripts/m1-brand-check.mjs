@@ -28,6 +28,7 @@ const KEPT = [
   /^\s*(\/\/|\*|\/\*)/, // comments
   /\bNotesnook(Module\w*|TileService|Share)\b/, // internal identifiers
   /\bnotesnook-module\b/,
+  /"notesnook-sync"/, // the id the sync server answers at /version
   /"Notesnook"\s*[,);]?\s*$/, // the React component name native code registers
   /\be2e\/test\.ids\b|testID=|\bnotesnook\.(ids|buttons|list|listitem|toast|editor)\b/, // test ids
   // Names no one reads: keychain entries and salts (changing a salt would
@@ -54,7 +55,11 @@ const SOURCES = [
     skip: /[\\/](Pods|build)[\\/]/
   },
   { file: "app.json" },
-  { file: "index.js" }
+  { file: "index.js" },
+  // The editor's page: its title is what a screen reader names the editor.
+  { dir: "../../packages/editor-mobile/src", ext: /\.(ts|tsx)$/ },
+  { file: "../../packages/editor-mobile/public/index.html" },
+  { file: "../../packages/editor-mobile/public/manifest.json" }
 ];
 
 // The Spanish catalog is shared with the desktop, so it holds strings the

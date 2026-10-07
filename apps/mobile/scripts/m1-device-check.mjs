@@ -12,125 +12,18 @@
 //
 //   node scripts/m1-device-check.mjs
 import assert from "node:assert/strict";
-import { spawnSync } from "node:child_process";
-import { mkdirSync, writeFileSync } from "node:fs";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 
-const APP = "tech.azteya.epigrapho";
-const evidence = fileURLToPath(
-  new URL("../../../../evidence/m1/", import.meta.url)
-);
-mkdirSync(evidence, { recursive: true });
-const sdk =
-  process.env.ANDROID_HOME ||
-  path.join(process.env.LOCALAPPDATA || "", "Android", "Sdk");
-const ADB = path.join(
-  sdk,
-  "platform-tools",
-  process.platform === "win32" ? "adb.exe" : "adb"
-);
-
-function adb(...args) {
-  const result = spawnSync(ADB, args, {
-    encoding: "utf8",
-    maxBuffer: 64 << 20
-  });
-  if (result.status !== 0)
-    throw new Error(`adb ${args.join(" ")}: ${result.stderr}`);
-  return result.stdout;
-}
-const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-/** Every node on screen with its text and centre. */
-function screen() {
-  const xml = adb("exec-out", "uiautomator", "dump", "/dev/tty");
-  return [
-    ...xml.matchAll(
-      /<node [^>]*?text="([^"]*)" resource-id="([^"]*)"[^>]*?content-desc="([^"]*)"[^>]*?bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"/g
-    )
-  ].map(([, text, id, desc, x1, y1, x2, y2]) => ({
-    text: text.replace(/&amp;/g, "&").replace(/&quot;/g, '"'),
-    id,
-    desc,
-    x: (Number(x1) + Number(x2)) >> 1,
-    y: (Number(y1) + Number(y2)) >> 1
-  }));
-}
-
-async function waitFor(label, timeout = 60000) {
-  const until = Date.now() + timeout;
-  for (;;) {
-    const found = screen().find(
-      (node) => node.text === label || node.desc === label || node.id === label
-    );
-    if (found) return found;
-    if (Date.now() > until) throw new Error(`no apareció «${label}»`);
-    await sleep(1000);
-  }
-}
-
-async function tap(label, timeout) {
-  const node = await waitFor(label, timeout);
-  adb("shell", "input", "tap", `${node.x}`, `${node.y}`);
-  await sleep(1500);
-}
-
-function shot(name) {
-  const png = spawnSync(ADB, ["exec-out", "screencap", "-p"], {
-    maxBuffer: 64 << 20
-  }).stdout;
-  writeFileSync(path.join(evidence, `${name}.png`), png);
-}
-
-/** The page of the WebView that holds the note editor, over DevTools. */
-async function connectToEditor() {
-  const targets = await (await fetch("http://127.0.0.1:9333/json")).json();
-  for (const target of targets.filter((t) => t.type === "page")) {
-    const socket = new WebSocket(target.webSocketDebuggerUrl);
-    await new Promise((resolve, reject) => {
-      socket.onopen = resolve;
-      socket.onerror = reject;
-    });
-    let id = 0;
-    const pending = new Map();
-    socket.onmessage = ({ data }) => {
-      const message = JSON.parse(data);
-      pending.get(message.id)?.(message);
-      pending.delete(message.id);
-    };
-    const send = (method, params = {}) =>
-      new Promise((resolve, reject) => {
-        pending.set(++id, (message) =>
-          message.error
-            ? reject(new Error(message.error.message))
-            : resolve(message.result)
-        );
-        socket.send(JSON.stringify({ id, method, params }));
-      });
-    const evaluate = async (expression) => {
-      const { result, exceptionDetails } = await send("Runtime.evaluate", {
-        expression,
-        awaitPromise: true,
-        returnByValue: true
-      });
-      if (exceptionDetails)
-        throw new Error(
-          exceptionDetails.exception?.description || exceptionDetails.text
-        );
-      return result.value;
-    };
-    if (await evaluate(`!!document.querySelector(".ProseMirror")`))
-      return { send, evaluate, close: () => socket.close() };
-    socket.close();
-  }
-  throw new Error("no encontré el editor en el WebView");
-}
-
-const visibleText = () =>
-  screen()
-    .map((node) => node.text)
-    .join("\n");
+import {
+  APP,
+  adb,
+  connectToEditor,
+  screen,
+  shot,
+  sleep,
+  tap,
+  visibleText,
+  waitFor
+} from "./device.mjs";
 
 // --- A clean start -------------------------------------------------------
 adb("shell", "pm", "clear", APP);
@@ -168,9 +61,14 @@ assert.ok(
 );
 await tap("sidemenu-settings-icon");
 await tap("Ajustes");
+// M1 Fase 5b: the account is offered here, and only here, as on the desktop.
 assert.ok(
-  !/Servidores|CUENTA/.test(visibleText()),
-  "Ajustes muestra cuenta o servidores"
+  visibleText().includes("Sincronizar entre dispositivos"),
+  "Ajustes no ofrece la cuenta opcional"
+);
+assert.ok(
+  !/Cambiar de plan|Pro\b/.test(visibleText()),
+  "Ajustes ofrece un plan"
 );
 await tap("Editor");
 await tap("Versión Biblia Libre (VBL)");
@@ -188,15 +86,6 @@ console.log("2. Ajustes → Editor → traducción principal: BSB");
 // The list's own hint: swiping left anywhere starts a note.
 adb("shell", "input", "swipe", "900", "1200", "100", "1200", "250");
 await sleep(3000);
-const sockets = adb("shell", "cat", "/proc/net/unix")
-  .split("\n")
-  .map((line) => line.match(/@(webview_devtools_remote_\d+)/)?.[1])
-  .filter(Boolean);
-assert.ok(sockets.length, "el WebView no expone DevTools (¿build de debug?)");
-adb("forward", "tcp:9333", `localabstract:${sockets.at(-1)}`);
-// ponytail: Playwright's connectOverCDP needs browser-level commands an
-// Android WebView does not have, so this speaks the protocol to the page
-// directly: evaluate to read it, Input.* for real touches and typing.
 const cdp = await connectToEditor();
 try {
   const $ = (expression) => cdp.evaluate(expression);
@@ -473,7 +362,6 @@ try {
 } finally {
   adb("shell", "cmd", "connectivity", "airplane-mode", "disable");
   cdp.close();
-  adb("forward", "--remove", "tcp:9333");
 }
 
 // --- One note, not two ------------------------------------------------------

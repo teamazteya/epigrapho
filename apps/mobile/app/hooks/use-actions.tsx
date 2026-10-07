@@ -26,7 +26,8 @@ import {
   ItemReference,
   Note,
   Notebook,
-  VAULT_ERRORS
+  VAULT_ERRORS,
+  addTemplate
 } from "@notesnook/core";
 import { strings } from "@notesnook/intl";
 import { useThemeColors } from "@notesnook/theme";
@@ -37,6 +38,7 @@ import { InteractionManager, Platform } from "react-native";
 import Share from "react-native-share";
 import { DatabaseLogger, db } from "../common/database";
 import { AttachmentDialog } from "../components/attachments";
+import { AuthMode } from "../components/auth/common";
 import { presentDialog } from "../components/dialog/functions";
 import NoteHistory from "../components/note-history";
 import { AddNotebookSheet } from "../components/sheets/add-notebook";
@@ -48,6 +50,8 @@ import { useSideBarDraggingStore } from "../components/side-menu/dragging-store"
 import { ButtonProps } from "../components/ui/button";
 import AddReminder from "../screens/add-reminder";
 import { useTabStore } from "../screens/editor/tiptap/use-tab-store";
+import { editorController } from "../screens/editor/tiptap/utils";
+import { openNote } from "../components/list-items/note/wrapper";
 import RelationsList from "../screens/relations-list";
 import {
   eSendEvent,
@@ -127,7 +131,9 @@ export type ActionId =
   | "default-tag"
   | "launcher-shortcut"
   | "expiry-date"
-  | "spell-check";
+  | "spell-check"
+  | "save-as-template"
+  | "sermon-mode";
 
 export type Action = {
   id: ActionId;
@@ -760,6 +766,63 @@ export const useActions = ({
       AttachmentDialog.present(item as Note);
     }
 
+    // Epigrapho (A3 Fase 1): the note as one of the person's templates.
+    async function saveAsTemplate() {
+      if (item.type !== "note") return;
+      close();
+      await sleep(300);
+      presentDialog({
+        title: strings.templates.saveAsTemplate(),
+        input: true,
+        inputPlaceholder: strings.templates.templateName(),
+        defaultValue: item.title,
+        positiveText: strings.save(),
+        positivePress: async (title: string) => {
+          const content =
+            item.contentId && (await db.content.get(item.contentId));
+          if (locked || (content && content.locked)) {
+            ToastManager.error(
+              new Error(strings.templates.cannotSaveLocked()),
+              undefined,
+              "local"
+            );
+            return false;
+          }
+          await addTemplate(
+            db,
+            title?.trim() || item.title,
+            (content && typeof content.data === "string" && content.data) || ""
+          );
+          ToastManager.show({
+            heading: strings.templates.saved(title?.trim() || item.title),
+            type: "success",
+            context: "global"
+          });
+          return true;
+        }
+      });
+    }
+
+    // Epigrapho (A3 Fase 4): sermon mode is drawn by the editor page, so the
+    // note is opened first when it is not the one on screen.
+    async function sermonMode() {
+      if (item.type !== "note") return;
+      close();
+      if (useTabStore.getState().getCurrentNoteId() !== item.id) {
+        await openNote(item as Note);
+        for (
+          let i = 0;
+          i < 20 && useTabStore.getState().getCurrentNoteId() !== item.id;
+          i++
+        )
+          await sleep(250);
+      }
+      await sleep(500);
+      editorController.current?.commands.sermonMode(
+        useTabStore.getState().currentTab!
+      );
+    }
+
     async function exportNote() {
       if (item.type !== "note") return;
       ExportNotesSheet.present([item.id]);
@@ -859,10 +922,19 @@ export const useActions = ({
     }
 
     async function publishNote() {
+      // Epigrapho (A5): as on the desktop, no account invites to make one.
       if (!user) {
-        ToastManager.show({
-          heading: strings.loginRequired(),
-          context: "local"
+        close();
+        await sleep(300);
+        presentDialog({
+          title: strings.shareWithLink(),
+          paragraph: strings.shareNeedsAccount(),
+          positiveText: strings.createAccount(),
+          negativeText: strings.cancel(),
+          positivePress: async () => {
+            Navigation.navigate("Auth", { mode: AuthMode.signup });
+            return true;
+          }
         });
         return;
       }
@@ -1117,6 +1189,18 @@ export const useActions = ({
         icon: "content-duplicate",
         onPress: duplicateNote
       },
+      {
+        id: "save-as-template",
+        title: strings.templates.saveAsTemplate(),
+        icon: "file-document-multiple-outline",
+        onPress: saveAsTemplate
+      },
+      {
+        id: "sermon-mode",
+        title: strings.sermonMode.title(),
+        icon: "presentation",
+        onPress: sermonMode
+      },
 
       {
         id: "add-reminder",
@@ -1137,8 +1221,10 @@ export const useActions = ({
       },
       {
         id: "publish",
-        title: isPublished ? strings.published() : strings.publish(),
-        icon: "cloud-upload-outline",
+        // Epigrapho (A5): "Share" is the system share sheet here, so the
+        // link gets its own name.
+        title: isPublished ? strings.sharedNote() : strings.shareWithLink(),
+        icon: "link-variant",
         checked: isPublished,
         onPress: publishNote
       },

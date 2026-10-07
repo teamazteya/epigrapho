@@ -17,27 +17,37 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+import { formatBytes } from "@notesnook/common";
+import { User } from "@notesnook/core";
 import { strings } from "@notesnook/intl";
 import notifee from "@notifee/react-native";
 import Clipboard from "@react-native-clipboard/clipboard";
 import React from "react";
 import { Appearance, Linking, Platform } from "react-native";
 import { getVersion } from "react-native-device-info";
-import { db } from "../../common/database";
+import { DatabaseLogger, db } from "../../common/database";
 import { MMKV } from "../../common/database/mmkv";
+import filesystem from "../../common/filesystem";
+import { AuthMode } from "../../components/auth/common";
+import Templates from "../../components/sheets/templates";
 import { presentDialog } from "../../components/dialog/functions";
 import { AppLockPassword } from "../../components/dialogs/applock-password";
+import { endProgress, startProgress } from "../../components/dialogs/progress";
 import ExportNotesSheet from "../../components/sheets/export-notes";
 import { Issue } from "../../components/sheets/github/issue";
+import { Progress } from "../../components/sheets/progress";
 import { Update } from "../../components/sheets/update";
 
 import { VaultStatusType, useVaultStatus } from "../../hooks/use-vault-status";
+import { BackgroundSync } from "../../services/background-sync";
 import BackupService from "../../services/backup";
+import { setMarketingConsent } from "../../services/marketing";
 import BiometricService from "../../services/biometrics";
 import {
   ToastManager,
   VaultRequestType,
   eSendEvent,
+  eSubscribeEvent,
   openVault,
   presentSheet
 } from "../../services/event-manager";
@@ -45,18 +55,454 @@ import Navigation from "../../services/navigation";
 import Notifications from "../../services/notifications";
 import PremiumService from "../../services/premium";
 import SettingsService from "../../services/settings";
+import Sync from "../../services/sync";
 import { clearAllStores } from "../../stores";
 import { refreshAllStores } from "../../stores/create-db-collection-store";
 import { useThemeStore } from "../../stores/use-theme-store";
 import { useUserStore } from "../../stores/use-user-store";
 import { EDITOR_LINE_HEIGHT } from "../../utils/constants";
-import { eAfterSync } from "../../utils/events";
+import {
+  eAfterSync,
+  eCloseSheet,
+  eOpenRecoveryKeyDialog
+} from "../../utils/events";
+import { sleep } from "../../utils/time";
 import { resetTabStore } from "../editor/tiptap/use-tab-store";
+import { MFARecoveryCodes, MFASheet } from "./2fa";
 import { useDragState } from "./editor/state";
 import { verifyUser, verifyUserWithApplock } from "./functions";
+import { logoutUser } from "./logout";
 import { SettingSection } from "./types";
 
 export const settingsGroups: SettingSection[] = [
+  // Epigrapho S1: the only way into an account, as on the desktop. Without
+  // one the app stays local, and nothing else asks a person to sign in.
+  {
+    id: "account-local",
+    name: strings.account(),
+    useHook: () => useUserStore((state) => state.user),
+    hidden: (current) => !!current,
+    sections: [
+      // One entry, so signing in comes back to Settings with the account
+      // showing; the login screen offers "Sign up" itself.
+      {
+        id: "sync-account",
+        name: strings.syncAccount(),
+        description: strings.syncAccountDesc(),
+        icon: "sync",
+        modifer: () => {
+          Navigation.navigate("Auth", { mode: AuthMode.login });
+        }
+      }
+    ]
+  },
+  {
+    id: "account",
+    name: strings.account(),
+    useHook: () => useUserStore((state) => state.user),
+    hidden: (current) => !current,
+    sections: [
+      {
+        id: "account-settings",
+        type: "screen",
+        name: strings.manageAccount(),
+        icon: "account-cog",
+        description: strings.manageAccountDesc(),
+        sections: [
+          {
+            id: "remove-profile-picture",
+            name: strings.removeProfilePicture(),
+            description: strings.removeProfilePictureDesc(),
+            useHook: () =>
+              useUserStore((state) => state.profile?.profilePicture),
+            hidden: () => !useUserStore.getState().profile?.profilePicture,
+            modifer: () => {
+              presentDialog({
+                title: strings.removeProfilePicture(),
+                paragraph: strings.removeProfilePictureConfirmation(),
+                positiveText: strings.remove(),
+                positivePress: async () => {
+                  db.settings
+                    .setProfile({
+                      profilePicture: undefined
+                    })
+                    .then(async () => {
+                      useUserStore.setState({
+                        profile: db.settings.getProfile()
+                      });
+                    });
+                }
+              });
+            }
+          },
+          {
+            id: "remove-name",
+            name: strings.removeFullName(),
+            description: strings.removeFullNameDesc(),
+            useHook: () => useUserStore((state) => state.profile?.fullName),
+            hidden: () => !useUserStore.getState().profile?.fullName,
+            modifer: () => {
+              presentDialog({
+                title: strings.removeFullName(),
+                paragraph: strings.removeFullNameConfirmation(),
+                positiveText: strings.remove(),
+                positivePress: async () => {
+                  db.settings
+                    .setProfile({
+                      fullName: undefined
+                    })
+                    .then(async () => {
+                      useUserStore.setState({
+                        profile: db.settings.getProfile()
+                      });
+                    });
+                }
+              });
+            }
+          },
+          {
+            id: "recovery-key",
+            name: strings.saveDataRecoveryKey(),
+            modifer: async () => {
+              verifyUser(null, async () => {
+                await sleep(300);
+                eSendEvent(eOpenRecoveryKeyDialog);
+              });
+            },
+            description: strings.saveDataRecoveryKeyDesc(),
+            icon: "key"
+          },
+          {
+            id: "manage-attachments",
+            name: strings.manageAttachments(),
+            icon: "attachment",
+            type: "screen",
+            component: "attachments-manager",
+            description: strings.manageAttachmentsDesc(),
+            hideHeader: true
+          },
+          {
+            id: "change-password",
+            name: strings.changePassword(),
+            type: "screen",
+            description: strings.changePasswordDesc(),
+            component: "change-password",
+            icon: "form-textbox-password"
+          },
+          {
+            id: "change-email",
+            name: strings.changeEmail(),
+            type: "screen",
+            component: "change-email",
+            description: strings.changeEmailDesc(),
+            icon: "at"
+          },
+          {
+            id: "2fa-settings",
+            type: "screen",
+            name: strings.twoFactorAuth(),
+            description: strings.twoFactorAuthDesc(),
+            icon: "two-factor-authentication",
+            sections: [
+              {
+                id: "enable-2fa",
+                name: strings.change2faMethod(),
+                modifer: () => {
+                  verifyUser("global", async () => {
+                    MFASheet.present();
+                  });
+                },
+                useHook: () => useUserStore((state) => state.user),
+                description: strings.change2faMethodDesc()
+              },
+              {
+                id: "2fa-fallback",
+                name: strings.addFallback2faMethod(),
+                useHook: () => useUserStore((state) => state.user),
+                hidden: (user) => {
+                  return (
+                    !!(user as User)?.mfa?.secondaryMethod ||
+                    !(user as User)?.mfa?.isEnabled
+                  );
+                },
+                modifer: () => {
+                  verifyUser("global", async () => {
+                    MFASheet.present(true);
+                  });
+                },
+                description: strings.addFallback2faMethodDesc()
+              },
+              {
+                id: "change-2fa-method",
+                name: strings.change2faFallbackMethod(),
+                useHook: () => useUserStore((state) => state.user),
+                hidden: (user) => {
+                  return (
+                    !(user as User)?.mfa?.secondaryMethod ||
+                    !(user as User)?.mfa?.isEnabled
+                  );
+                },
+                modifer: () => {
+                  verifyUser("global", async () => {
+                    MFASheet.present(true);
+                  });
+                },
+                description: strings.change2faFallbackMethod()
+              },
+              {
+                id: "view-2fa-codes",
+                name: strings.viewRecoveryCodes(),
+                modifer: () => {
+                  verifyUser("global", async () => {
+                    MFARecoveryCodes.present("sms");
+                  });
+                },
+                useHook: () => useUserStore((state) => state.user),
+                hidden: (user) => {
+                  return !(user as User)?.mfa?.isEnabled;
+                },
+                description: strings.viewRecoveryCodesDesc()
+              }
+            ]
+          },
+          {
+            id: "clear-cache",
+            name: strings.clearCache(),
+            icon: "delete",
+            modifer: async () => {
+              presentDialog({
+                title: strings.clearCacheConfirm(),
+                paragraph: strings.clearCacheConfirmDesc(),
+                positiveText: strings.clear(),
+                positivePress: async () => {
+                  filesystem.clearCache();
+                  ToastManager.show({
+                    heading: strings.cacheCleared(),
+                    message: strings.cacheClearedDesc(),
+                    type: "success"
+                  });
+                }
+              });
+            },
+            description(current) {
+              return strings.clearCacheDesc(current as number);
+            },
+            useHook: () => {
+              const [cacheSize, setCacheSize] = React.useState(0);
+              React.useEffect(() => {
+                filesystem
+                  .getCacheSize()
+                  .then(setCacheSize)
+                  .catch(() => {
+                    /* empty */
+                  });
+                const sub = eSubscribeEvent("cache-cleared", () => {
+                  setCacheSize(0);
+                });
+                return () => {
+                  sub?.unsubscribe();
+                };
+              }, []);
+              return formatBytes(cacheSize);
+            }
+          },
+
+          {
+            id: "logout",
+            name: strings.logout(),
+            description: strings.logoutWarnin(),
+            icon: "logout",
+            modifer: logoutUser
+          },
+          {
+            id: "delete-account",
+            type: "danger",
+            name: strings.deleteAccount(),
+            icon: "alert",
+            description: strings.deleteAccountDesc(),
+            modifer: () => {
+              presentDialog({
+                title: strings.deleteAccount(),
+                paragraphColor: "red",
+                paragraph: strings.deleteAccountDesc(),
+                positiveType: "errorShade",
+                input: true,
+                secureTextEntry: true,
+                inputPlaceholder: strings.enterAccountPassword(),
+                positiveText: strings.delete(),
+                positivePress: async (value) => {
+                  try {
+                    if (!value || !value.trim()) {
+                      ToastManager.error(
+                        new Error(strings.passwordNotEntered()),
+                        undefined,
+                        "local"
+                      );
+                      return;
+                    }
+                    const verified = await db.user?.verifyPassword(value);
+                    if (verified) {
+                      setTimeout(async () => {
+                        try {
+                          startProgress({
+                            title: strings.deleteAccount(),
+                            paragraph: strings.pleaseWait()
+                          });
+                          await db.user?.deleteUser(value);
+                          DatabaseLogger.info("User account deleted");
+                          Navigation.navigate("Notes");
+                          await BiometricService.resetCredentials();
+                          SettingsService.set({
+                            introCompleted: true
+                          });
+                        } catch (e) {
+                          endProgress();
+                          DatabaseLogger.error(e);
+                          ToastManager.error(
+                            e as Error,
+                            strings.failedToDeleteAccount(),
+                            "global"
+                          );
+                        }
+                      }, 300);
+                    } else {
+                      ToastManager.show({
+                        heading: strings.passwordIncorrect(),
+                        type: "error",
+                        context: "global"
+                      });
+                    }
+                  } catch (e) {
+                    ToastManager.error(
+                      e as Error,
+                      strings.failedToDeleteAccount(),
+                      "global"
+                    );
+                  }
+                }
+              });
+            }
+          }
+        ]
+      },
+      {
+        id: "sync-settings",
+        name: strings.syncSettings(),
+        description: strings.syncSettingsDesc(),
+        type: "screen",
+        icon: "autorenew",
+        component: "offline-mode-progress",
+        sections: [
+          {
+            id: "offline-mode",
+            icon: "download-multiple",
+            name: strings.fullOfflineMode(),
+            description: strings.fullOfflineModeDesc(),
+            type: "switch",
+            property: "offlineMode",
+            featureId: "fullOfflineMode",
+            modifer: () => {
+              const current = SettingsService.get().offlineMode;
+              if (current) {
+                SettingsService.setProperty("offlineMode", false);
+                db.fs().cancel("offline-mode");
+                return;
+              }
+              SettingsService.setProperty("offlineMode", true);
+              db.attachments.cacheAttachments().catch(() => {
+                /* empty */
+              });
+            }
+          },
+          {
+            id: "auto-sync",
+            name: strings.disableAutoSync(),
+            description: strings.disableAutoSyncDesc(),
+            type: "switch",
+            property: "disableAutoSync",
+            featureId: "syncControls",
+            icon: "sync-off"
+          },
+          {
+            id: "disable-realtime-sync",
+            name: strings.disableRealtimeSync(),
+            description: strings.disableRealtimeSyncDesc(),
+            type: "switch",
+            property: "disableRealtimeSync",
+            featureId: "syncControls"
+          },
+          {
+            id: "disable-sync",
+            name: strings.disableSync(),
+            description: strings.disableSyncDesc(),
+            type: "switch",
+            property: "disableSync",
+            featureId: "syncControls",
+            icon: "cloud-off-outline"
+          },
+          {
+            id: "background-sync",
+            name: strings.backgroundSync(),
+            description: strings.backgroundSyncDesc(),
+            type: "switch",
+            property: "backgroundSync",
+            icon: "cloud-upload-outline",
+            onChange: (value) => {
+              if (value) {
+                BackgroundSync.start();
+              } else {
+                BackgroundSync.stop();
+              }
+            }
+          },
+          {
+            id: "pull-sync",
+            name: strings.forcePullChanges(),
+            description: strings.forcePullChangesDesc(),
+            icon: "download",
+            modifer: () => {
+              presentDialog({
+                title: strings.forcePullChanges(),
+                paragraph: strings.forceSyncNotice(),
+                negativeText: strings.cancel(),
+                positiveText: strings.start(),
+                positivePress: async () => {
+                  eSendEvent(eCloseSheet);
+                  await sleep(300);
+                  Progress.present();
+                  Sync.run("global", true, "fetch", () => {
+                    eSendEvent(eCloseSheet);
+                  });
+                }
+              });
+            }
+          },
+          {
+            id: "push-sync",
+            name: strings.forcePushChanges(),
+            description: strings.forcePushChangesDesc(),
+            icon: "upload",
+            modifer: () => {
+              presentDialog({
+                title: strings.forcePushChanges(),
+                paragraph: strings.forceSyncNotice(),
+                negativeText: strings.cancel(),
+                positiveText: strings.start(),
+                positivePress: async () => {
+                  eSendEvent(eCloseSheet);
+                  await sleep(300);
+                  Progress.present();
+                  Sync.run("global", true, "send", () => {
+                    eSendEvent(eCloseSheet);
+                  });
+                }
+              });
+            }
+          }
+        ]
+      }
+    ]
+  },
   {
     id: "customize",
     name: strings.customization(),
@@ -227,6 +673,13 @@ export const settingsGroups: SettingSection[] = [
             icon: "book-open-variant"
           },
           {
+            id: "templates",
+            name: strings.templates.title(),
+            description: strings.templates.desc(),
+            icon: "file-document-multiple-outline",
+            modifer: () => Templates.present()
+          },
+          {
             id: "configure-toolbar",
             type: "screen",
             name: strings.customizeToolbar(),
@@ -304,6 +757,14 @@ export const settingsGroups: SettingSection[] = [
             featureId: "markdownShortcuts"
           }
         ]
+      },
+      {
+        id: "servers",
+        type: "screen",
+        name: strings.servers(),
+        description: strings.serversConfigurationDesc(),
+        icon: "server",
+        component: "server-config"
       }
     ]
   },
@@ -316,13 +777,12 @@ export const settingsGroups: SettingSection[] = [
         type: "switch",
         icon: "email-newsletter",
         name: strings.marketingEmails(),
-        description: strings.marketingEmailsDesc(),
+        description: strings.marketingOptIn(),
         modifer: async () => {
           try {
-            await db.user?.changeMarketingConsent(
+            await setMarketingConsent(
               !useUserStore.getState().user?.marketingConsent
             );
-            useUserStore.getState().setUser(await db.user?.fetchUser());
           } catch (e) {
             ToastManager.error(e as Error);
           }

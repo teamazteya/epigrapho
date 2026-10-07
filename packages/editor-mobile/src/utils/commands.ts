@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import { Attachment, ImageAttributes, LinkAttributes } from "@notesnook/editor";
 import { Settings } from ".";
+import { openSermonMode } from "../common/sermon";
 
 globalThis.commands = {
   clearContent: (tabId: string) => {
@@ -196,6 +197,12 @@ globalThis.commands = {
 
   scrollIntoViewById: (id: string, tabId: string) => {
     return editorControllers[tabId]?.scrollIntoView(id) || [];
+  },
+  // Epigrapho (A3 Fase 4): sermon mode over the note the tab shows.
+  sermonMode: (tabId: string) => {
+    const content = editorControllers[tabId]?.getContentDiv();
+    const title = editorTitles[tabId]?.current?.value || "";
+    if (content) openSermonMode(title, content);
   },
   scrollToSearchResult: (index: number, tabId: string) => {
     editorControllers[tabId]?.getContentDiv()?.classList.add("searching");

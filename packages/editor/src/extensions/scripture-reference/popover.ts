@@ -345,6 +345,9 @@ export function attachScripturePopover(
   };
 
   const onPointerOut = (event: PointerEvent) => {
+    // A finger lifting fires pointerout too, which would close the box a
+    // moment after the tap opened it; touching elsewhere closes it instead.
+    if (event.pointerType === "touch") return;
     const from = (event.target as Element | null)?.closest?.(SELECTOR);
     const to = (event.relatedTarget as Element | null)?.closest?.(SELECTOR);
     // Heading for the box itself is not leaving: it is how the verse gets read
@@ -390,14 +393,23 @@ export function attachScripturePopover(
   document.addEventListener("keydown", onKeyDown);
   document.addEventListener("pointerdown", onPointerDown, true);
   // The popover is fixed to the viewport, so anything that moves the text
-  // under it has to close it — except scrolling a long passage inside the box
-  // itself, which is how it gets read. Passive: closing a box never cancels a
-  // scroll, and saying so lets the browser scroll without waiting to hear it.
+  // under it moves the box with it, and closes it once the reference is out of
+  // sight. On a phone the tap that opens it also opens the keyboard, which
+  // shrinks the page and scrolls the caret into view: closing on that would
+  // close every preview a moment after it opened. Scrolling a long passage
+  // inside the box itself is how it gets read. Passive: following never
+  // cancels a scroll, and saying so lets the browser scroll without waiting.
   const onScroll = (event: Event) => {
-    if (!popover?.contains(event.target as Node)) hide();
+    if (!describing || popover?.contains(event.target as Node)) return;
+    const { top, bottom } = describing.getBoundingClientRect();
+    if (bottom < 0 || top > window.innerHeight) hide();
+    else place(describing);
   };
+  // Only moved: the keyboard covers the reference for a moment, until the
+  // editor scrolls the caret back into view.
+  const onResize = () => describing && place(describing);
   window.addEventListener("scroll", onScroll, { capture: true, passive: true });
-  window.addEventListener("resize", hide);
+  window.addEventListener("resize", onResize);
 
   return () => {
     dom.removeEventListener("pointerover", onPointerOver);
@@ -406,7 +418,7 @@ export function attachScripturePopover(
     document.removeEventListener("keydown", onKeyDown);
     document.removeEventListener("pointerdown", onPointerDown, true);
     window.removeEventListener("scroll", onScroll, true);
-    window.removeEventListener("resize", hide);
+    window.removeEventListener("resize", onResize);
     hide();
   };
 }

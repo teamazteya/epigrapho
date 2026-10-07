@@ -26,8 +26,7 @@ import { MMKV } from "./database/mmkv";
  * The interface language, as on the desktop (apps/web/src/common/ui-locale.ts):
  * Spanish unless the person picks English. It is read from MMKV because the
  * catalog has to be loaded before anything renders, long before the database
- * opens; the database keeps the same choice under the same key, so it travels
- * in a backup like the desktop's does.
+ * opens. Like the desktop's, it stays on this device and does not sync (S1).
  */
 export const UI_LOCALES = {
   "es-MX": "Español (México)",
@@ -41,6 +40,11 @@ export const UI_LOCALE_KEY = "epigrapho:uiLocale";
 export function getUiLocale(): UiLocale {
   const stored = MMKV.getString(UI_LOCALE_KEY);
   return stored && stored in UI_LOCALES ? (stored as UiLocale) : "es-MX";
+}
+
+/** Relative times ("5 min") follow the interface, as on the desktop. */
+export function timeAgoLocale(): "short" | "es_short" {
+  return getUiLocale() === "en-US" ? "short" : "es_short";
 }
 
 /** The locale scripture book names are shown in; it follows the interface. */

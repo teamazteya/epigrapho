@@ -18,7 +18,13 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { setGeneratedBlockRenderer } from "@notesnook/common";
+import { exportContent, setGeneratedBlockRenderer } from "@notesnook/common";
+import {
+  buildStudyDocument,
+  Note,
+  studyDocumentDocx,
+  studyDocumentHtml
+} from "@notesnook/core";
 import { strings } from "@notesnook/intl";
 import {
   dictionaryArticle,
@@ -27,10 +33,18 @@ import {
   type DictionarySource
 } from "@notesnook/original-languages";
 import { parseRef } from "@notesnook/scripture-parser";
-import { STUDY_PROVENANCE } from "@notesnook/scripture-provider";
+import {
+  attributionOf,
+  PROVENANCE,
+  STUDY_PROVENANCE
+} from "@notesnook/scripture-provider";
 import { Platform } from "react-native";
 import RNFetchBlob from "react-native-blob-util";
+import { db } from "../common/database";
+import { MMKV } from "../common/database/mmkv";
+import { getTranslation, resolveVerse } from "../common/scripture";
 import { getUiLocale } from "../common/ui-locale";
+import { presentDialog } from "../components/dialog/functions";
 
 /**
  * Exporting a note with study blocks (M1 Fase 4, A2 Paso 3.3): a note keeps
@@ -134,3 +148,67 @@ setGeneratedBlockRenderer((attribute, value, label) =>
     ? renderInterlinear(value, label)
     : renderDictionaryEntry(value)
 );
+
+const AUTHOR_KEY = "epigrapho:exportAuthor";
+
+/**
+ * The name on the cover of a PDF or Word export (A3 Fase 6): the account's
+ * profile name, or the one this phone was given the first time; an empty
+ * answer exports without a name. Undefined when the person cancels.
+ */
+export function studyAuthor(context: string): Promise<string | undefined> {
+  const stored = MMKV.getString(AUTHOR_KEY) ?? undefined;
+  const name = db.settings.getProfile()?.fullName?.trim() || stored;
+  if (name !== undefined) return Promise.resolve(name);
+  return new Promise((resolve) => {
+    let answered = false;
+    presentDialog({
+      context,
+      title: strings.studyExport.authorTitle(),
+      paragraph: strings.studyExport.authorDesc(),
+      input: true,
+      inputPlaceholder: strings.studyExport.authorTitle(),
+      positiveText: strings.done(),
+      negativeText: strings.cancel(),
+      positivePress: async (value?: string) => {
+        answered = true;
+        const author = (value || "").trim();
+        MMKV.setString(AUTHOR_KEY, author);
+        resolve(author);
+        return true;
+      },
+      onClose: () => {
+        if (!answered) resolve(undefined);
+      }
+    });
+  });
+}
+
+/** The PDF's page or the .docx (as base64) of one note, as on the desktop. */
+export async function studyExportData(
+  note: Note,
+  format: "pdf" | "docx",
+  author: string,
+  unlockVault: () => Promise<boolean>
+) {
+  const html = await exportContent(note, {
+    format: "html",
+    disableTemplate: true,
+    unlockVault
+  });
+  if (typeof html !== "string") return;
+  const document = await buildStudyDocument(html, {
+    title: note.title,
+    author,
+    locale: getUiLocale(),
+    preferred: getTranslation(),
+    resolveVerse,
+    attributionOf,
+    translationName: (id) =>
+      PROVENANCE[id] ? `${PROVENANCE[id].name} (${id})` : id
+  });
+  if (!document) return;
+  return format === "docx"
+    ? studyDocumentDocx(document, await import("docx"), "base64")
+    : studyDocumentHtml(document);
+}

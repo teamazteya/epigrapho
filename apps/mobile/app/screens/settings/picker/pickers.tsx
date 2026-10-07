@@ -36,7 +36,6 @@ import { db } from "../../../common/database";
 import {
   getUiLocale,
   setUiLocale,
-  UI_LOCALE_KEY,
   UI_LOCALES,
   UiLocale
 } from "../../../common/ui-locale";
@@ -172,13 +171,11 @@ export const TrashIntervalPicker = createSettingsPicker({
 });
 
 /**
- * The translation verses are read in (A1 Fase 7), as on the desktop, but only
- * the embedded ones: the brand translations need the API.Bible key, which
- * never ships inside an app package (ADR-0002).
+ * The translation verses are read in (A1 Fase 7), as on the desktop: the
+ * embedded ones, and the brand ones the editor asks Epigrapho's server for
+ * (M1 Fase 5c).
  */
-const EMBEDDED_TRANSLATIONS = Object.values(PROVENANCE).filter(
-  (translation) => translation.deliveryMode === "embedded-offline"
-);
+const TRANSLATIONS = Object.values(PROVENANCE);
 
 export const TranslationPicker = createSettingsPicker({
   getValue: () => useSettingStore.getState().settings.scriptureTranslation,
@@ -195,7 +192,7 @@ export const TranslationPicker = createSettingsPicker({
     return translation ? `${translation.name} (${translation.id})` : `${item}`;
   },
   getItemKey: (item: ResourceProvenance) => item.id,
-  options: EMBEDDED_TRANSLATIONS,
+  options: TRANSLATIONS,
   compareValue: (current, item: ResourceProvenance) => current === item.id,
   isFeatureAvailable: async () => true,
   isOptionAvailable: async () => true
@@ -205,8 +202,9 @@ export const UiLocalePicker = createSettingsPicker({
   getValue: () => getUiLocale(),
   updateValue: async (item: UiLocale) => {
     if (item === getUiLocale()) return;
+    // Each device keeps its own interface language (S1): it is not written
+    // to the database, which travels with the account.
     setUiLocale(item);
-    await db.settings.setEpigrapho(UI_LOCALE_KEY, item);
     ToastManager.show({
       heading: UI_LOCALES[item],
       message: strings.restartAppToApplyChanges(),

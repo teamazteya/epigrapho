@@ -25,7 +25,7 @@ import * as ScopedStorage from "react-native-scoped-storage";
 import { zip } from "react-native-zip-archive";
 import { DatabaseLogger } from "../common/database/index";
 // Registers how study blocks are written out (M1 Fase 4).
-import "./study-export";
+import { studyExportData } from "./study-export";
 
 import {
   exportNote as _exportNote,
@@ -33,7 +33,7 @@ import {
   ExportableNote,
   exportNotes
 } from "@notesnook/common";
-import { FilteredSelector, Note } from "@notesnook/core";
+import { FilteredSelector, Note, studyFileName } from "@notesnook/core";
 import { strings } from "@notesnook/intl";
 import { basename, dirname, extname, join } from "pathe";
 import filesystem from "../common/filesystem";
@@ -46,7 +46,8 @@ const FolderNames: { [name: string]: string } = {
   txt: "Text",
   pdf: "PDF",
   md: "Markdown",
-  html: "Html"
+  html: "Html",
+  docx: "Word"
 };
 
 async function getPath(type: string) {
@@ -87,7 +88,7 @@ function copyFileAsync(source: string, dest: string) {
 }
 
 async function resolveFileFunctions(
-  type: "txt" | "pdf" | "md" | "html" | "md-frontmatter"
+  type: "txt" | "pdf" | "md" | "html" | "md-frontmatter" | "docx"
 ) {
   const path = await getPath(FolderNames[type]);
   if (!path) return;
@@ -112,7 +113,7 @@ async function resolveFileFunctions(
     await RNFetchBlob.fs.writeFile(
       cacheFilePath,
       result,
-      type === "pdf" ? "base64" : "utf8"
+      type === "pdf" || type === "docx" ? "base64" : "utf8"
     );
   };
   return {
@@ -360,14 +361,44 @@ async function createFile(
 
 const FileMime = {
   pdf: "application/pdf",
+  docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   txt: "text/plain",
   md: "text/markdown",
   html: "text/html",
   "md-frontmatter": "text/markdown"
 };
 
+/**
+ * Epigrapho (A3 Fase 6, M1 Fase 5c): one note as PDF or Word, with a cover
+ * and the verses of its inline references in full, as on the desktop.
+ */
+async function exportStudy(note: Note, type: "pdf" | "docx", author: string) {
+  const data = await studyExportData(
+    note,
+    type,
+    author,
+    unlockVaultForNoteExport as () => Promise<boolean>
+  );
+  if (!data) return;
+  const fileFunctions = await resolveFileFunctions(type);
+  if (!fileFunctions) return;
+  const item = { path: studyFileName(note.title, type) } as ExportableNote;
+  if (type === "pdf") {
+    await exportNoteToFile(
+      { ...item, data },
+      "pdf",
+      fileFunctions.mkdir,
+      fileFunctions.writeFile
+    );
+  } else {
+    await fileFunctions.writeFile(item.path, data);
+  }
+  return createFile(item, type, fileFunctions.path, fileFunctions.cacheFolder);
+}
+
 const Exporter = {
   exportNote,
+  exportStudy,
   bulkExport
 };
 

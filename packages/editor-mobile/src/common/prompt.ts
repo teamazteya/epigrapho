@@ -132,3 +132,73 @@ export function ask<T>(options: {
     input.focus();
   });
 }
+
+/**
+ * A choice among a few options in the same kind of `<dialog>` (M1 Fase 5c),
+ * for what the desktop does with a menu. `pick` answers an error to show, or
+ * nothing to close.
+ */
+export function choose(options: {
+  id: string;
+  title: string;
+  items: { key: string; label: string; checked?: boolean }[];
+  pick: (key: string) => Promise<string | undefined>;
+}): Promise<void> {
+  const { id } = options;
+  const dialog = document.createElement("dialog");
+  dialog.className = "scripture-prompt";
+  dialog.dataset.testId = id;
+
+  const title = document.createElement("h3");
+  title.id = `${id}-title`;
+  title.className = "scripture-prompt-title";
+  title.textContent = options.title;
+  dialog.setAttribute("aria-labelledby", title.id);
+
+  const error = document.createElement("p");
+  error.className = "scripture-prompt-error";
+  error.dataset.testId = `${id}-error`;
+  error.setAttribute("role", "alert");
+
+  const buttons = options.items.map(({ key, label, checked }) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "scripture-prompt-option";
+    button.dataset.testId = `${id}-${key}`;
+    button.setAttribute("aria-pressed", `${!!checked}`);
+    button.textContent = label;
+    return button;
+  });
+
+  const cancel = document.createElement("button");
+  cancel.type = "button";
+  cancel.className = "scripture-prompt-button";
+  cancel.dataset.testId = `${id}-cancel`;
+  cancel.textContent = strings.cancel();
+  const actions = document.createElement("div");
+  actions.className = "scripture-prompt-actions";
+  actions.append(cancel);
+
+  dialog.append(title, ...buttons, error, actions);
+  document.body.append(dialog);
+
+  return new Promise<void>((resolve) => {
+    const finish = () => {
+      dialog.close();
+      dialog.remove();
+      resolve();
+    };
+    buttons.forEach((button, index) =>
+      button.addEventListener("click", async () => {
+        buttons.forEach((b) => (b.disabled = true));
+        const problem = await options.pick(options.items[index].key);
+        buttons.forEach((b) => (b.disabled = false));
+        if (problem) error.textContent = problem;
+        else finish();
+      })
+    );
+    cancel.addEventListener("click", finish);
+    dialog.addEventListener("cancel", finish);
+    dialog.showModal();
+  });
+}

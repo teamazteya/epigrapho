@@ -70,6 +70,7 @@ import {
   eSubscribeEvent,
   presentSheet
 } from "../services/event-manager";
+import { askMarketingOnce } from "../services/marketing";
 import { clearMessage, setUpdateAvailableMessage } from "../services/message";
 import Navigation from "../services/navigation";
 import { NotePreviewWidget } from "../services/note-preview-widget";
@@ -367,8 +368,8 @@ async function checkForShareExtensionLaunchedInBackground() {
 
 const SodiumEventEmitter = new NativeEventEmitter(NativeModules.Sodium);
 
-// Epigrapho: no account, no store rating, no announcements from a server —
-// the only message the app raises on its own is a new version.
+// Epigrapho: no store rating and no announcements from a server — the only
+// message the app raises on its own is a new version.
 const setAppMessage = async () => {
   checkAppUpdateAvailable();
 };
@@ -379,6 +380,8 @@ const doAppLoadActions = async () => {
     return;
   }
   notifee.setBadgeCount(0);
+  // Not awaited: it waits for the first sync before asking (A4).
+  askMarketingOnce().catch((e) => DatabaseLogger.error(e));
   if (NewFeature.present()) return;
 };
 

@@ -450,7 +450,6 @@ $day$: Current day (eg. Monday)`,
   revokeVaultFingerprintUnlock: () => t`Revoke vault fingerprint unlock`,
   changeVaultPassword: () => t`Change vault password`,
   deleteNote: () => doActions.delete.note(1),
-  shareNote: () => t`Share note`,
   copyNote: () => t`Copy note`,
   goToEditor: () => t`Unlock note`,
   lockNote: () => t`Lock note`,
@@ -464,7 +463,7 @@ $day$: Current day (eg. Monday)`,
     t`You can also link a note to multiple Notebooks. Tap and hold any notebook to enable multi-select.`,
   changeEmail: () => t`Change email address`,
   changeEmailDesc: () =>
-    t`Your account email will be changed without affecting your subscription or any other settings.`,
+    t`Your account email will change; your notes and settings stay as they are.`,
   changeEmailNotice: () => t`You will be logged out from all your devices`,
   export: () => t`Export`,
   exportNotes: (notes: number) =>
@@ -1080,7 +1079,7 @@ $day$: Current day (eg. Monday)`,
   logoutError: () => t`Error logging out`,
   deleteAccount: () => t`Delete account`,
   deleteAccountDesc: () =>
-    t`Your account will be permanently deleted along with all your data, login credentials, and subscription information. This action is IRREVERSIBLE. Make sure you have saved a backup of your notes before proceeding.`,
+    t`Your account will be permanently deleted along with all your data and login credentials. This action is IRREVERSIBLE. Make sure you have saved a backup of your notes before proceeding.`,
   enterAccountPassword: () => t`Enter account password`,
   enterAccountPasswordDesc: () => t`Enter account password to proceed.`,
   failedToDeleteAccount: () => t`Failed to delete account`,
@@ -3216,9 +3215,9 @@ Continue without attachments?`,
     t`That code is incomplete. Copy the whole code from the recovery page.`,
   attachmentTooLarge: () =>
     t`This file is larger than 500 MB, the most an account can store.`,
-  syncAccount: () => t`Sync between computers`,
+  syncAccount: () => t`Sync between devices`,
   syncAccountDesc: () =>
-    t`With a free account your notes stay the same on every computer where you sign in, encrypted so only you can read them. Without one, everything stays on this computer.`,
+    t`With a free account your notes stay the same on every computer and phone where you sign in, encrypted so only you can read them. Without one, everything stays on this device.`,
   attachmentsStored: (used: string, total: string) =>
     t`${used} of ${total} of attachments`,
   recoveryCodeRejected: () =>
@@ -3227,11 +3226,21 @@ Continue without attachments?`,
   loginAttemptExpired: () =>
     t`This sign-in attempt expired. Start again from the email step.`,
   authPanelDesc: () =>
-    t`An account keeps your notes in sync between your computers. They are encrypted on your device before they leave it, so only you can read them.`,
+    t`An account keeps your notes in sync between your computers and phones. They are encrypted on your device before they leave it, so only you can read them.`,
   storageLimitReached: () =>
     t`Your account already stores 500 MB of attachments, the most it can hold. Delete attachments you no longer need to upload this one.`,
   serverNotResponding: (reference: string) =>
     t`The Epigrapho server is not responding. Check your internet connection and try again. If it keeps happening, write to support@azteya.tech. (Reference: ${reference})`,
+
+  // Epigrapho M1: accounts on the phone.
+  mfaCodeHelpApp: () =>
+    t`Add the code above to your authenticator app. It will show a code you can enter below.`,
+  mfaCodeHelpEmail: () =>
+    t`We will email you a code you can enter below.`,
+  settingUpAccount: () => t`Setting up your account…`,
+  settingUpAccountDesc: () => t`Your account is almost ready. Please wait.`,
+  invalidMfaCode: () => t`Enter a valid two-factor code.`,
+  loginExpired: () => t`Your session expired. Sign in again.`,
 
   // Epigrapho A3: note templates.
   templates: {

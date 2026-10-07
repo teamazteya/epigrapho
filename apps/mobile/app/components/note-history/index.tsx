@@ -40,6 +40,7 @@ import Paragraph from "../ui/typography/paragraph";
 import NotePreview from "./preview";
 import { presentDialog } from "../dialog/functions";
 import { Dialog } from "../dialog";
+import { timeAgoLocale } from "../../common/ui-locale";
 
 const HistoryItem = ({
   index,
@@ -107,7 +108,7 @@ const HistoryItem = ({
         <>
           <Paragraph>{getDate(item.dateCreated, item.dateModified)}</Paragraph>
           <Paragraph color={colors.secondary.paragraph} size={AppFontSize.xs}>
-            {getTimeAgo(item.dateModified)}
+            {getTimeAgo(item.dateModified, timeAgoLocale())}
           </Paragraph>
         </>
       )}

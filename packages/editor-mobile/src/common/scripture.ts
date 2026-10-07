@@ -25,20 +25,24 @@ import {
   type SupportedLocale
 } from "@notesnook/scripture-parser";
 import {
+  PROVENANCE,
+  apiBiblePassageId,
   attributionOf,
+  cacheKey,
   embeddedProvider,
-  loadPacks
+  indexedDbVerseCache,
+  loadPacks,
+  withCache,
+  type ScriptureTextProvider
 } from "@notesnook/scripture-provider";
 
 /**
  * Scripture as the mobile editor sees it (Fase 8).
  *
  * The editor on a phone is this page inside a WebView, so everything the
- * desktop and web builds do in the renderer is done here — with one
- * difference: there is no main process holding the API.Bible key, so the
- * brand translations are not available and only the packs shipped beside this
- * page are read. That is the same fallback the web build takes when it runs
- * outside Electron, not a separate code path.
+ * desktop and web builds do in the renderer is done here. The brand
+ * translations (NTV, NBLA, NASB) are asked of Epigrapho's server, as installed
+ * desktop apps do (M1 Fase 5c): no key ships inside the app (ADR-0002).
  */
 
 /** Epigrapho is written in Spanish first, so it reads Spanish first too. */
@@ -47,8 +51,7 @@ export const DEFAULT_TRANSLATION = "VBL";
 /**
  * The translation chosen in the app's settings. The app hands it across with
  * the rest of the editor settings (setSettings), and it is read when a verse
- * is shown, so a change applies without reloading the page. Only embedded
- * translations can be chosen on a phone; anything else falls back below.
+ * is shown, so a change applies without reloading the page.
  */
 export function getTranslation(): string {
   return (
@@ -68,9 +71,33 @@ export function formatReference(ref: string) {
   return range ? formatReadableRef(range, getBookNameLocale()) : ref;
 }
 
+const VERSE_HOST = "https://notas.azteya.tech";
+
 /**
- * The words a reference points at. Only the embedded packs, and the default
- * translation as the substitute when the asked-for one has nothing here.
+ * The server holds the key and answers with the words. The page is a file://
+ * page allowed to reach other origins (allowUniversalAccessFromFileURLs), so
+ * no CORS is involved.
+ */
+const onlineProvider: ScriptureTextProvider = {
+  async getVerseText(ref, translationId) {
+    const response = await fetch(
+      `${VERSE_HOST}/api/verse?ref=${apiBiblePassageId(ref)}&t=${translationId}`
+    );
+    if (!response.ok)
+      throw new Error(`verse server responded ${response.status}`);
+    const { text } = (await response.json()) as { text?: string };
+    return text || "";
+  }
+};
+const verseCache = indexedDbVerseCache();
+const cachedOnline = withCache(onlineProvider, { store: verseCache });
+
+/**
+ * The resolution order of ADR 0002, as on the desktop
+ * (apps/web/src/common/scripture.ts): the embedded packs always; a brand
+ * translation from the cache or the server; without network the last copy,
+ * marked as saved; and with no copy at all, the default, marked as a
+ * substitute.
  */
 export async function resolveVerse(
   ref: string,
@@ -79,10 +106,26 @@ export async function resolveVerse(
   const range = parseRef(ref);
   if (!range) return { text: "", translationId };
 
-  const text = await embeddedProvider.getVerseText(range, translationId);
-  if (text) return { text, translationId };
+  const provenance = PROVENANCE[translationId];
+  if (provenance?.deliveryMode === "online-cached") {
+    try {
+      const text = await cachedOnline.getVerseText(range, translationId);
+      if (text) return { text, translationId };
+    } catch (error) {
+      console.error("could not reach the online layer", error);
+    }
+    const stale = await verseCache
+      .get(cacheKey(range, translationId))
+      .catch(() => undefined);
+    if (stale?.text)
+      return { text: stale.text, translationId, notice: "stale" };
+  } else {
+    const text = await embeddedProvider.getVerseText(range, translationId);
+    if (text) return { text, translationId };
+    if (translationId === DEFAULT_TRANSLATION)
+      return { text: "", translationId };
+  }
 
-  if (translationId === DEFAULT_TRANSLATION) return { text: "", translationId };
   return {
     text: await embeddedProvider.getVerseText(range, DEFAULT_TRANSLATION),
     translationId: DEFAULT_TRANSLATION,

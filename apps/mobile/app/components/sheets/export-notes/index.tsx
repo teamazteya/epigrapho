@@ -38,6 +38,7 @@ import {
   presentSheet
 } from "../../../services/event-manager";
 import Exporter from "../../../services/exporter";
+import { studyAuthor } from "../../../services/study-export";
 import { useSettingStore } from "../../../stores/use-setting-store";
 import { getElevationStyle } from "../../../utils/elevation";
 import { AppFontSize, defaultBorderRadius } from "../../../utils/size";
@@ -77,9 +78,14 @@ const ExportNotesSheet = ({
   const [status, setStatus] = useState<string>();
 
   const exportNoteAs = async (
-    type: "pdf" | "txt" | "md" | "html" | "md-frontmatter"
+    type: "pdf" | "txt" | "md" | "html" | "md-frontmatter" | "docx"
   ) => {
     if (exporting) return;
+    // Epigrapho (A3 Fase 6): one note as PDF or Word is the study export,
+    // with a cover and its verses in full; several notes as PDF stay plain.
+    const study = ids.length === 1 && (type === "pdf" || type === "docx");
+    const author = study ? await studyAuthor("export-notes") : "";
+    if (author === undefined) return;
     setExporting(true);
     update?.({ disableClosing: true } as PresentSheetOptions);
     setComplete(false);
@@ -87,7 +93,7 @@ const ExportNotesSheet = ({
     if (ids.length > 1) {
       result = await Exporter.bulkExport(
         db.notes.all.where((eb) => eb("id", "in", ids)),
-        type,
+        type as Exclude<typeof type, "docx">,
         setStatus
       );
     } else {
@@ -96,7 +102,13 @@ const ExportNotesSheet = ({
         setExporting(false);
         return;
       }
-      result = await Exporter.exportNote(note, type, setStatus);
+      result = study
+        ? await Exporter.exportStudy(note, type as "pdf" | "docx", author)
+        : await Exporter.exportNote(
+            note,
+            type as Exclude<typeof type, "docx">,
+            setStatus
+          );
       await sleep(1000);
     }
     if (!result) {
@@ -118,6 +130,18 @@ const ExportNotesSheet = ({
       icon: "file-pdf-box",
       id: notesnook.ids.dialogs.export.pdf
     },
+    ...(ids.length === 1
+      ? [
+          {
+            title: "Word (.docx)",
+            func: async () => {
+              await exportNoteAs("docx");
+            },
+            icon: "file-word-box",
+            id: "export-docx"
+          }
+        ]
+      : []),
     {
       title: "Markdown",
       func: async () => {
