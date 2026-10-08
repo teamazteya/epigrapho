@@ -32,6 +32,8 @@ import {
   BackupReminderPicker,
   BackupWithAttachmentsReminderPicker,
   DateFormatPicker,
+  UiLocalePicker,
+  TranslationPicker,
   DayFormatPicker,
   WeekFormatPicker,
   FontPicker,
@@ -47,13 +49,6 @@ import { ServersConfiguration } from "./server-config";
 import SoundPicker from "./sound-picker";
 import ThemeSelector from "./theme-selector";
 import { TitleFormat } from "./title-format";
-import { NotesnookCircle } from "./notesnook-circle";
-import {
-  ManageInboxKeys,
-  InboxKeysList,
-  SetupInboxKeys
-} from "./manage-inbox-keys";
-import { FailedInboxItems } from "./failed-inbox-items";
 
 export const components: { [name: string]: ReactElement } = {
   homeselector: <HomePicker />,
@@ -65,6 +60,8 @@ export const components: { [name: string]: ReactElement } = {
   "trash-interval-selector": <TrashIntervalPicker />,
   "font-selector": <FontPicker />,
   "title-format": <TitleFormat />,
+  "ui-locale-selector": <UiLocalePicker />,
+  "translation-selector": <TranslationPicker />,
   "date-format-selector": <DateFormatPicker />,
   "time-format-selector": <TimeFormatPicker />,
   "day-format-selector": <DayFormatPicker />,
@@ -84,10 +81,5 @@ export const components: { [name: string]: ReactElement } = {
   ),
   "sidebar-tab-selector": <SidebarTabPicker />,
   "change-password": <ChangePassword />,
-  "change-email": <ChangeEmail />,
-  "notesnook-circle": <NotesnookCircle />,
-  "manage-inbox-keys": <ManageInboxKeys />,
-  "inbox-keys": <InboxKeysList />,
-  "failed-inbox-items": <FailedInboxItems />,
-  "setup-inbox-keys": <SetupInboxKeys />
+  "change-email": <ChangeEmail />
 };

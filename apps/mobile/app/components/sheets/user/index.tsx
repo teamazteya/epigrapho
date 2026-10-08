@@ -30,8 +30,6 @@ import { SyncStatus, useUserStore } from "../../../stores/use-user-store";
 import { getObfuscatedEmail } from "../../../utils/functions";
 import { AppFontSize, defaultBorderRadius } from "../../../utils/size";
 import { DefaultAppStyles } from "../../../utils/styles";
-import { AuthMode } from "../../auth/common";
-import { Card } from "../../list/card";
 import AppIcon from "../../ui/AppIcon";
 import { Pressable } from "../../ui/pressable";
 import { TimeSince } from "../../ui/time-since";
@@ -153,30 +151,7 @@ export const UserSheet = () => {
             ) : null}
           </View>
         </View>
-      ) : (
-        <View
-          style={{
-            width: "100%"
-          }}
-        >
-          <Card
-            customMessage={{
-              visible: true,
-              message: strings.notLoggedIn(),
-              actionText: strings.loginMessageActionText(),
-              icon: "account-outline",
-              id: "log-in",
-              type: "normal",
-              onPress: () => {
-                ref.current?.hide();
-                Navigation.navigate("Auth", {
-                  mode: AuthMode.login
-                });
-              }
-            }}
-          />
-        </View>
-      )}
+      ) : null}
 
       {/* {user ? (
         <View
@@ -292,23 +267,16 @@ export const UserSheet = () => {
             title: strings.emailSupport(),
             icon: "email",
             onPress: () => {
-              Clipboard.setString("support@streetwriters.co");
+              Clipboard.setString("support@azteya.tech");
               ToastManager.show({
                 heading: strings.emailCopied(),
                 type: "success",
                 icon: "content-copy"
               });
               setTimeout(() => {
-                Linking.openURL("mailto:support@streetwriters.co");
+                Linking.openURL("mailto:support@azteya.tech");
               }, 1000);
             }
-          },
-          {
-            title: strings.documentation(),
-            onPress: async () => {
-              Linking.openURL("https://docs.notesnook.com");
-            },
-            icon: "file-document"
           },
           {
             icon: "logout",

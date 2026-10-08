@@ -22,6 +22,7 @@ import { useThemeColors } from "@notesnook/theme";
 import { useNetInfo } from "@react-native-community/netinfo";
 import React from "react";
 import { View } from "react-native";
+import { timeAgoLocale } from "../../common/ui-locale";
 import Animated, {
   Easing,
   cancelAnimation,
@@ -56,7 +57,8 @@ const SyncStatusButton = () => {
   const isSynced = lastSyncStatus === SyncStatus.Passed;
   const lastSyncedTimeAgo = useTimeAgo(lastSynced, {
     interval: 5000,
-    live: true
+    live: true,
+    locale: timeAgoLocale()
   });
 
   const getIconColor = (): string => {

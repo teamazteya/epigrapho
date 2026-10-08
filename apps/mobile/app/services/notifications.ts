@@ -289,8 +289,8 @@ async function updateRemindersForWidget() {
       reminder.snoozeUntil && reminder.snoozeUntil > Date.now()
         ? reminder.snoozeUntil
         : reminder.mode === "repeat"
-          ? getUpcomingReminderTime(reminder)
-          : reminder.date;
+        ? getUpcomingReminderTime(reminder)
+        : reminder.date;
 
     const recentlyPassed =
       reminder.mode === "once" &&
@@ -492,25 +492,25 @@ async function getChannelId(id: "silent" | "vibrate" | "urgent" | "default") {
   switch (id) {
     case "default":
       return await notifee.createChannel({
-        id: "com.streetwriters.notesnook",
+        id: "tech.azteya.epigrapho",
         name: "Default",
         vibration: false
       });
     case "silent":
       return await notifee.createChannel({
-        id: "com.streetwriters.notesnook.silent",
+        id: "tech.azteya.epigrapho.silent",
         name: "Silent",
         vibration: false
       });
     case "vibrate":
       return await notifee.createChannel({
-        id: "com.streetwriters.notesnook.silent",
+        id: "tech.azteya.epigrapho.silent",
         name: "Vibrate",
         vibration: true
       });
     case "urgent":
       return await notifee.createChannel({
-        id: "com.streetwriters.notesnook.urgent",
+        id: "tech.azteya.epigrapho.urgent",
         name: "Urgent",
         description:
           "This channel is used to show notifications with sound & vibration.",

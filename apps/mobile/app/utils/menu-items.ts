@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import { Item, ItemType } from "@notesnook/core";
+import { strings } from "@notesnook/intl";
 import { Monographs } from "../screens/notes/monographs";
 import Navigation from "../services/navigation";
 
@@ -64,6 +65,18 @@ export const MenuItemsList: SideMenuItem[] = [
     id: "Reminders",
     title: "Reminders",
     icon: "bell",
+    type: "side-menu-item"
+  },
+  // Epigrapho (A3 Fase 3, M1 Fase 5c): the reading plans, as a sheet.
+  {
+    id: "ReadingPlans",
+    title: strings.readingPlans.title(),
+    icon: "book-open-page-variant-outline",
+    onPress: () => {
+      Navigation.closeDrawer();
+      // Required here: the sheet reaches the editor, which loads after this.
+      require("../components/sheets/reading-plans").default.present();
+    },
     type: "side-menu-item"
   },
   {

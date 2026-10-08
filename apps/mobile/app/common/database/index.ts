@@ -51,13 +51,15 @@ export async function setupDatabase(password?: string) {
   //   NOTESNOOK_HOST: `${base}:8788`
   // });
 
+  // Epigrapho: sync, auth and events run on Epigrapho's server (S1), and
+  // shared notes on notas.azteya.tech (A5), the same hosts as the desktop.
   database.host({
-    API_HOST: "https://api.notesnook.com",
-    AUTH_HOST: "https://auth.streetwriters.co",
-    SSE_HOST: "https://events.streetwriters.co",
+    API_HOST: "https://sync.azteya.tech",
+    AUTH_HOST: "https://auth.azteya.tech",
+    SSE_HOST: "https://events.azteya.tech",
     SUBSCRIPTIONS_HOST: "https://subscriptions.streetwriters.co",
     ISSUES_HOST: "https://issues.streetwriters.co",
-    MONOGRAPH_HOST: "https://monogr.ph",
+    MONOGRAPH_HOST: "https://notas.azteya.tech",
     NOTESNOOK_HOST: "https://notesnook.com",
     ...(SettingsService.getProperty("serverUrls") || {})
   });

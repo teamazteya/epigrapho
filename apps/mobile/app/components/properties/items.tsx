@@ -56,6 +56,8 @@ const BOTTOM_BAR_ITEMS: ActionId[] = [
   "copy",
   "share",
   "export",
+  "sermon-mode",
+  "save-as-template",
   "copy-link",
   "duplicate",
   "launcher-shortcut",

@@ -22,16 +22,18 @@ import { strings } from "@notesnook/intl";
 import { Platform } from "react-native";
 import { getVersion } from "react-native-device-info";
 
-export const IOS_APPGROUPID = "group.org.streetwriters.notesnook";
+export const IOS_APPGROUPID = "group.tech.azteya.epigrapho";
 export const FILE_SIZE_LIMIT = 500 * 1024 * 1024;
 export const IMAGE_SIZE_LIMIT = 50 * 1024 * 1024;
 
 export const BETA = getVersion().includes("beta");
 
+// ponytail: iOS points at the repository until the App Store listing exists
+// (M1 Fase 6.2); then it becomes that listing's link.
 export const STORE_LINK =
   Platform.OS === "ios"
-    ? "https://apps.apple.com/us/app/notesnook/id1544027013"
-    : "https://play.google.com/store/apps/details?id=com.streetwriters.notesnook";
+    ? "https://github.com/teamazteya/epigrapho"
+    : "https://play.google.com/store/apps/details?id=tech.azteya.epigrapho";
 
 export const GROUP = {
   default: "default",
@@ -51,20 +53,6 @@ export const SORT = {
   relevance: "Relevance",
   dateDeleted: "Date deleted"
 };
-
-export const itemSkus = [
-  "notesnook.essential.monthly",
-  "notesnook.essential.yearly",
-  "notesnook.pro.monthly",
-  "notesnook.pro.yearly",
-  "notesnook.pro.monthly.tier2",
-  "notesnook.pro.yearly.tier2",
-  "notesnook.pro.monthly.tier3",
-  "notesnook.pro.yearly.tier3",
-  "notesnook.believer.monthly",
-  "notesnook.believer.yearly",
-  "notesnook.believer.5year"
-];
 
 export function planToDisplayName(plan: SubscriptionPlan): string {
   switch (plan) {
@@ -91,37 +79,6 @@ export const SUBSCRIPTION_STATUS = {
   PREMIUM: 5,
   PREMIUM_EXPIRED: 6,
   PREMIUM_CANCELLED: 7
-};
-
-export const SUBSCRIPTION_STATUS_STRINGS = {
-  0: "Basic",
-  1: "Trial",
-  2: Platform.OS === "ios" ? "Pro" : "Beta",
-  5: "Pro",
-  6: "Expired",
-  7: "Pro (cancelled)"
-};
-
-export const SUBSCRIPTION_PROVIDER = {
-  0: null,
-  1: {
-    type: "iOS",
-    title: "Subscribed on iOS",
-    desc: "You subscribed to Notesnook Pro on iOS using Apple In App Purchase. You can cancel anytime with your iTunes Account settings.",
-    icon: "ios"
-  },
-  2: {
-    type: "Android",
-    title: "Subscribed on Android",
-    desc: "You subscribed to Notesnook Pro on Android Phone/Tablet using Google In App Purchase.",
-    icon: "android"
-  },
-  3: {
-    type: "Web",
-    title: "Subscribed on Web",
-    desc: "You subscribed to Notesnook Pro on the Web/Desktop App.",
-    icon: "web"
-  }
 };
 
 export const EDITOR_LINE_HEIGHT = {

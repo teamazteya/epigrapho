@@ -240,6 +240,9 @@ class Commands {
     return this.sendCommand("scrollIntoViewById", id, tabId);
   };
 
+  // Epigrapho (A3 Fase 4): drawn by the editor page, over the note it shows.
+  sermonMode = (tabId: string) => this.sendCommand("sermonMode", tabId);
+
   scrollToSearchResult = (index: number) => {
     const tabId = useTabStore.getState().currentTab;
     return this.sendCommand("scrollToSearchResult", index, tabId);

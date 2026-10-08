@@ -1,20 +1,20 @@
 # Aviso de privacidad de Epigrapho
 
-Última actualización: 2 de octubre de 2026.
+Última actualización: 7 de octubre de 2026.
 
 Epigrapho es una app de notas para estudiar la Biblia. La hace Azteya. Este aviso explica qué datos tuyos guarda Epigrapho, dónde los guarda y cómo los borras.
 
 ## Sin cuenta
 
-Puedes usar Epigrapho sin crear una cuenta. En ese caso tus notas viven solo en tu computadora, cifradas, y Epigrapho no las envía a ningún servidor.
+Puedes usar Epigrapho sin crear una cuenta. En ese caso tus notas viven solo en tu computadora o tu teléfono, cifradas, y Epigrapho no las envía a ningún servidor.
 
-Hay una sola excepción, y no depende de tener cuenta: las traducciones que solo funcionan en línea (NTV, NBLA y NASB). Para mostrar uno de esos versículos, la app le pide la referencia, por ejemplo `JHN.3.16`, al servidor de Epigrapho (`notas.azteya.tech`), que a su vez se la pide a API.Bible. Solo envía la referencia, y el servidor no guarda quién la pidió. El texto de tus notas nunca sale de tu equipo.
+Hay una sola excepción, y no depende de tener cuenta: las traducciones que solo funcionan en línea (NTV, NBLA y NASB). Para mostrar uno de esos versículos, la app le pide la referencia, por ejemplo `JHN.3.16`, al servidor de Epigrapho (`notas.azteya.tech`), que a su vez se la pide a API.Bible. Solo envía la referencia, y el servidor no guarda quién la pidió. El texto de tus notas nunca sale de tu dispositivo.
 
-El corrector gramatical (LanguageTool) corre dentro de tu computadora y tampoco envía nada.
+El corrector gramatical (LanguageTool), que solo está en la app de computadora, corre dentro de ella y tampoco envía nada.
 
 ## Con cuenta
 
-La cuenta es opcional y gratuita. Sirve para una sola cosa: que tus notas sean las mismas en todas las computadoras donde inicias sesión.
+La cuenta es opcional y gratuita. Sirve para una sola cosa: que tus notas sean las mismas en todas las computadoras y teléfonos donde inicias sesión.
 
 Tu cuenta de Epigrapho vive en el servidor de Epigrapho y no tiene ninguna relación con Notesnook, aunque la app se base en Notesnook. Si tienes una cuenta de Notesnook con el mismo correo, son dos cuentas distintas: ninguna ve ni toca los datos de la otra.
 
@@ -22,8 +22,8 @@ Tu cuenta de Epigrapho vive en el servidor de Epigrapho y no tiene ninguna relac
 
 - **Tu correo.** Con él inicias sesión, y a él te enviamos la confirmación, los códigos de verificación en dos pasos y los enlaces de recuperación.
 - **Un hash de tu contraseña.** Tu contraseña nunca llega al servidor tal cual: la app la transforma antes de enviarla, y el servidor guarda solo un hash de esa transformación.
-- **Tus datos cifrados**: notas, libretas, etiquetas, recordatorios, adjuntos, tu traducción preferida y tu diccionario. Se cifran en tu computadora antes de salir de ella, con una llave que solo tú tienes. El servidor no puede leerlos, y nosotros tampoco.
-- **Datos técnicos para que el sync funcione**: el tamaño de cada elemento y de tus adjuntos, las fechas en que cambiaron, y un identificador por cada computadora donde inicias sesión.
+- **Tus datos cifrados**: notas, libretas, etiquetas, recordatorios, adjuntos, tu traducción preferida y tu diccionario. Se cifran en tu dispositivo antes de salir de él, con una llave que solo tú tienes. El servidor no puede leerlos, y nosotros tampoco.
+- **Datos técnicos para que el sync funcione**: el tamaño de cada elemento y de tus adjuntos, las fechas en que cambiaron, y un identificador por cada dispositivo donde inicias sesión.
 - **Registros técnicos del servidor**, que pueden incluir la dirección IP desde la que te conectas. Sirven para atender fallas y ataques. Se borran solos: el servidor conserva unos pocos megabytes por servicio y descarta lo más viejo.
 
 No guardamos tu contraseña, ni tu llave de cifrado, ni el contenido de tus notas sin cifrar, salvo las que compartes con un enlace (abajo, en "Notas compartidas"). No hay analíticas ni venta de datos, y solo recibes correos de novedades si los pides.
@@ -36,7 +36,7 @@ Los correos los envía Brevo, el servicio de correo que usamos. Brevo recibe tu 
 
 ### Correos de novedades
 
-Solo si lo aceptas (al crear tu cuenta o en Ajustes → Privacidad), te enviamos novedades y ofertas de Epigrapho, una vez al mes como máximo. Para eso guardamos en El Dugout, el sistema de contactos de Azteya, tu correo, el idioma de la app, la fecha en que creaste tu cuenta y si aceptaste. Nada más: ni tus notas ni cómo usas la app.
+Solo si lo aceptas (al crear tu cuenta o en Ajustes → Privacidad; en el teléfono, Ajustes → Privacidad y seguridad), te enviamos novedades y ofertas de Epigrapho, una vez al mes como máximo. Para eso guardamos en El Dugout, el sistema de contactos de Azteya, tu correo, el idioma de la app, la fecha en que creaste tu cuenta y si aceptaste. Nada más: ni tus notas ni cómo usas la app.
 
 Si desmarcas la opción en la app, dejas de recibirlos en ese momento. Cada correo trae además un enlace para darte de baja de todos los correos de Azteya. Si borras tu cuenta, también dejas de recibir los correos de novedades de Epigrapho. Tu correo se queda en El Dugout, así que puedes seguir recibiendo los correos generales de Azteya, que también traen el enlace para darte de baja.
 
@@ -54,11 +54,22 @@ Azteya opera el servidor. Para cualquier pregunta sobre tus datos, escribe a sup
 
 El código de la app y el del servidor son libres, así que cualquiera puede revisar que hacen lo que dice este aviso: [teamazteya/epigrapho](https://github.com/teamazteya/epigrapho) y [teamazteya/epigrapho-sync-server](https://github.com/teamazteya/epigrapho-sync-server).
 
+## Permisos del teléfono
+
+La app del teléfono pide permisos solo cuando los necesita, y puedes negarlos o quitarlos en los ajustes del teléfono:
+
+- **Notificaciones:** para los recordatorios que tú creas.
+- **Cámara:** solo si tomas una foto para adjuntarla a una nota.
+- **Archivos (la carpeta que tú eliges):** para guardar respaldos y exportaciones, o para abrir un archivo que quieras adjuntar.
+- **Biometría:** solo si activas el bloqueo de la app con huella o rostro. La huella o el rostro los revisa el teléfono; la app nunca los recibe.
+
+Ninguno de estos permisos se usa para enviar nada fuera del teléfono. La app del teléfono no tiene analíticas ni publicidad.
+
 ## Cómo borrar tu cuenta
 
-En la app, ve a Ajustes → Perfil → **Borrar la cuenta** y escribe tu contraseña. El servidor borra tu cuenta y todos tus datos en ese momento. Las copias de respaldo del servidor desaparecen solas en un máximo de 28 días.
+En la app de computadora, ve a Ajustes → Perfil → **Borrar la cuenta**; en el teléfono, a Ajustes → Cuenta → **Borrar la cuenta**. Luego escribe tu contraseña. El servidor borra tu cuenta y todos tus datos en ese momento. Las copias de respaldo del servidor desaparecen solas en un máximo de 28 días.
 
-Al borrar la cuenta, la app también borra las notas de cada computadora donde tenías la sesión iniciada. Si quieres conservar una copia, haz antes un respaldo en Ajustes → Respaldo y exportación.
+Al borrar la cuenta, la app también borra las notas de cada dispositivo donde tenías la sesión iniciada. Si quieres conservar una copia, haz antes un respaldo en Ajustes → Respaldo y exportación (en el teléfono, Ajustes → Respaldo y restauración).
 
 Si ya no puedes entrar a tu cuenta, escribe a support@azteya.tech desde el correo de la cuenta y la borramos.
 

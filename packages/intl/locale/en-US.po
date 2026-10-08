@@ -81,7 +81,7 @@ msgstr ""
 msgid "{0} will remind you before your trial ends"
 msgstr ""
 
-#: src/strings.ts:3307
+#: src/strings.ts:3317
 msgid "{count, plural, one {# earlier day not read yet} other {# earlier days not read yet}}"
 msgstr ""
 
@@ -548,7 +548,7 @@ msgstr ""
 msgid "{days} days free"
 msgstr ""
 
-#: src/strings.ts:3305
+#: src/strings.ts:3315
 msgid "{done} of {total} days read"
 msgstr ""
 
@@ -616,23 +616,23 @@ msgstr ""
 msgid "{plan} plan"
 msgstr ""
 
-#: src/strings.ts:3323
+#: src/strings.ts:3333
 msgid "{plan}, day {day} — {date}"
 msgstr ""
 
 #: src/strings.ts:753
-msgid "{platform, select, android {{name} saved to selected path} other {{name} saved to File Manager/Notesnook/downloads}}"
+msgid "{platform, select, android {{name} saved to selected path} other {{name} saved to File Manager/Epigrapho/downloads}}"
 msgstr ""
 
 #: src/strings.ts:1393
-msgid "{platform, select, android {Backup file saved in \"Notesnook backups\" folder on your phone.} other {Backup file is saved in File Manager/Notesnook folder}}"
+msgid "{platform, select, android {Backup file saved in \"Epigrapho backups\" folder on your phone.} other {Backup file is saved in File Manager/Epigrapho folder}}"
 msgstr ""
 
 #: src/strings.ts:2587
 msgid "{selected} selected"
 msgstr ""
 
-#: src/strings.ts:3346
+#: src/strings.ts:3356
 msgid "{shown} is shown because {asked} needs an internet connection"
 msgstr ""
 
@@ -720,7 +720,7 @@ msgstr ""
 msgid "6 digit code"
 msgstr ""
 
-#: src/strings.ts:3250
+#: src/strings.ts:3260
 msgid "A locked note cannot be saved as a template. Unlock it first."
 msgstr ""
 
@@ -856,6 +856,10 @@ msgstr ""
 msgid "Add tags to multiple notes at once"
 msgstr ""
 
+#: src/strings.ts:3238
+msgid "Add the code above to your authenticator app. It will show a code you can enter below."
+msgstr ""
+
 #: src/strings.ts:2474
 msgid "Add to dictionary"
 msgstr ""
@@ -966,7 +970,7 @@ msgid "All tools in this group will be removed from the toolbar."
 msgstr ""
 
 #: src/strings.ts:1402
-msgid "All your backups are stored in 'Phone Storage/Notesnook/backups/' folder"
+msgid "All your backups are stored in 'Phone Storage/Epigrapho/backups/' folder"
 msgstr ""
 
 #: src/strings.ts:108
@@ -982,7 +986,7 @@ msgid "Amount"
 msgstr ""
 
 #: src/strings.ts:3230
-msgid "An account keeps your notes in sync between your computers. They are encrypted on your device before they leave it, so only you can read them."
+msgid "An account keeps your notes in sync between your computers and phones. They are encrypted on your device before they leave it, so only you can read them."
 msgstr ""
 
 #: src/strings.ts:250
@@ -1067,7 +1071,7 @@ msgstr ""
 msgid "Appearance"
 msgstr ""
 
-#: src/strings.ts:3263
+#: src/strings.ts:3273
 msgid "Application"
 msgstr ""
 
@@ -1332,7 +1336,7 @@ msgstr ""
 msgid "Back"
 msgstr ""
 
-#: src/strings.ts:3312
+#: src/strings.ts:3322
 msgid "Back to today"
 msgstr ""
 
@@ -1464,7 +1468,7 @@ msgstr ""
 msgid "Bible dictionary"
 msgstr ""
 
-#: src/strings.ts:3256
+#: src/strings.ts:3266
 msgid "Big idea"
 msgstr ""
 
@@ -1512,7 +1516,7 @@ msgstr ""
 msgid "Browse"
 msgstr ""
 
-#: src/strings.ts:3245
+#: src/strings.ts:3255
 msgid "Built in"
 msgstr ""
 
@@ -1744,7 +1748,7 @@ msgstr ""
 msgid "Choose a block to insert"
 msgstr ""
 
-#: src/strings.ts:3289
+#: src/strings.ts:3299
 msgid "Choose a plan. You can start today or on another date; your progress travels with your account."
 msgstr ""
 
@@ -1800,11 +1804,11 @@ msgstr ""
 msgid "Choose your style"
 msgstr ""
 
-#: src/strings.ts:3293
+#: src/strings.ts:3303
 msgid "Chronological"
 msgstr ""
 
-#: src/strings.ts:3254
+#: src/strings.ts:3264
 msgid "Class or Sunday school notes"
 msgstr ""
 
@@ -2066,7 +2070,7 @@ msgstr ""
 msgid "Compression failed"
 msgstr ""
 
-#: src/strings.ts:3264
+#: src/strings.ts:3274
 msgid "Conclusion"
 msgstr ""
 
@@ -2138,7 +2142,7 @@ msgstr ""
 msgid "Contents"
 msgstr ""
 
-#: src/strings.ts:3257
+#: src/strings.ts:3267
 msgid "Context"
 msgstr ""
 
@@ -2426,7 +2430,7 @@ msgstr ""
 msgid "Daily"
 msgstr ""
 
-#: src/strings.ts:3317
+#: src/strings.ts:3327
 msgid "Daily reminder"
 msgstr ""
 
@@ -2486,7 +2490,7 @@ msgstr ""
 msgid "Day"
 msgstr ""
 
-#: src/strings.ts:3302
+#: src/strings.ts:3312
 msgid "Day {day} of {total}"
 msgstr ""
 
@@ -3055,6 +3059,10 @@ msgstr ""
 msgid "Enter 6 digit code"
 msgstr ""
 
+#: src/strings.ts:3243
+msgid "Enter a valid two-factor code."
+msgstr ""
+
 #: src/strings.ts:1084
 msgid "Enter account password"
 msgstr ""
@@ -3288,7 +3296,7 @@ msgstr ""
 msgid "Execute a command..."
 msgstr ""
 
-#: src/strings.ts:3334
+#: src/strings.ts:3344
 msgid "Exit"
 msgstr ""
 
@@ -3389,7 +3397,7 @@ msgstr ""
 msgid "Exported {count} notes"
 msgstr ""
 
-#: src/strings.ts:3341
+#: src/strings.ts:3351
 msgid "Exported documents carry it on their cover. It is remembered on this computer; leave it empty to export without a name."
 msgstr ""
 
@@ -3397,7 +3405,7 @@ msgstr ""
 msgid "Exporting \"{title}\""
 msgstr ""
 
-#: src/strings.ts:3251
+#: src/strings.ts:3261
 msgid "Expository sermon"
 msgstr ""
 
@@ -3607,11 +3615,11 @@ msgstr ""
 msgid "Finish your purchase in the browser."
 msgstr ""
 
-#: src/strings.ts:3259
+#: src/strings.ts:3269
 msgid "First point"
 msgstr ""
 
-#: src/strings.ts:3299
+#: src/strings.ts:3309
 msgid "Five psalms and one proverb a day."
 msgstr ""
 
@@ -3923,7 +3931,7 @@ msgstr ""
 msgid "Hide note title"
 msgstr ""
 
-#: src/strings.ts:3316
+#: src/strings.ts:3326
 msgid "Hide text"
 msgstr ""
 
@@ -3951,7 +3959,7 @@ msgstr ""
 msgid "Homepage changed to {name}"
 msgstr ""
 
-#: src/strings.ts:3275
+#: src/strings.ts:3285
 msgid "Homework"
 msgstr ""
 
@@ -4078,7 +4086,7 @@ msgstr ""
 msgid "Ignore once"
 msgstr ""
 
-#: src/strings.ts:3262
+#: src/strings.ts:3272
 msgid "Illustrations"
 msgstr ""
 
@@ -4190,7 +4198,7 @@ msgstr ""
 msgid "Increase font size"
 msgstr ""
 
-#: src/strings.ts:3253
+#: src/strings.ts:3263
 msgid "Inductive study"
 msgstr ""
 
@@ -4307,7 +4315,7 @@ msgstr ""
 msgid "Insert Scripture"
 msgstr ""
 
-#: src/strings.ts:3282
+#: src/strings.ts:3292
 msgid "Insert this reference in the note"
 msgstr ""
 
@@ -4339,7 +4347,7 @@ msgstr ""
 msgid "Interface language"
 msgstr ""
 
-#: src/strings.ts:3269
+#: src/strings.ts:3279
 msgid "Interpretation"
 msgstr ""
 
@@ -4474,7 +4482,7 @@ msgstr ""
 msgid "Languages"
 msgstr ""
 
-#: src/strings.ts:3330
+#: src/strings.ts:3340
 msgid "Larger text"
 msgstr ""
 
@@ -4518,11 +4526,11 @@ msgstr ""
 msgid "Least relevant first"
 msgstr ""
 
-#: src/strings.ts:3319
+#: src/strings.ts:3329
 msgid "Leave this plan"
 msgstr ""
 
-#: src/strings.ts:3321
+#: src/strings.ts:3331
 msgid "Leave this plan? Your progress and its reminder will be deleted. Notes you wrote stay."
 msgstr ""
 
@@ -4780,11 +4788,11 @@ msgstr ""
 msgid "Long press on any item in list to enter multi-select mode."
 msgstr ""
 
-#: src/strings.ts:3290
+#: src/strings.ts:3300
 msgid "M'Cheyne"
 msgstr ""
 
-#: src/strings.ts:3273
+#: src/strings.ts:3283
 msgid "Main points"
 msgstr ""
 
@@ -4832,7 +4840,7 @@ msgstr ""
 msgid "Manage your sync settings here"
 msgstr ""
 
-#: src/strings.ts:3311
+#: src/strings.ts:3321
 msgid "Mark as read"
 msgstr ""
 
@@ -5053,7 +5061,7 @@ msgstr ""
 msgid "Name is required."
 msgstr ""
 
-#: src/strings.ts:3339
+#: src/strings.ts:3349
 msgid "Name on the cover"
 msgstr ""
 
@@ -5118,7 +5126,7 @@ msgstr ""
 msgid "New note"
 msgstr ""
 
-#: src/strings.ts:3241
+#: src/strings.ts:3251
 msgid "New note from template"
 msgstr ""
 
@@ -5147,7 +5155,7 @@ msgstr ""
 msgid "New tag"
 msgstr ""
 
-#: src/strings.ts:3296
+#: src/strings.ts:3306
 msgid "New Testament in 90 days"
 msgstr ""
 
@@ -5407,7 +5415,7 @@ msgstr ""
 
 #: src/strings.ts:315
 #: src/strings.ts:1574
-#: src/strings.ts:3342
+#: src/strings.ts:3352
 msgid "Notes"
 msgstr ""
 
@@ -5447,7 +5455,7 @@ msgstr ""
 msgid "Numbered list"
 msgstr ""
 
-#: src/strings.ts:3266
+#: src/strings.ts:3276
 msgid "Observation"
 msgstr ""
 
@@ -5499,7 +5507,7 @@ msgstr ""
 msgid "One time purchase, no auto-renewal"
 msgstr ""
 
-#: src/strings.ts:3292
+#: src/strings.ts:3302
 msgid "One year, four readings a day: the Old Testament once, the New Testament and the Psalms twice."
 msgstr ""
 
@@ -5621,7 +5629,7 @@ msgstr ""
 msgid "Other"
 msgstr ""
 
-#: src/strings.ts:3258
+#: src/strings.ts:3268
 msgid "Outline"
 msgstr ""
 
@@ -5645,7 +5653,7 @@ msgstr ""
 msgid "Partially refunded"
 msgstr ""
 
-#: src/strings.ts:3268
+#: src/strings.ts:3278
 msgid "Passage"
 msgstr ""
 
@@ -5717,7 +5725,7 @@ msgstr ""
 msgid "Path not found"
 msgstr ""
 
-#: src/strings.ts:3332
+#: src/strings.ts:3342
 msgid "Pause"
 msgstr ""
 
@@ -6020,7 +6028,7 @@ msgstr ""
 msgid "Please wait while your data is downloaded & decrypted."
 msgstr ""
 
-#: src/strings.ts:3267
+#: src/strings.ts:3277
 msgid "Prayer"
 msgstr ""
 
@@ -6181,7 +6189,7 @@ msgstr ""
 msgid "Proxy"
 msgstr ""
 
-#: src/strings.ts:3298
+#: src/strings.ts:3308
 msgid "Psalms and Proverbs in a month"
 msgstr ""
 
@@ -6237,11 +6245,11 @@ msgstr ""
 msgid "Purchase"
 msgstr ""
 
-#: src/strings.ts:3270
+#: src/strings.ts:3280
 msgid "Questions"
 msgstr ""
 
-#: src/strings.ts:3274
+#: src/strings.ts:3284
 msgid "Questions for the class"
 msgstr ""
 
@@ -6290,7 +6298,7 @@ msgstr ""
 msgid "Rate now (It takes only a second)"
 msgstr ""
 
-#: src/strings.ts:3313
+#: src/strings.ts:3323
 msgid "Read"
 msgstr ""
 
@@ -6318,7 +6326,7 @@ msgstr ""
 msgid "Reading backup file..."
 msgstr ""
 
-#: src/strings.ts:3287
+#: src/strings.ts:3297
 msgid "Reading plans"
 msgstr ""
 
@@ -6632,7 +6640,7 @@ msgid "Resend email"
 msgstr ""
 
 #: src/strings.ts:2037
-#: src/strings.ts:3333
+#: src/strings.ts:3343
 msgid "Reset"
 msgstr ""
 
@@ -6824,7 +6832,7 @@ msgstr ""
 msgid "Save and continue"
 msgstr ""
 
-#: src/strings.ts:3242
+#: src/strings.ts:3252
 msgid "Save as template"
 msgstr ""
 
@@ -6872,7 +6880,7 @@ msgstr ""
 msgid "Saved"
 msgstr ""
 
-#: src/strings.ts:3244
+#: src/strings.ts:3254
 msgid "Saved \"{name}\" as a template."
 msgstr ""
 
@@ -6904,7 +6912,7 @@ msgstr ""
 msgid "School work"
 msgstr ""
 
-#: src/strings.ts:3265
+#: src/strings.ts:3275
 msgid "Scripture"
 msgstr ""
 
@@ -7029,7 +7037,7 @@ msgstr ""
 msgid "sec"
 msgstr ""
 
-#: src/strings.ts:3260
+#: src/strings.ts:3270
 msgid "Second point"
 msgstr ""
 
@@ -7045,7 +7053,7 @@ msgstr ""
 msgid "Security key successfully registered."
 msgstr ""
 
-#: src/strings.ts:3281
+#: src/strings.ts:3291
 msgid "See all ({count})"
 msgstr ""
 
@@ -7053,7 +7061,7 @@ msgstr ""
 msgid "See all occurrences"
 msgstr ""
 
-#: src/strings.ts:3280
+#: src/strings.ts:3290
 msgid "See also"
 msgstr ""
 
@@ -7209,7 +7217,7 @@ msgstr ""
 msgid "Sending recovery email"
 msgstr ""
 
-#: src/strings.ts:3328
+#: src/strings.ts:3338
 msgid "Sermon mode"
 msgstr ""
 
@@ -7311,6 +7319,10 @@ msgstr ""
 
 #: src/strings.ts:427
 msgid "Set your name"
+msgstr ""
+
+#: src/strings.ts:3241
+msgid "Setting up your account…"
 msgstr ""
 
 #: src/strings.ts:387
@@ -7449,7 +7461,7 @@ msgstr ""
 msgid "Show app"
 msgstr ""
 
-#: src/strings.ts:3315
+#: src/strings.ts:3325
 msgid "Show text"
 msgstr ""
 
@@ -7490,11 +7502,11 @@ msgstr ""
 msgid "Skip introduction"
 msgstr ""
 
-#: src/strings.ts:3329
+#: src/strings.ts:3339
 msgid "Smaller text"
 msgstr ""
 
-#: src/strings.ts:3252
+#: src/strings.ts:3262
 msgid "SOAP devotional"
 msgstr ""
 
@@ -7547,11 +7559,11 @@ msgid "Stable"
 msgstr ""
 
 #: src/strings.ts:1117
-#: src/strings.ts:3331
+#: src/strings.ts:3341
 msgid "Start"
 msgstr ""
 
-#: src/strings.ts:3240
+#: src/strings.ts:3250
 msgid "Start a note with a ready-made structure. The ones you save travel with your account."
 msgstr ""
 
@@ -7559,7 +7571,7 @@ msgstr ""
 msgid "Start account recovery"
 msgstr ""
 
-#: src/strings.ts:3300
+#: src/strings.ts:3310
 msgid "Start date"
 msgstr ""
 
@@ -7579,7 +7591,7 @@ msgstr ""
 msgid "Start over"
 msgstr ""
 
-#: src/strings.ts:3301
+#: src/strings.ts:3311
 msgid "Start plan"
 msgstr ""
 
@@ -7595,7 +7607,7 @@ msgstr ""
 msgid "Start writing your note..."
 msgstr ""
 
-#: src/strings.ts:3303
+#: src/strings.ts:3313
 msgid "Starts on {date}."
 msgstr ""
 
@@ -7708,7 +7720,7 @@ msgid "Sync"
 msgstr ""
 
 #: src/strings.ts:3219
-msgid "Sync between computers"
+msgid "Sync between devices"
 msgstr ""
 
 #: src/strings.ts:3122
@@ -7897,7 +7909,7 @@ msgstr ""
 msgid "Tasks"
 msgstr ""
 
-#: src/strings.ts:3272
+#: src/strings.ts:3282
 msgid "Teacher"
 msgstr ""
 
@@ -7920,11 +7932,11 @@ msgstr ""
 msgid "Tell us what happened"
 msgstr ""
 
-#: src/strings.ts:3243
+#: src/strings.ts:3253
 msgid "Template name"
 msgstr ""
 
-#: src/strings.ts:3238
+#: src/strings.ts:3248
 msgid "Templates"
 msgstr ""
 
@@ -7948,7 +7960,7 @@ msgstr ""
 msgid "Test connection before changing server urls"
 msgstr ""
 
-#: src/strings.ts:3255
+#: src/strings.ts:3265
 msgid "Text"
 msgstr ""
 
@@ -8086,11 +8098,11 @@ msgstr ""
 msgid "The verse could not be loaded."
 msgstr ""
 
-#: src/strings.ts:3343
+#: src/strings.ts:3353
 msgid "The verse could not be read."
 msgstr ""
 
-#: src/strings.ts:3295
+#: src/strings.ts:3305
 msgid "The whole Bible in one year, in the order the events happened."
 msgstr ""
 
@@ -8110,7 +8122,7 @@ msgstr ""
 msgid "These items will be **kept in your Trash for {interval} days** after which they will be permanently deleted."
 msgstr ""
 
-#: src/strings.ts:3261
+#: src/strings.ts:3271
 msgid "Third point"
 msgstr ""
 
@@ -8276,7 +8288,7 @@ msgstr ""
 msgid "To use app lock, you must enable biometrics such as Fingerprint lock or Face ID on your phone."
 msgstr ""
 
-#: src/strings.ts:3318
+#: src/strings.ts:3328
 msgid "Today's reading: {plan}"
 msgstr ""
 
@@ -8368,11 +8380,11 @@ msgstr ""
 msgid "Toolbar reset to default preset"
 msgstr ""
 
-#: src/strings.ts:3271
+#: src/strings.ts:3281
 msgid "Topic"
 msgstr ""
 
-#: src/strings.ts:3344
+#: src/strings.ts:3354
 msgid "Translations: {list}"
 msgstr ""
 
@@ -8441,7 +8453,7 @@ msgstr ""
 msgid "Two factor authentication"
 msgstr ""
 
-#: src/strings.ts:3297
+#: src/strings.ts:3307
 msgid "Two or three chapters a day."
 msgstr ""
 
@@ -8956,6 +8968,10 @@ msgstr ""
 msgid "We value your feedback so join us on Discord and share your experiences and ideas."
 msgstr ""
 
+#: src/strings.ts:3240
+msgid "We will email you a code you can enter below."
+msgstr ""
+
 #: src/strings.ts:1172
 msgid "We will send you occasional promotional offers & product updates on your email (sent once every month)."
 msgstr ""
@@ -9050,7 +9066,7 @@ msgid "Width"
 msgstr ""
 
 #: src/strings.ts:3221
-msgid "With a free account your notes stay the same on every computer where you sign in, encrypted so only you can read them. Without one, everything stays on this computer."
+msgid "With a free account your notes stay the same on every computer and phone where you sign in, encrypted so only you can read them. Without one, everything stays on this device."
 msgstr ""
 
 #: src/strings.ts:2719
@@ -9073,7 +9089,7 @@ msgstr ""
 msgid "Write a title."
 msgstr ""
 
-#: src/strings.ts:3314
+#: src/strings.ts:3324
 msgid "Write about this"
 msgstr ""
 
@@ -9251,7 +9267,7 @@ msgstr ""
 msgid "You can view & restore older versions of any note by going to its properties -> History."
 msgstr ""
 
-#: src/strings.ts:3304
+#: src/strings.ts:3314
 msgid "You finished this plan."
 msgstr ""
 
@@ -9299,7 +9315,7 @@ msgstr ""
 msgid "You have not published any monographs yet"
 msgstr ""
 
-#: src/strings.ts:3248
+#: src/strings.ts:3258
 msgid "You have not saved any templates yet. Use \"Save as template\" in a note's menu."
 msgstr ""
 
@@ -9360,11 +9376,15 @@ msgid "Your account already stores 500 MB of attachments, the most it can hold. 
 msgstr ""
 
 #: src/strings.ts:467
-msgid "Your account email will be changed without affecting your subscription or any other settings."
+msgid "Your account email will change; your notes and settings stay as they are."
 msgstr ""
 
 #: src/strings.ts:2134
 msgid "Your account has been recovered."
+msgstr ""
+
+#: src/strings.ts:3242
+msgid "Your account is almost ready. Please wait."
 msgstr ""
 
 #: src/strings.ts:502
@@ -9381,7 +9401,7 @@ msgid "Your account will be downgraded in {days} days"
 msgstr ""
 
 #: src/strings.ts:1083
-msgid "Your account will be permanently deleted along with all your data, login credentials, and subscription information. This action is IRREVERSIBLE. Make sure you have saved a backup of your notes before proceeding."
+msgid "Your account will be permanently deleted along with all your data and login credentials. This action is IRREVERSIBLE. Make sure you have saved a backup of your notes before proceeding."
 msgstr ""
 
 #: src/strings.ts:965
@@ -9504,6 +9524,10 @@ msgstr ""
 msgid "Your reminders"
 msgstr ""
 
+#: src/strings.ts:3244
+msgid "Your session expired. Sign in again."
+msgstr ""
+
 #: src/strings.ts:99
 msgid "Your session has expired. Please enter password for {obfuscatedEmail} to continue."
 msgstr ""
@@ -9536,7 +9560,7 @@ msgstr ""
 msgid "Your tags"
 msgstr ""
 
-#: src/strings.ts:3246
+#: src/strings.ts:3256
 msgid "Your templates"
 msgstr ""
 

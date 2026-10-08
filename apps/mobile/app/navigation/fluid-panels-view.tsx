@@ -104,7 +104,7 @@ export const FluidPanelsView = React.memo(
     React.useEffect(() => {
       const shortcut = useSettingStore.getState().pendingShortcut;
 
-      if (shortcut?.type === "notesnook.action.newnote") {
+      if (shortcut?.type === "epigrapho.action.newnote") {
         useSettingStore.setState({
           pendingShortcut: null
         });
@@ -210,8 +210,8 @@ export const FluidPanelsView = React.memo(
         const nextDeviceMode = DDS.isLargeTablet()
           ? "tablet"
           : DDS.isSmallTab
-            ? "smallTablet"
-            : "mobile";
+          ? "smallTablet"
+          : "mobile";
         setDeviceMode(nextDeviceMode, size);
       },
       [orientation, setDeviceMode]

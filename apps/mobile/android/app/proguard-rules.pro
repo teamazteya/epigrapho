@@ -46,7 +46,7 @@
 -keep class com.goterl.** { *; }
 -keepclassmembers class * extends com.sun.jna.* { public *; }
 
--keep class com.streetwriters.notesnook.BuildConfig { *; }
+-keep class tech.azteya.epigrapho.BuildConfig { *; }
 
 # Reanimated 
 -keep class com.swmansion.reanimated.** { *; }
@@ -63,7 +63,7 @@
 -keepattributes Signature
 -keep class com.google.gson.reflect.TypeToken { *; }
 -keep class * extends com.google.gson.reflect.TypeToken
--keep class com.streetwriters.notesnook.datatypes.* { *; }
+-keep class tech.azteya.epigrapho.datatypes.* { *; }
 
 -keep class net.gotev.uploadservice.* { *; }
 -keep class kotlinx.parcelize.* { *; }

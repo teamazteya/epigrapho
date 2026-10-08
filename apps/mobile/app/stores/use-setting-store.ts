@@ -28,12 +28,7 @@ import { DayFormat, WeekFormat, Reminder } from "@notesnook/core";
 import { db } from "../common/database";
 import { EDITOR_LINE_HEIGHT } from "../utils/constants";
 import { ShortcutItem } from "react-native-actions-shortcuts";
-export const HostIds = [
-  "API_HOST",
-  "AUTH_HOST",
-  "SSE_HOST",
-  "MONOGRAPH_HOST"
-] as const;
+export const HostIds = ["API_HOST", "AUTH_HOST", "SSE_HOST"] as const;
 export type HostId = (typeof HostIds)[number];
 
 export type Settings = {
@@ -104,6 +99,8 @@ export type Settings = {
   defaultSidebarTab: number;
   checkForUpdates?: boolean;
   defaultLineHeight: number;
+  /** Epigrapho: the translation verses are read in (only embedded ones). */
+  scriptureTranslation: string;
   imageCompression: "ask-every-time" | "enabled" | "disabled";
   keepScreenOn?: boolean;
 };
@@ -198,7 +195,7 @@ export const defaultSettings: SettingStore["settings"] = {
   doubleSpacedLines: true,
   reminderNotifications: true,
   defaultSnoozeTime: "5",
-  corsProxy: "https://cors.notesnook.com",
+  corsProxy: "",
   reminderNotificationMode: "urgent",
   notificationSound: undefined,
   defaultFontFamily: "sans-serif",
@@ -216,6 +213,7 @@ export const defaultSettings: SettingStore["settings"] = {
   lastFullBackupDate: 0,
   checkForUpdates: true,
   defaultLineHeight: EDITOR_LINE_HEIGHT.DEFAULT,
+  scriptureTranslation: "VBL",
   imageCompression: "ask-every-time",
   keepScreenOn: true
 };

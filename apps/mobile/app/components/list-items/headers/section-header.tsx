@@ -121,7 +121,7 @@ export const SectionHeader = React.memo<
                 ? screen === "Search"
                   ? strings.results(itemCount || 0)
                   : strings.pinned().toUpperCase()
-                : item.title.toUpperCase()}
+                : strings.groupTitle(item.title).toUpperCase()}
             </Heading>
           </Pressable>
 
@@ -186,8 +186,8 @@ export const SectionHeader = React.memo<
                       [dataType === "notebook"
                         ? "notebooksListMode"
                         : dataType === "searchResult"
-                          ? "searchListMode"
-                          : "notesListMode"]: !isCompactModeEnabled
+                        ? "searchListMode"
+                        : "notesListMode"]: !isCompactModeEnabled
                         ? "compact"
                         : "normal"
                     });

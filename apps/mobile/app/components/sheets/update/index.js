@@ -22,9 +22,13 @@ import { Linking, View } from "react-native";
 import { ScrollView } from "react-native-actions-sheet";
 import { checkVersion } from "react-native-check-version";
 import Config from "react-native-config";
-import deviceInfoModule from "react-native-device-info";
 import { useThemeColors } from "@notesnook/theme";
 import { STORE_LINK } from "../../../utils/constants";
+import {
+  APK_NAME,
+  getGithubVersion,
+  RELEASES
+} from "../../../utils/github-version";
 import { AppFontSize } from "../../../utils/size";
 import { Button } from "../../ui/button";
 import Seperator from "../../ui/seperator";
@@ -41,37 +45,31 @@ const UPDATE_SVG = (color) =>
 export const Update = ({ version: appVersion, fwdRef }) => {
   const { colors } = useThemeColors();
   const [version, setVersion] = useState(appVersion);
-  let notes = version?.notes
-    ? version.notes.replace("Thank you for using Notesnook!", "").split("- ")
-    : ["Bug fixes and performance improvements"];
+  // The release notes are the tag's body (see AGENTS.md, "Publicar una
+  // versión"), shown as they were written.
+  let notes = version?.notes ? version.notes.split("- ") : [];
   notes = notes?.map((n) => n.replace(/\n|<br>/g, ""));
   const isGithubRelease = Config.GITHUB_RELEASE === "true";
 
-  const getSupportedAbi = () => {
-    let abi = deviceInfoModule.supportedAbisSync();
-    let armv8a = abi.find((a) => a === "arm64-v8a");
-    let armv7 = abi.find((a) => a === "armeabi-v7a");
-
-    return armv8a || armv7 || abi[0];
-  };
-
+  // ponytail: the APK opens in the browser, which downloads it and hands it to
+  // the system installer; the app itself then needs no install permission.
   const GITHUB_URL =
     !version || !version.needsUpdate
       ? null
-      : `https://github.com/streetwriters/notesnook/releases/download/${
-          version.version
-        }-android/notesnook-${getSupportedAbi()}.apk`;
+      : `${RELEASES}/download/v${version.version}/${APK_NAME}`;
   const GITHUB_PAGE_URL =
     !version || !version.needsUpdate
       ? null
-      : `https://github.com/streetwriters/notesnook/releases/tag/${version.version}-android`;
+      : `${RELEASES}/tag/v${version.version}`;
 
   useEffect(() => {
     if (!version) {
       (async () => {
         try {
-          let v = await checkVersion();
-          setVersion(v);
+          let v = isGithubRelease
+            ? await getGithubVersion()
+            : await checkVersion();
+          setVersion(v || { needsUpdate: false });
         } catch (e) {
           setVersion({
             needsUpdate: false

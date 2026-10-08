@@ -37,9 +37,9 @@ interface NotesnookModuleInterface {
   cancelAndFinish: () => void;
   getWidgetId: () => void;
   getIntent: () => {
-    "com.streetwriters.notesnook.OpenNoteId"?: string;
-    "com.streetwriters.notesnook.OpenReminderId"?: string;
-    "com.streetwriters.notesnook.NewReminder"?: string;
+    "tech.azteya.epigrapho.OpenNoteId"?: string;
+    "tech.azteya.epigrapho.OpenReminderId"?: string;
+    "tech.azteya.epigrapho.NewReminder"?: string;
   };
   getWidgetNotes: () => Promise<string[]>;
   hasWidgetNote: (noteId: string) => Promise<boolean>;

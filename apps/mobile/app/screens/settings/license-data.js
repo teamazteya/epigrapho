@@ -159,12 +159,6 @@ export const LICENSES = [
     link: "https://github.com/Onibenjo/react-native-html-to-pdf"
   },
   {
-    name: "react-native-iap",
-    licenseType: "MIT",
-    author: "dooboolab",
-    link: "https://github.com/dooboolab/react-native-iap"
-  },
-  {
     name: "react-native-keychain",
     licenseType: "MIT",
     author: "Joel Arvidsson joel@oblador.se",

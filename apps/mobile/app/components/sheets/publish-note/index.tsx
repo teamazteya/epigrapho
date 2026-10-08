@@ -31,7 +31,6 @@ import {
 //@ts-ignore
 import ToggleSwitch from "toggle-switch-react-native";
 import { db } from "../../../common/database";
-import { requestInAppReview } from "../../../services/app-review";
 import {
   eSendEvent,
   presentSheet,
@@ -55,6 +54,10 @@ import FormInput, {
   validators
 } from "../../ui/input/form-input";
 import { useAppState } from "../../../../app/hooks/use-app-state";
+
+/** Epigrapho (A5): where PRIVACY.md lists what may be published. */
+const RULES_URL =
+  "https://github.com/teamazteya/epigrapho/blob/main/PRIVACY.md#notas-compartidas";
 
 async function fetchMonographData(noteId: string) {
   const monographId = db.monographs.monograph(noteId);
@@ -105,6 +108,11 @@ const PublishNoteSheet = ({
   const metadata = monographData.result?.metadata;
   const publishUrl = metadata?.publishUrl || monograph?.publishUrl || "";
   const isPublished = db.monographs.monograph(note?.id);
+  // Only images travel with a shared note; anything else is left behind.
+  const otherAttachments = useAsync(
+    () => db.attachments.ofNote(note.id, "files").count(),
+    [note.id]
+  );
   const appState = useAppState();
   const previousAppState = useRef(appState);
 
@@ -159,11 +167,13 @@ const PublishNoteSheet = ({
         Navigation.queueRoutesForUpdate();
         eSendEvent(eMenuItemUpdate);
       }
-      requestInAppReview();
     } catch (e) {
+      const message = (e as Error).message;
       ToastManager.show({
-        heading: strings.failedToPublish(),
-        message: (e as Error).message,
+        heading: /too big/i.test(message)
+          ? strings.shareTooBig()
+          : strings.failedToPublish(),
+        message: /too big/i.test(message) ? undefined : message,
         type: "error",
         context: "local"
       });
@@ -231,11 +241,24 @@ const PublishNoteSheet = ({
     >
       {isPublished &&
       (monographData?.result?.monograph || monographData?.loading) ? null : (
-        <DialogHeader
-          title={strings.publishNote()}
-          paragraph={strings.publishNoteDesc()}
-        />
+        <DialogHeader title={strings.shareWithLink()} />
       )}
+
+      <Paragraph size={AppFontSize.xs}>
+        {strings.shareWarning()}{" "}
+        <Paragraph
+          size={AppFontSize.xs}
+          color={colors.primary.accent}
+          onPress={() => openLinkInBrowser(RULES_URL).catch(console.error)}
+        >
+          {strings.shareRulesLink()}
+        </Paragraph>
+      </Paragraph>
+      {otherAttachments.result ? (
+        <Paragraph size={AppFontSize.xs} color={colors.error.paragraph}>
+          {strings.shareHasAttachments()}
+        </Paragraph>
+      ) : null}
 
       {publishing || monographData.loading ? (
         <View
@@ -320,7 +343,7 @@ const PublishNoteSheet = ({
               maxHeight: 100
             }}
             placeholder={strings.noteTitle()}
-            validators={[validators.required(strings.titleIsRequired())]}
+            validators={[validators.required(strings.shareTitleRequired())]}
           />
 
           <TouchableOpacity
@@ -478,7 +501,7 @@ const PublishNoteSheet = ({
                 borderRadius: defaultBorderRadius
               }}
               type="accent"
-              title={isPublished ? strings.update() : strings.publish()}
+              title={isPublished ? strings.update() : strings.shareWithLink()}
             />
 
             {isPublished && (
@@ -497,27 +520,6 @@ const PublishNoteSheet = ({
           </View>
         </>
       )}
-
-      <Paragraph
-        color={colors.secondary.paragraph}
-        size={AppFontSize.xs}
-        style={{
-          textAlign: "center",
-          marginTop: DefaultAppStyles.GAP_VERTICAL,
-          textDecorationLine: "underline"
-        }}
-        onPress={async () => {
-          try {
-            await openLinkInBrowser(
-              "https://notesnook.com/help/publish-notes-with-monographs"
-            );
-          } catch (e) {
-            console.error(e);
-          }
-        }}
-      >
-        {strings.monographLearnMore()}
-      </Paragraph>
     </View>
   );
 };

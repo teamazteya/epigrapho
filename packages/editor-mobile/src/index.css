@@ -25,3 +25,103 @@ input:focus {
 * {
   -webkit-tap-highlight-color: transparent;
 }
+
+/* Epigrapho (M1 Fase 4): the concordance and the dictionaries, a sheet over
+   the note. Colours are the editor's own variables, as in the passage
+   dialog (packages/editor/styles/styles.css, .scripture-prompt). */
+.study-pane {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 16px;
+  box-sizing: border-box;
+  background-color: var(--background);
+  color: var(--paragraph);
+}
+
+.study-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.study-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.study-results {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.study-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 4px;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  background: none;
+  color: var(--paragraph);
+  font: inherit;
+  text-align: left;
+}
+
+.study-item strong {
+  color: var(--accent);
+}
+
+.study-item span {
+  color: var(--paragraph-secondary);
+  font-size: 0.9rem;
+}
+
+.study-heading {
+  font-weight: bold;
+}
+
+.study-lemma {
+  margin: 4px 0 0;
+  font-size: 1.5rem;
+}
+
+.study-note {
+  margin: 4px 0;
+  color: var(--paragraph-secondary);
+  font-size: 0.9rem;
+}
+
+.study-article {
+  margin: 4px;
+  white-space: pre-line;
+  user-select: text;
+}
+
+.study-insert {
+  margin: 4px 4px 12px;
+}
+
+/* On a phone the lexicon is a sheet along the bottom rather than a box
+   beside the word (M1 Fase 4): a 380px box has no side to go to on a
+   400px screen. !important beats the position the editor sets inline. */
+@media (max-width: 600px) {
+  .lexicon-popover {
+    top: auto !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0;
+    width: auto;
+    max-height: 60vh !important;
+    border-radius: 12px 12px 0 0;
+    padding-bottom: 20px;
+  }
+}

@@ -1,4 +1,3 @@
-const isGithubRelease = false;
 const config = {
   commands: require("@callstack/repack/commands/rspack")
 };
@@ -10,18 +9,5 @@ config.dependencies["react-native-vector-icons"] = {
     ios: null
   }
 };
-
-if (isGithubRelease) {
-  config.dependencies["react-native-iap"] = {
-    platforms: {
-      android: null
-    }
-  };
-  config.dependencies["react-native-in-app-review"] = {
-    platforms: {
-      android: null
-    }
-  };
-}
 
 module.exports = config;

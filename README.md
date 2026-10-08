@@ -214,6 +214,8 @@ git tag -a v1.0.1 -m "Epigrapho 1.0.1" -m "- Qué cambió, en español."
 git push epigrapho v1.0.1
 ```
 
+El mismo tag compila la app de Android. El APK va al release, donde lo busca la app instalada desde GitHub. El `.aab` va a la pista de prueba interna de Play, con los primeros 500 caracteres de las novedades del tag. Pasarlo a producción es un clic en Play Console. La versión del teléfono la fija el tag con `apps/mobile/scripts/bump-version.mjs`.
+
 Las verificaciones de extremo a extremo están en `apps/desktop/scripts/a0-*.mjs`, `a1-*.mjs`, `a2-*.mjs`, `s1-*.mjs`, `a3-*.mjs`, `a4-*.mjs` y `a5-*.mjs`. Se ejecutan con `npm run start:desktop` corriendo. `a3-update-notice-check.mjs` prueba el aviso de actualización (novedades, "Instalar ahora" y "Recordarme más tarde"). `s1-sync-check.mjs`, `a3-templates-check.mjs` y `a3-reading-plans-check.mjs` usan una cuenta de prueba con verificación en dos pasos por app, dada en `S1_EMAIL`, `S1_PASSWORD` y `S1_TOTP_SECRET`. `a4-consent-check.mjs` prueba los correos de novedades contra un servidor de cuentas local (lo que necesita está en `deploy/marketing-consent-check.mjs` de `epigrapho-sync-server`). `a5-share-check.mjs` prueba compartir una nota contra el mismo servidor local y la página pública (`apps/monograph`, servida en `notas.azteya.tech`; su imagen la construye el workflow "Epigrapho notas"). Los 21 temas incluidos salen de `packages/theme/scripts/community-themes.mjs`. Las guías para contribuir están en [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## Soporte

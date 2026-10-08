@@ -70,11 +70,11 @@ export async function downloadAttachments(attachmentIds: string[]) {
   }
 
   // Create the folder to zip;
-  const zipSourceFolder = `${cacheDir}/notesnook-attachments`;
+  const zipSourceFolder = `${cacheDir}/epigrapho-attachments`;
   const zipOutputFile =
     Platform.OS === "ios"
-      ? `${outputFolder}/notesnook-attachments-${Date.now()}.zip`
-      : `${cacheDir}/notesnook-attachments.zip`;
+      ? `${outputFolder}/epigrapho-attachments-${Date.now()}.zip`
+      : `${cacheDir}/epigrapho-attachments.zip`;
   if (await RNFetchBlob.fs.exists(zipSourceFolder)) {
     await RNFetchBlob.fs.unlink(zipSourceFolder);
   }
@@ -146,7 +146,7 @@ export async function downloadAttachments(attachmentIds: string[]) {
       message: strings.savingZipFile(),
       groupId
     });
-    // If all goes well, zip the notesnook-attachments folder in cache.
+    // If all goes well, zip the epigrapho-attachments folder in cache.
 
     sub = subscribe(({ progress }) => {
       useAttachmentStore.getState().setDownloading({
@@ -163,7 +163,7 @@ export async function downloadAttachments(attachmentIds: string[]) {
       // Move the zip to user selected directory.
       const file = await ScopedStorage.createFile(
         outputFolder,
-        `notesnook-attachments-${Date.now()}.zip`,
+        `epigrapho-attachments-${Date.now()}.zip`,
         "application/zip"
       );
       await copyFileAsync(`file://${zipOutputFile}`, file.uri);

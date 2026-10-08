@@ -42,3 +42,5 @@ export * from "./title-format.js";
 export * from "./virtualized-grouping.js";
 export * from "./crypto.js";
 export * from "./fuzzy.js";
+export * from "./note-templates.js";
+export * from "./study-document.js";

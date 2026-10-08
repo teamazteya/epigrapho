@@ -40,8 +40,8 @@ export const CipherStorage = new MMKVLoader()
   .disableIndexing()
   .initialize();
 
-const IOS_KEYCHAIN_ACCESS_GROUP = "group.org.streetwriters.notesnook";
-const IOS_KEYCHAIN_SERVICE_NAME = "org.streetwriters.notesnook";
+const IOS_KEYCHAIN_ACCESS_GROUP = "group.tech.azteya.epigrapho";
+const IOS_KEYCHAIN_SERVICE_NAME = "tech.azteya.epigrapho";
 const KEYCHAIN_SERVER_DBKEY = "notesnook:db";
 
 const NOTESNOOK_APPLOCK_KEY_SALT = "kBwr1Kre86ebOZ8ThLu2OA";
@@ -220,8 +220,9 @@ export async function getDatabaseKey(appLockPassword?: string) {
   }
 
   if (await Keychain.hasInternetCredentials("notesnook")) {
-    const userKeyCredentials =
-      await Keychain.getInternetCredentials("notesnook");
+    const userKeyCredentials = await Keychain.getInternetCredentials(
+      "notesnook"
+    );
 
     if (userKeyCredentials) {
       const userKeyCipher: Cipher = (await encrypt(

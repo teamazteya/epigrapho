@@ -20,13 +20,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import { strings } from "@notesnook/intl";
 import { useThemeColors } from "@notesnook/theme";
 import React from "react";
-import { Linking, useWindowDimensions, View } from "react-native";
+import { useWindowDimensions, View } from "react-native";
 import { SwiperFlatList } from "react-native-swiper-flatlist";
 import useGlobalSafeAreaInsets from "../../hooks/use-global-safe-area-insets";
 import Navigation from "../../services/navigation";
 import { AppFontSize } from "../../utils/size";
 import { DefaultAppStyles } from "../../utils/styles";
-import { AuthMode } from "../auth/common";
 import { Button } from "../ui/button";
 import Heading from "../ui/typography/heading";
 import Paragraph from "../ui/typography/paragraph";
@@ -94,20 +93,6 @@ const Intro = () => {
 
           {item.body ? (
             <Paragraph size={AppFontSize.sm}>{item.body()}</Paragraph>
-          ) : null}
-
-          {item.tesimonial ? (
-            <Paragraph
-              style={{
-                fontStyle: "italic",
-                fontSize: AppFontSize.lg
-              }}
-              onPress={() => {
-                Linking.openURL(item.link);
-              }}
-            >
-              {item.tesimonial()} — {item.user}
-            </Paragraph>
           ) : null}
         </View>
       </View>
@@ -185,30 +170,12 @@ const Intro = () => {
             width: "100%"
           }}
           onPress={async () => {
+            // Epigrapho has no accounts: the notes live on the phone.
             SettingsService.set({ introCompleted: true });
-            Navigation.push("Auth", {
-              mode: AuthMode.welcomeSignup
-            });
+            Navigation.navigate("FluidPanelsView", {});
           }}
           type="accent"
           title={strings.getStarted()}
-        />
-
-        <Button
-          style={{
-            width: "100%"
-          }}
-          title={strings.iAlreadyHaveAnAccount()}
-          type="secondary"
-          onPress={() => {
-            SettingsService.set({
-              introCompleted: true
-            });
-            Navigation.push("Auth", {
-              mode: AuthMode.welcomeLogin,
-              context: "intro"
-            });
-          }}
         />
       </View>
     </SafeAreaView>

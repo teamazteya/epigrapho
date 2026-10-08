@@ -409,10 +409,10 @@ export const RestoreBackup = () => {
               modifer: async () => {
                 const folder = await ScopedStorage.openDocumentTree(true);
                 let subfolder;
-                if (folder.name !== "Notesnook backups") {
+                if (folder.name !== "Epigrapho backups") {
                   subfolder = await ScopedStorage.createDirectory(
                     folder.uri,
-                    "Notesnook backups"
+                    "Epigrapho backups"
                   );
                 } else {
                   subfolder = folder;

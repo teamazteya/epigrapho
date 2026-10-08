@@ -27,14 +27,24 @@ import {
   toBlobURL,
   usePermissionHandler
 } from "@notesnook/editor";
+import { crossReferences } from "@notesnook/original-languages";
 import { formatRef, parseReferences } from "@notesnook/scripture-parser";
+import { STUDY_PROVENANCE } from "@notesnook/scripture-provider";
 import {
   attributionOf,
   formatReference,
   getTranslation,
   resolveVerse
 } from "../common/scripture";
-import { askForScripture } from "../common/scripture-prompt";
+import { askForScripture, compareScripture } from "../common/scripture-prompt";
+import {
+  insertInterlinear,
+  loadDictionaryEntry,
+  loadInterlinear,
+  loadLexicon,
+  useStudyPane
+} from "../common/study";
+import { StudyPane } from "./study-pane";
 import { strings } from "@notesnook/intl";
 import { useThemeColors } from "@notesnook/theme";
 import FingerprintIcon from "mdi-react/FingerprintIcon";
@@ -108,7 +118,26 @@ const Tiptap = ({
     const detachPopover = attachScripturePopover(content, {
       translation: getTranslation,
       resolve: resolveVerse,
-      attributionOf
+      attributionOf,
+      // A3 Fase 2, as on the desktop: inserted after the reference being
+      // previewed, unmarked, and detection marks it.
+      crossReferences: {
+        load: crossReferences,
+        label: formatReference,
+        insert: (ref, after) => {
+          const editor = editors[tabRef.current.id];
+          if (!editor) return;
+          const end = editor.view.posAtDOM(after, after.childNodes.length);
+          editor
+            .chain()
+            .insertContentAt(end, {
+              type: "text",
+              text: `; ${formatReference(ref)}`
+            })
+            .run();
+        },
+        credit: STUDY_PROVENANCE.OPENBIBLE.attribution
+      }
     });
     const detachCopy = attachScriptureCopy(content, {
       formatReference,
@@ -269,11 +298,30 @@ const Tiptap = ({
           indices: reference.indices
         })),
       scriptureAttribution: attributionOf,
+      compareScripture,
       insertScripture: async (editor) => {
         const scripture = await askForScripture();
         if (scripture)
           editor.chain().focus().insertScriptureBlock(scripture).run();
       },
+      // Epigrapho (M1 Fase 4): the study tools of A2, from the packs shipped
+      // beside this page. The concordance and the dictionaries open in a
+      // sheet over the note (StudyPane) instead of the desktop's side panel.
+      insertInterlinear,
+      loadInterlinear,
+      lexicon: loadLexicon,
+      openConcordance: (strong) =>
+        useStudyPane
+          .getState()
+          .open(
+            { type: "concordance", query: strong },
+            editors[tab.id] ?? undefined
+          ),
+      insertDictionaryEntry: (editor) =>
+        useStudyPane
+          .getState()
+          .open({ type: "dictionary", query: "", inserting: true }, editor),
+      loadDictionaryEntry,
       onFocus: () => {
         getContentDiv().classList.remove("searching");
       },
@@ -1029,6 +1077,7 @@ const Tiptap = ({
           }}
         />
       </div>
+      <StudyPane />
     </>
   );
 };

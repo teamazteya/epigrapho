@@ -65,6 +65,8 @@ import { AppFontSize } from "../../utils/size";
 import { sleep } from "../../utils/time";
 import { DefaultAppStyles } from "../../utils/styles";
 import PaywallSheet from "../../components/sheets/paywall";
+// Epigrapho: the sync server sends no SMS (no Twilio), so 2FA is by app or
+// email, as on the desktop.
 const mfaMethods: MFAMethod[] = [
   {
     id: "app",
@@ -72,12 +74,6 @@ const mfaMethods: MFAMethod[] = [
     body: strings.mfaAuthAppDesc(),
     icon: "cellphone-key",
     recommended: true
-  },
-  {
-    id: "sms",
-    title: strings.mfaSmsTitle(),
-    body: strings.mfaSmsDesc(),
-    icon: "message-plus-outline"
   },
   {
     id: "email",
@@ -241,18 +237,17 @@ export const MFASetup = ({
       methodId === "email"
         ? user?.email || ""
         : methodId === "app"
-          ? authenticatorDetails.sharedKey || ""
-          : formRef.current.getValue("target")
+        ? authenticatorDetails.sharedKey || ""
+        : formRef.current.getValue("target")
     );
     formRef.current.setValue("code", "");
     setGeneralError(undefined);
   }, [authenticatorDetails.sharedKey, methodId, user?.email]);
 
   const codeHelpText = {
-    app: "After putting the above code in authenticator app, the app will display a code that you can enter below.",
-    sms: "You will receive a 2FA code on your phone number which you can enter below",
-    email:
-      "You will receive a 2FA code on your email address which you can enter below"
+    app: strings.mfaCodeHelpApp(),
+    sms: "",
+    email: strings.mfaCodeHelpEmail()
   };
 
   const targetValidators =
@@ -267,11 +262,11 @@ export const MFASetup = ({
               : strings.enterValidPhone()
         ]
       : method?.id === "email"
-        ? [
-            validators.required(strings.emailRequired()),
-            validators.email(strings.enterValidEmail())
-          ]
-        : [];
+      ? [
+          validators.required(strings.emailRequired()),
+          validators.email(strings.enterValidEmail())
+        ]
+      : [];
 
   const codeValidators = [
     validators.required(strings.enterSixDigitCode()),
@@ -399,7 +394,9 @@ export const MFASetup = ({
         ) : (
           <>
             <FormInput
-              key={`${method.id}-${authenticatorDetails.sharedKey || user?.email || ""}`}
+              key={`${method.id}-${
+                authenticatorDetails.sharedKey || user?.email || ""
+              }`}
               name="target"
               formRef={formRef}
               fwdRef={targetInputRef}
@@ -409,8 +406,8 @@ export const MFASetup = ({
                 method.id === "email"
                   ? user?.email || ""
                   : method.id === "app"
-                    ? authenticatorDetails.sharedKey || ""
-                    : undefined
+                  ? authenticatorDetails.sharedKey || ""
+                  : undefined
               }
               multiline={method.id === "app"}
               onChangeText={() => {
@@ -438,12 +435,12 @@ export const MFASetup = ({
                     sending
                       ? null
                       : method.id === "app"
-                        ? strings.copy()
-                        : `${
-                            seconds
-                              ? strings.resendCode(seconds as number)
-                              : strings.sendCode()
-                          }`
+                      ? strings.copy()
+                      : `${
+                          seconds
+                            ? strings.resendCode(seconds as number)
+                            : strings.sendCode()
+                        }`
                   }
                 />
               }
@@ -638,7 +635,7 @@ export const MFARecoveryCodes = ({
               onPress={async () => {
                 try {
                   let path;
-                  let fileName = "notesnook_recoverycodes";
+                  let fileName = "epigrapho_recoverycodes";
                   fileName = sanitizeFilename(fileName, { replacement: "_" });
                   fileName = fileName + ".txt";
                   const codeString = codes.join("\n");

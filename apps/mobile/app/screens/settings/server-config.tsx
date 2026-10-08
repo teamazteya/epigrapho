@@ -33,12 +33,9 @@ import { HostId, HostIds } from "../../stores/use-setting-store";
 import { useUserStore } from "../../stores/use-user-store";
 import { DefaultAppStyles } from "../../utils/styles";
 
-export const ServerIds = [
-  "notesnook-sync",
-  "auth",
-  "sse",
-  "monograph"
-] as const;
+// Epigrapho: shared notes always go to notas.azteya.tech (A5), as on the
+// desktop, so there is no monograph server to set.
+export const ServerIds = ["notesnook-sync", "auth", "sse"] as const;
 export type ServerId = (typeof ServerIds)[number];
 type Server = {
   id: ServerId;
@@ -77,14 +74,6 @@ const SERVERS: Server[] = [
     example: "http://localhost:7326",
     description: strings.sseServerDesc(),
     versionEndpoint: "/version"
-  },
-  {
-    id: "monograph",
-    host: "MONOGRAPH_HOST",
-    title: strings.monographServer(),
-    example: "http://localhost:6326",
-    description: strings.monographServerDesc(),
-    versionEndpoint: "/api/version"
   }
 ];
 export function ServersConfiguration() {

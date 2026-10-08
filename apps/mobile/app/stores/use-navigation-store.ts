@@ -124,12 +124,6 @@ export interface RouteParams extends ParamListBase {
     onAdd?: () => void;
   };
   Intro: GenericRouteParam;
-  PayWall: {
-    canGoBack?: boolean;
-    context: "signup" | "logged-in" | "logged-out" | "subscribed";
-    state?: BillingState;
-  };
-  Wrapped: GenericRouteParam;
 }
 
 export type RouteName = keyof RouteParams;

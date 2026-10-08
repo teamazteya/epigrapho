@@ -61,6 +61,7 @@ export type Settings = {
   features: Record<any, any>;
   loggedIn: boolean;
   defaultLineHeight: number;
+  scriptureTranslation?: string;
   dayFormat: DayFormat;
 };
 

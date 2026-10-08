@@ -153,12 +153,9 @@ const onBoot = async () => {
 };
 
 const registerHeadlessTask = () =>
-  AppRegistry.registerHeadlessTask(
-    "com.streetwriters.notesnook.BOOT_TASK",
-    () => {
-      return onBoot;
-    }
-  );
+  AppRegistry.registerHeadlessTask("tech.azteya.epigrapho.BOOT_TASK", () => {
+    return onBoot;
+  });
 export const BackgroundSync = {
   start,
   registerHeadlessTask,

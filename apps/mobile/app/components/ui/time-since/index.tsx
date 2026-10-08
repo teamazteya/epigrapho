@@ -22,6 +22,7 @@ import React from "react";
 import { TextProps } from "react-native";
 import Heading from "../typography/heading";
 import Paragraph from "../typography/paragraph";
+import { timeAgoLocale } from "../../../common/ui-locale";
 interface TimeSinceProps extends TextProps {
   updateFrequency: number;
   time: number;
@@ -36,7 +37,7 @@ export const TimeSince = ({
 }: TimeSinceProps) => {
   const timeAgo = useTimeAgo(time, {
     interval: updateFrequency,
-    locale: "short"
+    locale: timeAgoLocale()
   });
 
   return bold ? (

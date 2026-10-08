@@ -148,11 +148,18 @@ jobs:
           path: ${{ matrix.artifacts }}
           if-no-files-found: error
 
+  # The phone app, built from the same tag: its APK goes into the release.
+  mobile:
+    name: Mobile
+    if: startsWith(github.ref, 'refs/tags/v')
+    uses: ./.github/workflows/epigrapho.mobile.yml
+    secrets: inherit
+
   # Once every system has built, a tag becomes a release with all the
   # installers and update files, which the installed apps then find.
   release:
     name: Release
-    needs: build
+    needs: [build, mobile]
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-24.04
     permissions:
@@ -171,5 +178,7 @@ jobs:
         run: |
           git fetch --force origin "refs/tags/$GITHUB_REF_NAME:refs/tags/$GITHUB_REF_NAME"
           git tag -l --format='%(contents:body)' "$GITHUB_REF_NAME" > notes.md
+          # The App Bundle is for Play, not for people.
+          rm -f dist/*.aab
           ls -la dist
           gh release create "$GITHUB_REF_NAME" dist/* --title "Epigrapho ${GITHUB_REF_NAME#v}" --notes-file notes.md --verify-tag --latest
