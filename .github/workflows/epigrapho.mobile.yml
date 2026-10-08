@@ -122,13 +122,14 @@ jobs:
           xcrun simctl boot "$device"
           xcrun simctl bootstatus "$device"
           xcrun simctl install "$device" build/Build/Products/Release-iphonesimulator/*.app
-          xcrun simctl launch "$device" tech.azteya.epigrapho
+          # The app's own output (React Native prints fatal errors there).
+          xcrun simctl launch --console-pty "$device" tech.azteya.epigrapho > ../dist/epigrapho_ios_console.txt 2>&1 &
           sleep 30
           xcrun simctl io "$device" screenshot ../dist/epigrapho_ios_simulator.png
           if ! xcrun simctl spawn "$device" launchctl list | grep -q tech.azteya.epigrapho; then
             # Why it closed, next to the screenshot.
-            cp ~/Library/Logs/DiagnosticReports/*.ips ../dist/ 2>/dev/null || true
-            xcrun simctl spawn "$device" log show --last 2m --style compact --predicate 'process == "Notesnook"' > ../dist/epigrapho_ios_log.txt || true
+            cp ~/Library/Logs/DiagnosticReports/Notesnook*.ips ../dist/ 2>/dev/null || true
+            xcrun simctl spawn "$device" log show --last 3m --info --debug --style compact --predicate 'process == "Notesnook" OR eventMessage CONTAINS[c] "tech.azteya.epigrapho"' > ../dist/epigrapho_ios_log.txt || true
             exit 1
           fi
 
