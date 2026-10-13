@@ -203,6 +203,7 @@ function ReminderSetting({ plan }: { plan: EpigraphoReadingPlan }) {
     <Flex sx={{ alignItems: "center", gap: 2 }}>
       <Flex as="label" sx={{ alignItems: "center", gap: 1, flex: 1 }}>
         <Switch
+          sx={{ m: 0, background: time ? "accent" : "icon-secondary" }}
           checked={!!time}
           data-test-id="reading-plan-reminder"
           onChange={(e) =>

@@ -47,15 +47,6 @@ import { strings } from "@notesnook/intl";
 import { useStore as useSearchStore } from "../../stores/search-store";
 import type { Context } from "../list-container/types";
 
-const groupByToTitleMap = {
-  none: "None",
-  default: "Default",
-  abc: "A - Z",
-  year: "Year",
-  week: "Week",
-  month: "Month"
-};
-
 type GroupingMenuOptions = {
   groupOptions: GroupOptions;
   parentKey: keyof GroupOptions;
@@ -395,9 +386,9 @@ function GroupHeader(props: GroupHeaderProps) {
             <IconButton
               testId={`${groupingKey}-sort-button`}
               icon={groupOptions.sortDirection === "asc" ? SortAsc : SortDesc}
-              title={`Grouped by ${
-                groupByToTitleMap[groupOptions.groupBy || "default"]
-              }`}
+              title={strings.groupedBy(
+                strings.groupByStrings[groupOptions.groupBy || "default"]()
+              )}
               onClick={() => {
                 const groupOptions = getGroupOptions(
                   context,
@@ -431,7 +422,7 @@ function GroupHeader(props: GroupHeaderProps) {
                 if (groupBy) menuItems.push(groupBy);
 
                 openMenu(menuItems, {
-                  title: groupBy ? "Group & sort" : "Sort"
+                  title: groupBy ? strings.groupAndSort() : strings.sort()
                 });
               }}
             />
@@ -441,8 +432,8 @@ function GroupHeader(props: GroupHeaderProps) {
               icon={viewMode === "compact" ? DetailedView : CompactView}
               title={
                 viewMode === "compact"
-                  ? "Switch to detailed view"
-                  : "Switch to compact view"
+                  ? strings.switchToDetailedView()
+                  : strings.switchToCompactView()
               }
               onClick={() =>
                 setViewMode(viewMode === "compact" ? "detailed" : "compact")

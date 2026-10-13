@@ -1254,14 +1254,18 @@ class EditorStore extends BaseStore<EditorStore> {
   };
 
   toggleProperties = (toggleState?: boolean) => {
-    this.set((state) => {
-      state.arePropertiesVisible =
-        toggleState !== undefined ? toggleState : !state.arePropertiesVisible;
-      if (state.arePropertiesVisible) {
-        state.concordanceQuery = undefined;
-        state.dictionaryPane = undefined;
-      }
-    });
+    // The draft reads back the old value of a field written in it (the store's
+    // `mark` option), so the next value is worked out before the write.
+    const visible = toggleState ?? !this.get().arePropertiesVisible;
+    this.set(
+      visible
+        ? {
+            arePropertiesVisible: true,
+            concordanceQuery: undefined,
+            dictionaryPane: undefined
+          }
+        : { arePropertiesVisible: false }
+    );
     this.toggleTableOfContents(false);
     this.toggleBacklinks(false);
   };
