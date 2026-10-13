@@ -7,8 +7,8 @@
 #
 # Android is signed with the upload key from the repository secrets
 # (ANDROID_KEYSTORE_*), and with the debug key when they are missing. iOS is
-# built for the simulator, unsigned, until the App Store Connect key is in
-# the secrets (M1 Fase 6.2).
+# built for the simulator, signed to run locally, until the App Store Connect
+# key is in the secrets (M1 Fase 6.2).
 #
 # A tag vX.Y.Z runs it from the installers workflow, so the release waits for
 # the APK: the GitHub APK looks for its update in that release. The same tag
@@ -21,7 +21,7 @@ on:
   workflow_call:
   push:
     branches:
-      - m1-ios
+      - ios
 
 jobs:
   build:
@@ -119,6 +119,9 @@ jobs:
         # bash, not the default shell: with pipefail, xcodebuild's failure is
         # not hidden by the tail that keeps the log readable.
         shell: bash
+        # Signed to run locally, not unsigned: an unsigned app carries no
+        # entitlements, so it has no app group container, and MMKV, which
+        # keeps its files there (appGroupId in Info.plist), crashes at launch.
         run: |
           pod install
           xcodebuild \
@@ -129,8 +132,13 @@ jobs:
             -destination "generic/platform=iOS Simulator" \
             -xcconfig build-configs/ios-build.active.xcconfig \
             -derivedDataPath build \
-            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGN_STYLE=Manual \
+            CODE_SIGN_IDENTITY=- \
+            DEVELOPMENT_TEAM= \
+            PROVISIONING_PROFILE_SPECIFIER= \
             build | tail -n 200
+          # The app group must show here, or the app will not open.
+          codesign -d --entitlements - build/Build/Products/Release-iphonesimulator/Notesnook.app
           mkdir -p ../dist
           ditto -c -k --keepParent build/Build/Products/Release-iphonesimulator/*.app ../dist/epigrapho_ios_simulator.zip
 
@@ -151,7 +159,12 @@ jobs:
           sleep 30
           xcrun simctl io "$device" screenshot ../dist/epigrapho_ios_simulator.png
           if ! xcrun simctl spawn "$device" launchctl list | grep -q tech.azteya.epigrapho; then
-            # Why it closed, next to the screenshot.
+            # Why it closed, next to the screenshot. The report is written a
+            # few seconds after the crash.
+            for i in $(seq 1 12); do
+              ls ~/Library/Logs/DiagnosticReports/Notesnook*.ips >/dev/null 2>&1 && break
+              sleep 5
+            done
             cp ~/Library/Logs/DiagnosticReports/Notesnook*.ips ../dist/ 2>/dev/null || true
             xcrun simctl spawn "$device" log show --last 3m --info --debug --style compact --predicate 'process == "Notesnook" OR eventMessage CONTAINS[c] "tech.azteya.epigrapho"' > ../dist/epigrapho_ios_log.txt || true
             exit 1
