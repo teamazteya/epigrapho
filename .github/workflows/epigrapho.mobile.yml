@@ -169,6 +169,11 @@ jobs:
             xcrun simctl spawn "$device" log show --last 3m --info --debug --style compact --predicate 'process == "Notesnook" OR eventMessage CONTAINS[c] "tech.azteya.epigrapho"' > ../dist/epigrapho_ios_log.txt || true
             exit 1
           fi
+          # A minute later, to tell a slow first start from one stuck on the
+          # splash; the JS log (ReactNativeJS) says where it stopped.
+          sleep 60
+          xcrun simctl io "$device" screenshot ../dist/epigrapho_ios_simulator_90s.png
+          xcrun simctl spawn "$device" log show --last 3m --info --debug --style compact --predicate 'process == "Notesnook"' > ../dist/epigrapho_ios_log.txt || true
 
       - uses: actions/upload-artifact@v4
         # Also when the app did not stay open: the screenshot and the crash
