@@ -158,7 +158,7 @@ jobs:
           xcrun simctl launch --console-pty "$device" tech.azteya.epigrapho > ../dist/epigrapho_ios_console.txt 2>&1 &
           sleep 30
           xcrun simctl io "$device" screenshot ../dist/epigrapho_ios_simulator.png
-          if ! xcrun simctl spawn "$device" launchctl list | grep -q tech.azteya.epigrapho; then
+          if ! xcrun simctl spawn "$device" launchctl list | grep tech.azteya.epigrapho > /dev/null; then
             # Why it closed, next to the screenshot. The report is written a
             # few seconds after the crash.
             for i in $(seq 1 12); do
