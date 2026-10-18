@@ -1,3 +1,5 @@
 * text=auto eol=lf
 # The Rand OCR is checked against its SHA-256: git must not touch its line ends.
 packages/original-languages/data/rand-1890_djvu.txt -text
+# Preserve the upstream dictionary and licences byte-for-byte, including whitespace.
+apps/desktop/resources/rla-es-2.9/* -text -whitespace

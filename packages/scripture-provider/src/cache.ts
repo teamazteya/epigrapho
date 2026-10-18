@@ -35,6 +35,8 @@ export const CACHE_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
 export type CachedVerse = {
   text: string;
+  /** Version 2 keeps verse numbers. Legacy rows remain usable offline. */
+  format?: number;
   /** When the text was fetched, in milliseconds since the epoch. */
   fetchedAt: number;
 };
@@ -134,10 +136,16 @@ export function withCache(
     async getVerseText(ref: VerseRange, translationId: string) {
       const key = cacheKey(ref, translationId);
       const cached = await cache.get(key);
-      if (cached && now() - cached.fetchedAt < ttlMs) return cached.text;
+      if (cached?.format === 2 && now() - cached.fetchedAt < ttlMs)
+        return cached.text;
 
       const text = await provider.getVerseText(ref, translationId);
-      if (text) await cache.set(key, { text, fetchedAt: now() });
+      if (text)
+        await cache.set(key, {
+          text,
+          fetchedAt: now(),
+          format: /^\[\d/.test(text) ? 2 : 1
+        });
       return text;
     }
   };

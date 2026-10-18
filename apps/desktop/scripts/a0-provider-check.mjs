@@ -106,7 +106,7 @@ try {
   }, providerUrl);
 
   console.log(JSON.stringify(result, null, 2));
-  assert.match(result.single, /^“Porque Dios amó al mundo/);
+  assert.match(result.single, /^\[16\] “Porque Dios amó al mundo/);
   assert.ok(
     result.range.startsWith(result.single),
     "el rango debe abrir en 3:16"
@@ -116,7 +116,7 @@ try {
     "el rango 16-18 debe traer mas texto que 3:16"
   );
   assert.ok(result.range.includes(result.again), "el rango debe incluir 3:17");
-  assert.match(result.psalm, /^El Señor es mi pastor/);
+  assert.match(result.psalm, /^\[1\] El Señor es mi pastor/);
   assert.equal(result.omitted, "", "JHN 5:4 no tiene texto en VBL");
   console.log(
     "GREEN: getVerseText devolvio el texto del verso desde el pack VBL."

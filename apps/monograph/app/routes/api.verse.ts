@@ -78,6 +78,13 @@ const verses = new LRUCache<string, string>({ max: 5000, ttl: 86_400_000 });
 const hits = new LRUCache<string, number>({ max: 10_000, ttl: 60_000 });
 const PER_MINUTE = 60;
 
+// Existing installers keep their plain-text response until they upgrade.
+function displayText(request: Request, text: string | undefined) {
+  return new URL(request.url).searchParams.get("numbers") === "1"
+    ? text
+    : text?.replace(/(^|\n)\[\d+[a-z]?(?:[-–]\d+[a-z]?)?\]\s*/gi, " ").trim();
+}
+
 async function brandVerse(
   request: Request,
   ref: string,
@@ -105,7 +112,11 @@ async function brandVerse(
     if (text) verses.set(key, text);
   }
   return Response.json(
-    { text, translationId, attribution: attributionOf(translationId) },
+    {
+      text: displayText(request, text),
+      translationId,
+      attribution: attributionOf(translationId)
+    },
     // The app keeps its own thirty day copy; a second, hidden one in the HTTP
     // cache would blur when a verse was really fetched.
     { headers: { "Cache-Control": "no-store" } }
@@ -128,7 +139,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const book = (await load(translationId)).get(ref.book);
   return Response.json(
     {
-      text: book ? textInRange(book, ref) : "",
+      text: displayText(request, book ? textInRange(book, ref) : ""),
       translationId,
       attribution: attributionOf(translationId)
     },

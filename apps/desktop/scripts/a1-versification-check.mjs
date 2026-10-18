@@ -32,7 +32,8 @@ const CASES = [
     ref: { book: "PSA", chapter: 51, verse: 1 },
     // The psalm's title is verse 1 in the original. Canonically, verse 1 is
     // the plea, and that is what every translation must show.
-    expect: /^(Ten (misericordia|compasión|piedad)|Have (mercy|gracious))/i,
+    expect:
+      /^\[\d+\] (Ten (misericordia|compasión|piedad)|Have (mercy|gracious))/i,
     reject: /al músico|director del coro|choirmaster|when Nathan/i
   },
   {

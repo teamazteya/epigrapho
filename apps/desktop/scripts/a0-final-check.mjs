@@ -124,7 +124,7 @@ async function runFlow(title) {
 
   const john = await hoverAndRead(1);
   console.log(`[${title}] popover John 3:16:`, JSON.stringify(john));
-  assert.match(john.text, /^“Porque Dios amó al mundo/);
+  assert.match(john.text, /^16 “Porque Dios amó al mundo/);
   assert.equal(john.attribution, ATTRIBUTION);
 
   // 5: el Scripture Block trae el verso con atribución.
@@ -144,7 +144,7 @@ async function runFlow(title) {
   console.log(`[${title}] bloque:`, JSON.stringify(block));
   assert.equal(block.ref, "JHN.3.16");
   assert.equal(block.translationId, "VBL");
-  assert.match(block.text, /^“Porque Dios amó al mundo/);
+  assert.match(block.text, /^16 “Porque Dios amó al mundo/);
   assert.equal(block.attribution, ATTRIBUTION);
 
   // 6: copiar el verso deja texto, referencia legible y traducción.
@@ -160,7 +160,10 @@ async function runFlow(title) {
   }
   console.log(`[${title}] portapapeles:`, JSON.stringify(copied));
   const [quoted, attribution] = copied.split(/\r?\n/);
-  assert.ok(quoted.startsWith("«“Porque Dios amó al mundo"), "falta el verso");
+  assert.ok(
+    quoted.startsWith("«[16] “Porque Dios amó al mundo"),
+    "falta el verso"
+  );
   assert.ok(
     quoted.includes("» — Juan 3:16 (VBL)"),
     "falta la referencia legible o la traducción"

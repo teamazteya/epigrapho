@@ -61,7 +61,7 @@ function countingProvider(
 
 test("la segunda lectura no vuelve a pedir el verso", async () => {
   const store = memoryStore();
-  const online = countingProvider(() => "Porque de tal manera amó Dios");
+  const online = countingProvider(() => "[16] Porque de tal manera amó Dios");
   const clock = { now: 1_000_000 };
   const provider = withCache(online, { store, now: () => clock.now });
 
@@ -74,22 +74,44 @@ test("la segunda lectura no vuelve a pedir el verso", async () => {
   assert.equal(store.rows.get("NBLA:JHN.3.16").fetchedAt, 1_000_000);
 });
 
+test("una copia antigua fresca se renueva para obtener números sin borrarla si falla", async () => {
+  const store = memoryStore();
+  store.rows.set(cacheKey(JOHN, "NBLA"), {
+    text: "texto antiguo",
+    fetchedAt: 1000
+  });
+  const failing = withCache(
+    countingProvider(() => {
+      throw new Error("offline");
+    }),
+    { store, now: () => 1001 }
+  );
+  await assert.rejects(() => failing.getVerseText(JOHN, "NBLA"), /offline/);
+  assert.equal(store.rows.get(cacheKey(JOHN, "NBLA"))?.text, "texto antiguo");
+  const fresh = withCache(
+    countingProvider(() => "[16] texto nuevo"),
+    { store, now: () => 1002 }
+  );
+  assert.equal(await fresh.getVerseText(JOHN, "NBLA"), "[16] texto nuevo");
+  assert.equal(store.rows.get(cacheKey(JOHN, "NBLA"))?.format, 2);
+});
+
 test("pasados los 30 dias el verso se vuelve a pedir", async () => {
   const store = memoryStore();
-  const online = countingProvider((call) => `respuesta ${call}`);
+  const online = countingProvider((call) => `[16] respuesta ${call}`);
   const clock = { now: 1_000_000 };
   const provider = withCache(online, { store, now: () => clock.now });
 
-  assert.equal(await provider.getVerseText(JOHN, "NBLA"), "respuesta 1");
+  assert.equal(await provider.getVerseText(JOHN, "NBLA"), "[16] respuesta 1");
 
   // One second short of the window: still the stored copy.
   clock.now += CACHE_TTL_MS - 1000;
-  assert.equal(await provider.getVerseText(JOHN, "NBLA"), "respuesta 1");
+  assert.equal(await provider.getVerseText(JOHN, "NBLA"), "[16] respuesta 1");
   assert.equal(online.calls, 1);
 
   // Past it: asked again, and the row is refreshed.
   clock.now += 2000;
-  assert.equal(await provider.getVerseText(JOHN, "NBLA"), "respuesta 2");
+  assert.equal(await provider.getVerseText(JOHN, "NBLA"), "[16] respuesta 2");
   assert.equal(online.calls, 2);
   assert.equal(store.rows.get("NBLA:JHN.3.16").fetchedAt, clock.now);
 });
@@ -123,6 +145,16 @@ test("una respuesta vacia no se guarda", async () => {
 
   assert.deepEqual([...store.rows.keys()], []);
   assert.equal(online.calls, 2);
+});
+
+test("un servidor antiguo sin números no deja una copia marcada como actual", async () => {
+  const store = memoryStore();
+  const online = countingProvider(() => "Texto sin números");
+  const provider = withCache(online, { store });
+  await provider.getVerseText(JOHN, "NBLA");
+  await provider.getVerseText(JOHN, "NBLA");
+  assert.equal(online.calls, 2);
+  assert.equal(store.rows.get(cacheKey(JOHN, "NBLA"))?.format, 1);
 });
 
 test("un fallo no se guarda ni tapa lo que ya estaba", async () => {

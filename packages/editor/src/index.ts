@@ -167,6 +167,7 @@ export type TiptapOptions = EditorOptions &
     parseScriptureReferences?: ScriptureReferenceOptions["parse"];
     // Epigrapho: likewise the licence registry, which lives with the provider.
     scriptureAttribution?: ScriptureBlockOptions["attributionOf"];
+    resolveScriptureBlock?: ScriptureBlockOptions["resolve"];
     // Epigrapho (A3): and the translations a block can be compared in.
     compareScripture?: ScriptureBlockOptions["compare"];
     // Epigrapho: and the grammar checker, which runs in the desktop app.
@@ -208,6 +209,7 @@ const useTiptap = (
     parseScriptureReferences,
     scriptureAttribution,
     compareScripture,
+    resolveScriptureBlock,
     checkGrammar,
     ignoreGrammar,
     insertInterlinear,
@@ -449,7 +451,8 @@ const useTiptap = (
           ...(scriptureAttribution
             ? { attributionOf: scriptureAttribution }
             : {}),
-          compare: compareScripture
+          compare: compareScripture,
+          resolve: resolveScriptureBlock
         }),
         GrammarCheck.configure({ check: checkGrammar, ignore: ignoreGrammar }),
         Interlinear.configure({
@@ -501,6 +504,7 @@ const useTiptap = (
       parseScriptureReferences,
       scriptureAttribution,
       compareScripture,
+      resolveScriptureBlock,
       checkGrammar,
       ignoreGrammar,
       getLinkData,
@@ -573,6 +577,7 @@ export {
   formatVerseForClipboard,
   type ScriptureCopyOptions
 } from "./extensions/scripture-block/copy.js";
+export { renderVerseText } from "./extensions/scripture-block/verse-text.js";
 export * from "./toolbar/index.js";
 export * from "./types.js";
 export * from "./utils/word-counter.js";

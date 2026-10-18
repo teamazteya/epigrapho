@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import { strings } from "@notesnook/intl";
+import { renderVerseText } from "../scripture-block/verse-text.js";
 
 const SELECTOR = "span[data-scripture-ref]";
 /** One popover serves every reference, so one id is enough to point at it. */
@@ -281,8 +282,10 @@ async function show(target: HTMLElement, options: ScripturePopoverOptions) {
   // The pointer may have moved on while the pack was being read.
   if (current !== request || !verseElement) return;
 
-  verseElement.textContent =
-    verse.text || strings.scriptureNoTextForRef(translationId);
+  renderVerseText(
+    verseElement,
+    verse.text || strings.scriptureNoTextForRef(translationId)
+  );
   // Credit what was actually served; the notice below it says why that is not
   // the fresh text of what was asked for.
   if (attributionElement)

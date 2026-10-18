@@ -23,6 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // only; no second screen.
 import { Note, sanitizeHtml } from "@notesnook/core";
 import { strings } from "@notesnook/intl";
+import { renderVerseText } from "@notesnook/editor";
 import { parseRef } from "@notesnook/scripture-parser";
 import { attributionOf } from "@notesnook/scripture-provider";
 import { Box, Button, Flex, Text } from "@theme-ui/components";
@@ -81,7 +82,7 @@ async function toggleVerse(reference: HTMLElement) {
   box.dataset.scriptureRef = ref;
   box.dataset.testId = "sermon-verse";
   const text = document.createElement("p");
-  text.textContent = verse.text;
+  renderVerseText(text, verse.text);
   const credit = document.createElement("p");
   credit.className = "sermon-verse-credit";
   credit.textContent = `${reference.textContent} · ${attributionOf(

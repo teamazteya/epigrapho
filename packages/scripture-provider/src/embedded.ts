@@ -122,9 +122,9 @@ export function textInRange(verses: Book, ref: VerseRange): string {
   for (const [key, found] of verses) {
     const [chapter, verse] = key.split(":").map(Number);
     const at = chapter * 1e4 + verse;
-    if (at >= start && at <= end && found) text.push(found);
+    if (at >= start && at <= end && found) text.push(`[${verse}] ${found}`);
   }
-  return text.join(" ");
+  return text.join("\n");
 }
 
 /** The embedded layer as a provider (ADR 0002). */

@@ -18,6 +18,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+import { readVerseText } from "./verse-text.js";
+
 const BLOCK = ".scripture-block";
 /** The copy control the block renders, which is the only thing that copies. */
 const BUTTON = "[data-scripture-copy]";
@@ -72,20 +74,21 @@ export function attachScriptureCopy(
     event.preventDefault();
 
     const ref = block.getAttribute("data-scripture-ref");
-    const text = block
-      .querySelector(".scripture-block-text")
-      ?.textContent?.trim();
+    const text = readVerseText(
+      block.querySelector(".scripture-block-text")
+    ).trim();
     if (!ref || !text) return;
 
     const translationId = block.getAttribute("data-translation-id") || "VBL";
     // Compared translations (A3) travel with it, each with its own credit.
-    const parallel = [
-      ...block.querySelectorAll(":scope > .scripture-block-parallel")
-    ].map((column) => ({
-      translationId: column.getAttribute("data-translation-id") || "",
-      text:
-        column.querySelector(".scripture-block-text")?.textContent?.trim() || ""
-    }));
+    const parallel = [...block.children]
+      .filter((column) => column.classList.contains("scripture-block-parallel"))
+      .map((column) => ({
+        translationId: column.getAttribute("data-translation-id") || "",
+        text: readVerseText(
+          column.querySelector(".scripture-block-text")
+        ).trim()
+      }));
     await options.copy(
       [{ translationId, text }, ...parallel]
         .map((column) =>

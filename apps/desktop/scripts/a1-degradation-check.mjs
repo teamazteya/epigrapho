@@ -245,7 +245,7 @@ try {
   // 1. with the network up: the brand text, credited to its publisher.
   const online = await hover(0);
   console.log("con red:", JSON.stringify(online));
-  assert.match(online.text, /^»Porque de tal manera amó Dios al mundo/);
+  assert.match(online.text, /^16 »Porque de tal manera amó Dios al mundo/);
   assert.match(online.attribution, /^Nueva Biblia de las Américas Copyright/);
   // Con red y copia fresca no hay nada que advertir.
   assert.equal(online.notice, "");
@@ -296,7 +296,7 @@ try {
   // 4. offline with no copy at all: the embedded translation, labelled.
   const fallback = await hover(1);
   console.log("sin red, sin copia:", JSON.stringify(fallback));
-  assert.match(fallback.text, /^Sabemos que en todas las cosas Dios obra/);
+  assert.match(fallback.text, /^28 Sabemos que en todas las cosas Dios obra/);
   assert.match(fallback.attribution, /^VBL — CC BY-SA 4\.0/);
   assert.match(fallback.notice, /^Se muestra VBL en su lugar/);
 

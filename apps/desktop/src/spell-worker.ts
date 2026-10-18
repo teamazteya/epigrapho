@@ -91,29 +91,123 @@ for (const entry of pack.entries) {
   terms.set(entry.word, entry);
 }
 
-function suggest(word: string): string[] {
-  const suggestions: string[] = [];
-  for (const suggestion of spellers.flatMap((speller) =>
-    speller.suggest(word)
-  )) {
-    const term = terms.get(suggestion);
-    // An old spelling points at the current one instead of at itself; a
-    // variant keeps its place but lets the preferred form go first.
-    if (term?.preferred) suggestions.push(term.preferred);
-    if (term?.status !== "deprecated") suggestions.push(suggestion);
-  }
-  return [...new Set(suggestions)];
+const corrections: Record<string, string[]> = JSON.parse(
+  readFileSync(path.join(dictionaries, "spelling-corrections-es.json"), "utf8")
+).entries;
+const folded = (word: string) =>
+  word.toLowerCase().normalize("NFD").replace(/\p{M}/gu, "");
+
+/** Damerau distance keeps a swapped pair (amro → amor) a single typo. */
+function distance(a: string, b: string) {
+  const rows = Array.from({ length: a.length + 1 }, (_, i) => [i]);
+  rows[0] = Array.from({ length: b.length + 1 }, (_, i) => i);
+  for (let i = 1; i <= a.length; i++)
+    for (let j = 1; j <= b.length; j++) {
+      rows[i][j] = Math.min(
+        rows[i - 1][j] + 1,
+        rows[i][j - 1] + 1,
+        rows[i - 1][j - 1] + Number(a[i - 1] !== b[j - 1])
+      );
+      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1])
+        rows[i][j] = Math.min(rows[i][j], rows[i - 2][j - 2] + 1);
+    }
+  return rows[a.length][b.length];
 }
 
-type Request = { id: number; words?: string[]; suggest?: string };
+function suggest(word: string, candidates: string[] = []): string[] {
+  if (word.length > 64 || correct(word)) return [];
+  const lower = word.toLowerCase();
+  const spanish = languages.includes("es");
+  const preferred = spanish ? corrections[lower] || [] : [];
+  const valid = (value: string) =>
+    !!value.trim() &&
+    value.length <= 128 &&
+    /\p{L}/u.test(value) &&
+    value
+      .trim()
+      .split(/\s+/)
+      .every((part) => correct(part)) &&
+    !(/^[\p{Lu}\d]+$/u.test(value) && /^\p{Ll}+$/u.test(word));
+  const close = (value: string) =>
+    distance(folded(word), folded(value)) <= (word.length <= 3 ? 1 : 2);
+  const order = (values: string[]) =>
+    [...new Set(values)]
+      .filter((value) => valid(value) && close(value))
+      .sort(
+        (a, b) =>
+          distance(folded(word), folded(a)) - distance(folded(word), folded(b))
+      );
+  const modern = (values: string[]) =>
+    values.flatMap((value) => {
+      const term = terms.get(value);
+      return term?.preferred
+        ? [term.preferred, ...(term.status === "deprecated" ? [] : [value])]
+        : [value];
+    });
+  const external = order(modern(candidates));
+  const biblical = order(modern([...terms.keys()]));
+  let fallback: string[] = [];
+  if (!external.length) {
+    fallback = spellers
+      .flatMap((speller) =>
+        speller.suggest(word).map((value, rank) => ({ value, rank }))
+      )
+      .sort((a, b) => a.rank - b.rank || a.value.localeCompare(b.value))
+      .map((item) => item.value);
+    if (spanish) {
+      // Known Spanish sound confusions expand candidates; dictionaries still validate every result.
+      const forms = new Set([
+        lower.replace(/k/g, "c"),
+        lower.replace(/s/g, "c"),
+        lower.replace(/s/g, "z"),
+        lower.replace(/j/g, "g"),
+        lower.replace(/g/g, "j"),
+        lower.replace(/b/g, "v"),
+        lower.replace(/v/g, "b"),
+        lower.replace(/ll/g, "y"),
+        lower.replace(/y/g, "ll"),
+        lower.startsWith("h") ? lower.slice(1) : `h${lower}`
+      ]);
+      for (const form of forms)
+        if (form !== lower) {
+          fallback.push(form);
+          fallback.push(...spellers[languages.indexOf("es")].suggest(form));
+        }
+    }
+    fallback = order(modern(fallback));
+  }
+  const unique = new Map<string, string>();
+  for (let value of modern([
+    ...preferred.filter(valid),
+    ...external,
+    ...biblical,
+    ...fallback
+  ])) {
+    if (/^\p{Lu}/u.test(word) && /^\p{Ll}/u.test(value))
+      value = value[0].toUpperCase() + value.slice(1);
+    if (!unique.has(value.toLowerCase()))
+      unique.set(value.toLowerCase(), value);
+  }
+  return [...unique.values()].slice(0, 5);
+}
+
+type Request = {
+  id: number;
+  words?: string[];
+  suggest?: string;
+  candidates?: string[];
+};
 
 // Messages that arrive while the dictionary is still loading wait in the
 // port's queue: the listener is attached after the dictionary is ready, and
 // nothing is lost, only answered a moment later.
-parentPort?.on("message", ({ id, words, suggest: word }: Request) => {
-  parentPort?.postMessage({
-    id,
-    misspelled: words?.filter((each) => !correct(each)) ?? [],
-    suggestions: word ? suggest(word) : []
-  });
-});
+parentPort?.on(
+  "message",
+  ({ id, words, suggest: word, candidates }: Request) => {
+    parentPort?.postMessage({
+      id,
+      misspelled: words?.filter((each) => !correct(each)) ?? [],
+      suggestions: word ? suggest(word, candidates) : []
+    });
+  }
+);

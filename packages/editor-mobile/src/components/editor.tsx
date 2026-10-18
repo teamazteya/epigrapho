@@ -298,6 +298,7 @@ const Tiptap = ({
           indices: reference.indices
         })),
       scriptureAttribution: attributionOf,
+      resolveScriptureBlock: resolveVerse,
       compareScripture,
       insertScripture: async (editor) => {
         const scripture = await askForScripture();

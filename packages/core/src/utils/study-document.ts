@@ -92,6 +92,24 @@ const childElements = (element: Element, match: (child: Element) => boolean) =>
 const hasClass = (name: string) => (child: Element) =>
   child.classList.contains(name);
 
+function scriptureText(element: Element | null) {
+  if (!element) return "";
+  const lines = Array.from(element.querySelectorAll("[data-verse-line]"));
+  return lines.length
+    ? lines
+        .map((line) => {
+          const number = line.querySelector("[data-verse-number]");
+          const label = number?.getAttribute("data-verse-number");
+          return label && /^\d+[a-z]?(?:[-–]\d+[a-z]?)?$/i.test(label)
+            ? `[${label}] ${(line.textContent || "")
+                .slice(number?.textContent?.length || 0)
+                .trimStart()}`
+            : line.textContent || "";
+        })
+        .join("\n")
+    : element.textContent || "";
+}
+
 /** Reads the note's HTML (study blocks already rendered) into the model. */
 export async function buildStudyDocument(
   html: string,
@@ -161,8 +179,7 @@ export async function buildStudyDocument(
   }
 
   const textOf = (element: Element) =>
-    childElements(element, hasClass("scripture-block-text"))[0]?.textContent ||
-    "";
+    scriptureText(childElements(element, hasClass("scripture-block-text"))[0]);
 
   const blocks: Block[] = [];
   for (const element of Array.from(body.children)) {
@@ -193,8 +210,7 @@ export async function buildStudyDocument(
         ...childElements(element, hasClass("scripture-block-parallel")).map(
           (column) => ({
             id: column.getAttribute("data-translation-id") || "",
-            text:
-              column.querySelector(".scripture-block-text")?.textContent || ""
+            text: scriptureText(column.querySelector(".scripture-block-text"))
           })
         )
       ];
@@ -237,6 +253,23 @@ const escape = (text: string) =>
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
+
+const verseLines = (text: string) =>
+  text.split("\n").map((line) => {
+    const match = /^\[(\d+[a-z]?(?:[-–]\d+[a-z]?)?)\]\s*(.*)$/i.exec(line);
+    return { number: match?.[1], text: match?.[2] ?? line };
+  });
+const verseHtml = (text: string) =>
+  verseLines(text)
+    .map(
+      (line) =>
+        `${
+          line.number
+            ? `<sup class="verse-number">${escape(line.number)}</sup> `
+            : ""
+        }${escape(line.text)}`
+    )
+    .join("<br>");
 
 function inlineHtml(inlines: Inline[]) {
   return inlines
@@ -283,7 +316,7 @@ export function studyDocumentHtml(document: StudyDocument) {
         )}</p><div class="columns">${block.columns
           .map(
             (column) =>
-              `<div><p class="verse">${escape(
+              `<div><p class="verse">${verseHtml(
                 column.text
               )}</p><p class="credit">${escape(column.attribution)}</p></div>`
           )
@@ -300,7 +333,7 @@ export function studyDocumentHtml(document: StudyDocument) {
           (note, i) =>
             `<li id="note-${i + 1}"><strong>${escape(
               note.label
-            )}.</strong> ${escape(
+            )}.</strong> ${verseHtml(
               note.text || strings.studyExport.noText()
             )} <span class="credit">${escape(note.attribution)}${
               note.notice ? ` · ${escape(note.notice)}` : ""
@@ -326,6 +359,7 @@ export function studyDocumentHtml(document: StudyDocument) {
   .scripture .label { margin: 0 0 4pt; font-weight: 600; font-size: 10pt; color: #4a5468; }
   .scripture .columns { display: grid; grid-template-columns: repeat(var(--columns), minmax(0, 1fr)); gap: 14pt; }
   .verse { margin: 0; font-family: "Cormorant Garamond", "Source Serif 4", Georgia, serif; font-size: 12pt; line-height: 1.5; }
+  .verse-number { font-size: 0.75em; line-height: 0; color: #4a5468; }
   .credit { margin: 4pt 0 0; font-size: 8.5pt; color: #4a5468; }
   .study { margin: 10pt 0; break-inside: avoid; }
   sup.note-ref a { text-decoration: none; color: #2e6b5e; font-size: 8pt; }
@@ -420,6 +454,27 @@ export async function studyDocumentDocx(
     HeadingLevel.HEADING_6
   ];
   const border = { style: BorderStyle.SINGLE, size: 4, color: "D9D2C3" };
+  const verseRuns = (text: string, size?: number) =>
+    verseLines(text).flatMap((line, i) => [
+      ...(line.number
+        ? [
+            new TextRun({
+              text: line.number,
+              superScript: true,
+              color: MUTED,
+              font: SERIF,
+              size,
+              break: i ? 1 : undefined
+            })
+          ]
+        : []),
+      new TextRun({
+        text: `${line.number ? " " : ""}${line.text}`,
+        font: SERIF,
+        size,
+        break: i && !line.number ? 1 : undefined
+      })
+    ]);
 
   const children: (
     | InstanceType<typeof Paragraph>
@@ -535,13 +590,7 @@ export async function studyDocumentDocx(
                     },
                     children: [
                       new Paragraph({
-                        children: [
-                          new TextRun({
-                            text: column.text,
-                            font: SERIF,
-                            size: 24
-                          })
-                        ]
+                        children: verseRuns(column.text, 24)
                       }),
                       new Paragraph({
                         spacing: { before: 80 },
@@ -576,10 +625,7 @@ export async function studyDocumentDocx(
         new Paragraph({
           children: [
             new TextRun({ text: `${note.label}. `, bold: true }),
-            new TextRun({
-              text: note.text || strings.studyExport.noText(),
-              font: SERIF
-            }),
+            ...verseRuns(note.text || strings.studyExport.noText()),
             new TextRun({
               text: ` ${note.attribution}${
                 note.notice ? ` · ${note.notice}` : ""

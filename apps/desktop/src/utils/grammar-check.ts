@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import { app } from "electron";
 import { ChildProcess, spawn } from "child_process";
 import { createServer } from "net";
+import { mkdirSync, realpathSync } from "fs";
 import path from "path";
 import { config } from "./config";
 import { spellCheckerLanguages } from "./spell-check";
@@ -131,10 +132,20 @@ async function waitUntilUp(port: number, server: ChildProcess) {
 async function launch(): Promise<number> {
   const port = await freePort();
   const { java, classpath } = runtime();
+  if (process.platform === "win32")
+    mkdirSync(app.getPath("userData"), { recursive: true });
   const server = spawn(
     java,
     [
       ...JAVA_OPTIONS,
+      // Keep Java's Windows sockets in the app-owned directory; system TEMP can fail to connect.
+      ...(process.platform === "win32"
+        ? [
+            `-Djdk.net.unixdomain.tmpdir=${realpathSync.native(
+              app.getPath("userData")
+            )}`
+          ]
+        : []),
       "-cp",
       classpath,
       "org.languagetool.server.HTTPServer",
@@ -152,6 +163,24 @@ async function launch(): Promise<number> {
     if (child === server) onExit();
   });
   await waitUntilUp(port, server);
+  // Load the dictionaries before the first right-click; a cold spelling check takes ~2 seconds.
+  await Promise.all(
+    spellCheckerLanguages().map((language) =>
+      fetch(`http://127.0.0.1:${port}/v2/check`, {
+        method: "POST",
+        signal: AbortSignal.timeout(5000),
+        body: new URLSearchParams({
+          text: language === "es" ? "oración" : "word",
+          language: LANGUAGES[language],
+          enabledOnly: "true",
+          enabledRules:
+            language === "es" ? SPELLING_RULES[0] : SPELLING_RULES[1]
+        })
+      }).catch(() => undefined)
+    )
+  );
+  if (child !== server || stopping)
+    throw new Error("LanguageTool stopped while starting");
   failures = 0;
   status = "ready";
   return port;
@@ -201,6 +230,65 @@ export function grammarCheckerStatus(): GrammarStatus {
 /** The process id, for tests that watch it come and go. */
 export function grammarCheckerPid() {
   return child?.pid;
+}
+
+/** The ready local sidecar suggests spelling; nspell alone owns underlines. */
+export async function grammarSpellingSuggestions(
+  word: string
+): Promise<string[]> {
+  if (
+    !config.isGrammarCheckerEnabled ||
+    status !== "ready" ||
+    !ready ||
+    !word ||
+    word.length > 64
+  )
+    return [];
+  const port = await ready.catch(() => undefined);
+  if (!port) return [];
+  const lists = await Promise.all(
+    spellCheckerLanguages().map(async (language) => {
+      const rule = language === "es" ? SPELLING_RULES[0] : SPELLING_RULES[1];
+      try {
+        const response = await fetch(`http://127.0.0.1:${port}/v2/check`, {
+          method: "POST",
+          signal: AbortSignal.timeout(1500),
+          body: new URLSearchParams({
+            text: word,
+            language: LANGUAGES[language],
+            enabledOnly: "true",
+            enabledRules: rule
+          })
+        });
+        if (!response.ok) return [];
+        const result = (await response.json()) as {
+          matches: {
+            offset: number;
+            length: number;
+            rule: { id: string };
+            replacements: { value: string }[];
+          }[];
+        };
+        return result.matches
+          .filter(
+            (match) =>
+              match.offset === 0 &&
+              match.length === word.length &&
+              match.rule.id === rule
+          )
+          .flatMap((match) =>
+            match.replacements.map((replacement) => replacement.value)
+          );
+      } catch {
+        return [];
+      }
+    })
+  );
+  // Equal-rank candidates from each language compete together, without putting one entire language first.
+  return lists
+    .flatMap((list) => list.map((value, rank) => ({ value, rank })))
+    .sort((a, b) => a.rank - b.rank || a.value.localeCompare(b.value))
+    .map((item) => item.value);
 }
 
 const SPANISH =

@@ -95,7 +95,7 @@ try {
   console.log("insertado:", JSON.stringify(inserted));
   assert.equal(inserted.ref, "JHN.3.16");
   assert.equal(inserted.translationId, "VBL");
-  assert.match(inserted.text, /^“Porque Dios amó al mundo/);
+  assert.match(inserted.text, /^16 “Porque Dios amó al mundo/);
   assert.equal(inserted.attribution, "VBL — CC BY-SA 4.0");
 
   // No typing here: the inserted block is selected, and a keystroke would

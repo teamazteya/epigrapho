@@ -31,5 +31,6 @@ import type { VerseRange } from "@notesnook/scripture-parser";
  * actually went wrong throws.
  */
 export type ScriptureTextProvider = {
+  /** One line per verse: [16] text. Numbers come from the translation, including gaps. */
   getVerseText(ref: VerseRange, translationId: string): Promise<string>;
 };

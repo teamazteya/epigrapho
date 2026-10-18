@@ -41,7 +41,7 @@ import { userDictionary } from "./user-dictionary";
  */
 const CHANNEL = "epigrapho:spellcheck";
 
-type Question = { words?: string[]; suggest?: string };
+type Question = { words?: string[]; suggest?: string; candidates?: string[] };
 type Answer = { misspelled: string[]; suggestions: string[] };
 const NOTHING: Answer = { misspelled: [], suggestions: [] };
 
@@ -62,8 +62,13 @@ function spellWorker() {
   // A spell checker that breaks must not take the editor with it: every
   // question in flight is answered "nothing is misspelled", and the next
   // question starts a new worker.
-  worker.on("error", stop);
-  worker.on("exit", stop);
+  const running = worker;
+  const onStopped = () => {
+    // A terminated worker may exit after its replacement has already started.
+    if (worker === running) stop();
+  };
+  worker.on("error", onStopped);
+  worker.on("exit", onStopped);
   // The worker must not be a reason for the app to stay alive on quit.
   worker.unref();
   return worker;
@@ -108,9 +113,12 @@ function ask(question: Question): Promise<Answer> {
  * is only a list: the context menu shows it and the person picks, because a
  * biblical term is never corrected on its own.
  */
-export async function spellingSuggestions(word: string): Promise<string[]> {
+export async function spellingSuggestions(
+  word: string,
+  candidates: string[] = []
+): Promise<string[]> {
   if (!config.isSpellCheckerEnabled || !word) return [];
-  return (await ask({ suggest: word })).suggestions;
+  return (await ask({ suggest: word, candidates })).suggestions;
 }
 
 export function setupSpellChecker() {

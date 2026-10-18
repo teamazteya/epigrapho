@@ -110,7 +110,7 @@ try {
   );
   const john = await readPopover();
   console.log("Juan 3:16:", JSON.stringify(john));
-  assert.match(john.text, /^“Porque Dios amó al mundo/);
+  assert.match(john.text, /^16 “Porque Dios amó al mundo/);
   assert.equal(john.attribution, "VBL — CC BY-SA 4.0");
   assert.ok(john.onScreen, "el popover se salió de la pantalla");
 
@@ -134,7 +134,7 @@ try {
   );
   const psalm = await readPopover();
   console.log("Salmo 23:1:", JSON.stringify(psalm));
-  assert.match(psalm.text, /^El Señor es mi pastor/);
+  assert.match(psalm.text, /^1 El Señor es mi pastor/);
   assert.equal(psalm.attribution, "VBL — CC BY-SA 4.0");
 
   console.log("GREEN: el popover muestra el verso de VBL con su atribución.");

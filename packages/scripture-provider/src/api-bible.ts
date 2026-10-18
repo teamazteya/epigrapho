@@ -40,15 +40,15 @@ export const API_BIBLE_IDS: Record<string, string> = {
 };
 
 /**
- * Everything switched off but the words: no footnotes, no section titles, no
- * chapter or verse numbers.
+ * Keep the provider's real verse numbers, including merged verses. The
+ * portable [number] markers are also used by the embedded packs.
  */
 const QUERY = [
   "content-type=text",
   "include-notes=false",
   "include-titles=false",
   "include-chapter-numbers=false",
-  "include-verse-numbers=false",
+  "include-verse-numbers=true",
   "include-verse-spans=false"
 ].join("&");
 
@@ -111,7 +111,10 @@ export function createApiBibleProvider({
       const { data } = (await response.json()) as {
         data?: { content?: string };
       };
-      return (data?.content || "").replace(/\s+/g, " ").trim();
+      return (data?.content || "")
+        .replace(/\s+/g, " ")
+        .replace(/\s*\[(\d+[a-z]?(?:[-–]\d+[a-z]?)?)\]\s*/gi, "\n[$1] ")
+        .trim();
     }
   };
 }

@@ -183,7 +183,7 @@ try {
   );
   const popover = await readPopover();
   console.log("preview:", JSON.stringify(popover));
-  assert.equal(popover.text, BSB_JOHN);
+  assert.equal(popover.text, `16 ${BSB_JOHN}`);
   assert.equal(popover.attribution, "BSB — Public Domain");
 
   await page.locator('.active [data-test-id="editor-title"]').hover();
@@ -212,7 +212,7 @@ try {
   console.log("bloque:", JSON.stringify(block));
   assert.equal(block.ref, "JHN.3.16");
   assert.equal(block.translationId, "BSB");
-  assert.equal(block.text, BSB_JOHN);
+  assert.equal(block.text, `16 ${BSB_JOHN}`);
   assert.equal(block.attribution, "BSB — Public Domain");
 
   // 3. the copy
@@ -227,7 +227,7 @@ try {
   }
   console.log("portapapeles:", JSON.stringify(copied));
   const [quoted, attribution] = copied.split(/\r?\n/);
-  assert.equal(quoted, `«${BSB_JOHN}» — Juan 3:16 (BSB)`);
+  assert.equal(quoted, `«[16] ${BSB_JOHN}» — Juan 3:16 (BSB)`);
   assert.equal(attribution, "BSB — Public Domain");
 
   console.log(

@@ -87,7 +87,9 @@ const VERSE_HOST =
 
 async function viaServer(ref: VerseRange, translationId: string) {
   const response = await net.fetch(
-    `${VERSE_HOST}/api/verse?ref=${apiBiblePassageId(ref)}&t=${translationId}`
+    `${VERSE_HOST}/api/verse?ref=${apiBiblePassageId(
+      ref
+    )}&t=${translationId}&numbers=1`
   );
   if (!response.ok)
     throw new Error(`verse server responded ${response.status}`);

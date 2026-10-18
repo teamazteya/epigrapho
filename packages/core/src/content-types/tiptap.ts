@@ -47,7 +47,7 @@ import {
   isNoteLink,
   parseInternalLink
 } from "../utils/internal-link.js";
-import { Element } from "domhandler";
+import { Element, Text } from "domhandler";
 import { render } from "dom-serializer";
 import { logger } from "../logger.js";
 
@@ -80,6 +80,26 @@ const converter = new showdown.Converter();
 converter.setFlavor("original");
 
 const splitter = /\W+/gm;
+
+/** Plain exports keep the same verse markers as the clipboard. */
+function portableScriptureHtml(html: string) {
+  if (!html.includes("data-verse-number")) return html;
+  const document = parseDocument(html);
+  for (const number of findAll(
+    (element) => !!element.attribs["data-verse-number"],
+    document.childNodes
+  ))
+    replaceElement(
+      number,
+      new Text(`[${number.attribs["data-verse-number"]}]`)
+    );
+  for (const line of findAll(
+    (element) => !!element.attribs["data-verse-line"],
+    document.childNodes
+  ))
+    replaceElement(line, new Element("div", {}, line.children));
+  return render(document);
+}
 /** Epigrapho: the blocks whose words are generated, not stored. */
 export const GENERATED_BLOCK_ATTRIBUTES = [
   "data-interlinear-ref",
@@ -96,11 +116,11 @@ export class Tiptap {
   }
 
   toTXT() {
-    return convertHtmlToTxt(this.data);
+    return convertHtmlToTxt(portableScriptureHtml(this.data));
   }
 
   toMD() {
-    return converter.makeMarkdown(this.data);
+    return converter.makeMarkdown(portableScriptureHtml(this.data));
   }
 
   toHeadline() {

@@ -1,0 +1,12 @@
+{
+  "name": "Recursos Lingüísticos Abiertos del Español",
+  "version": "2.9",
+  "locale": "es",
+  "source": "https://github.com/sbosio/rla-es/releases/download/v2.9/es.xpi",
+  "archiveSha256": "95f9e3f59f99d17f32414ac9aa6b488d6b0673e5334c67bbca3cba4909e91ad5",
+  "license": "GPL-3.0-or-later OR LGPL-3.0-or-later OR MPL-1.1",
+  "sha256": {
+    "es.aff": "674c5a4b4d39fd3b4452f045a4e6e0649db4a2ce23f5903df8c311e21f1a757c",
+    "es.dic": "0a788c01b1447915c7721e96a6e2183700e9b5f9ee8974320295188ed24822e3"
+  }
+}

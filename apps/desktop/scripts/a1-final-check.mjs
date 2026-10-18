@@ -472,7 +472,7 @@ try {
   assert.deepEqual(spanishInEnglish.refs, ["JHN.3.16"]);
   const preview = await hover(0);
   console.log("3. preview:", JSON.stringify(preview));
-  assert.match(preview.text, /^“Porque Dios amó al mundo/);
+  assert.match(preview.text, /^16 “Porque Dios amó al mundo/);
   assert.equal(preview.attribution, ATTRIBUTION);
 
   await chooseLanguage("es-MX");
@@ -540,7 +540,7 @@ try {
   await openNote(IN_ENGLISH);
   const fallback = await hover(0);
   console.log("5. sin red, pasaje nunca pedido:", JSON.stringify(fallback));
-  assert.match(fallback.text, /^“Porque Dios amó al mundo/);
+  assert.match(fallback.text, /^16 “Porque Dios amó al mundo/);
   assert.match(fallback.attribution, /^VBL — CC BY-SA 4\.0/);
   assert.match(fallback.notice, /Se muestra VBL en su lugar/);
   console.log("5. el núcleo sigue entero sin internet");

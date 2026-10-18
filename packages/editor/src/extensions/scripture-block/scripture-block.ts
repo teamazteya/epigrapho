@@ -22,6 +22,11 @@ import { Node, mergeAttributes } from "@tiptap/core";
 import type { Node as ProseMirrorNode } from "@tiptap/pm/model";
 import { strings } from "@notesnook/intl";
 import { formatVerseForClipboard } from "./copy.js";
+import {
+  readVerseText,
+  renderVerseText,
+  verseTextMarkup
+} from "./verse-text.js";
 
 export type ScriptureBlockAttributes = {
   /** Canonical USFM reference, e.g. "JHN.3.16". */
@@ -55,6 +60,11 @@ export type ScriptureBlockOptions = {
    * credits the translation by its id alone.
    */
   attributionOf: (translationId: string) => string;
+  /** Private editors upgrade old blocks; published snapshots never do. */
+  resolve?: (
+    ref: string,
+    translationId: string
+  ) => Promise<{ text: string; translationId: string; notice?: string }>;
   /**
    * Lets the person pick translations to compare (A3). The app owns the list
    * of translations and the words; `update` writes the columns to the block.
@@ -117,7 +127,7 @@ export const ScriptureBlock = Node.create<ScriptureBlockOptions>({
       text: {
         default: "",
         parseHTML: (element) =>
-          element.querySelector(".scripture-block-text")?.textContent || "",
+          readVerseText(element.querySelector(".scripture-block-text")),
         // The text is rendered as the block's own markup, so it does not also
         // travel as an attribute: a note stays readable outside the editor.
         renderHTML: () => ({})
@@ -125,13 +135,14 @@ export const ScriptureBlock = Node.create<ScriptureBlockOptions>({
       parallel: {
         default: [],
         parseHTML: (element) =>
-          [
-            ...element.querySelectorAll(":scope > .scripture-block-parallel")
-          ].map((column) => ({
-            translationId: column.getAttribute("data-translation-id") || "",
-            text:
-              column.querySelector(".scripture-block-text")?.textContent || ""
-          })),
+          [...element.children]
+            .filter((column) =>
+              column.classList.contains("scripture-block-parallel")
+            )
+            .map((column) => ({
+              translationId: column.getAttribute("data-translation-id") || "",
+              text: readVerseText(column.querySelector(".scripture-block-text"))
+            })),
         // Written as columns of markup (below), plus how many there are, which
         // is what the layout needs.
         renderHTML: (attributes) =>
@@ -158,7 +169,11 @@ export const ScriptureBlock = Node.create<ScriptureBlockOptions>({
         class: "scripture-block"
       }),
       ["p", { class: "scripture-block-reference" }, label],
-      ["p", { class: "scripture-block-text" }, node.attrs.text],
+      [
+        "p",
+        { class: "scripture-block-text" },
+        ...verseTextMarkup(node.attrs.text)
+      ],
       [
         "p",
         { class: "scripture-block-attribution" },
@@ -170,7 +185,11 @@ export const ScriptureBlock = Node.create<ScriptureBlockOptions>({
           class: "scripture-block-parallel",
           "data-translation-id": column.translationId
         },
-        ["p", { class: "scripture-block-text" }, column.text],
+        [
+          "p",
+          { class: "scripture-block-text" },
+          ...verseTextMarkup(column.text)
+        ],
         [
           "p",
           { class: "scripture-block-attribution" },
@@ -209,7 +228,7 @@ export const ScriptureBlock = Node.create<ScriptureBlockOptions>({
 
       const text = document.createElement("p");
       text.className = "scripture-block-text";
-      text.textContent = node.attrs.text;
+      renderVerseText(text, node.attrs.text);
 
       const attribution = document.createElement("p");
       attribution.className = "scripture-block-attribution";
@@ -235,7 +254,7 @@ export const ScriptureBlock = Node.create<ScriptureBlockOptions>({
           element.setAttribute("data-translation-id", column.translationId);
           const words = document.createElement("p");
           words.className = "scripture-block-text";
-          words.textContent = column.text;
+          renderVerseText(words, column.text);
           const credit = document.createElement("p");
           credit.className = "scripture-block-attribution";
           credit.textContent = this.options.attributionOf(column.translationId);
@@ -275,7 +294,60 @@ export const ScriptureBlock = Node.create<ScriptureBlockOptions>({
       }
 
       dom.append(reference, text, attribution, ...columns, controls);
-      return { dom };
+      let destroyed = false;
+      const { resolve } = this.options;
+      if (resolve && typeof getPos === "function") {
+        const primary = {
+          translationId: node.attrs.translationId,
+          text: node.attrs.text
+        };
+        const saved = [primary, ...(node.attrs.parallel as ParallelColumn[])];
+        if (saved.some((column) => !/^\[\d/.test(column.text))) {
+          void Promise.all(
+            saved.map(async (column) => {
+              if (/^\[\d/.test(column.text)) return column;
+              const verse = await resolve(
+                node.attrs.ref,
+                column.translationId
+              ).catch(() => undefined);
+              return verse &&
+                verse.translationId === column.translationId &&
+                verse.notice !== "fallback" &&
+                /^\[\d/.test(verse.text)
+                ? { translationId: column.translationId, text: verse.text }
+                : column;
+            })
+          ).then(([first, ...parallel]) => {
+            if (destroyed || editor.isDestroyed) return;
+            const pos = getPos();
+            if (
+              typeof pos !== "number" ||
+              editor.state.doc.nodeAt(pos) !== node
+            )
+              return;
+            if (
+              first.text === primary.text &&
+              parallel.every((column, i) => column.text === saved[i + 1].text)
+            )
+              return;
+            editor.view.dispatch(
+              editor.state.tr
+                .setNodeMarkup(pos, undefined, {
+                  ...node.attrs,
+                  text: first.text,
+                  parallel
+                })
+                .setMeta("addToHistory", false)
+            );
+          });
+        }
+      }
+      return {
+        dom,
+        destroy: () => {
+          destroyed = true;
+        }
+      };
     };
   },
 

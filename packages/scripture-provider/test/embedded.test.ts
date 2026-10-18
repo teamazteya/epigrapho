@@ -32,13 +32,16 @@ const ROM = new Map([
 ]);
 
 test("un verso solo", () => {
-  assert.equal(textInRange(ROM, { book: "ROM", chapter: 8, verse: 38 }), "b");
+  assert.equal(
+    textInRange(ROM, { book: "ROM", chapter: 8, verse: 38 }),
+    "[38] b"
+  );
 });
 
 test("un rango dentro de un capítulo", () => {
   assert.equal(
     textInRange(ROM, { book: "ROM", chapter: 8, verse: 37, endVerse: 38 }),
-    "a b"
+    "[37] a\n[38] b"
   );
 });
 
@@ -51,6 +54,20 @@ test("un rango que cruza capítulos lee los dos", () => {
       endChapter: 9,
       endVerse: 2
     }),
-    "b c d e"
+    "[38] b\n[39] c\n[1] d\n[2] e"
+  );
+});
+
+test("no inventa números donde la traducción omite un verso", () => {
+  assert.equal(
+    textInRange(
+      new Map([
+        ["5:3", "a"],
+        ["5:4", ""],
+        ["5:5", "c"]
+      ]),
+      { book: "JHN", chapter: 5, verse: 3, endVerse: 5 }
+    ),
+    "[3] a\n[5] c"
   );
 });

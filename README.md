@@ -218,6 +218,12 @@ El mismo tag compila la app de Android. El APK va al release, donde lo busca la 
 
 Las verificaciones de extremo a extremo están en `apps/desktop/scripts/a0-*.mjs`, `a1-*.mjs`, `a2-*.mjs`, `s1-*.mjs`, `a3-*.mjs`, `a4-*.mjs` y `a5-*.mjs`. Se ejecutan con `npm run start:desktop` corriendo. `a3-update-notice-check.mjs` prueba el aviso de actualización (novedades, "Instalar ahora" y "Recordarme más tarde"). `s1-sync-check.mjs`, `a3-templates-check.mjs` y `a3-reading-plans-check.mjs` usan una cuenta de prueba con verificación en dos pasos por app, dada en `S1_EMAIL`, `S1_PASSWORD` y `S1_TOTP_SECRET`. `a4-consent-check.mjs` prueba los correos de novedades contra un servidor de cuentas local (lo que necesita está en `deploy/marketing-consent-check.mjs` de `epigrapho-sync-server`). `a5-share-check.mjs` prueba compartir una nota contra el mismo servidor local y la página pública (`apps/monograph`, servida en `notas.azteya.tech`; su imagen la construye el workflow "Epigrapho notas"). Los 21 temas incluidos salen de `packages/theme/scripts/community-themes.mjs`. Las guías para contribuir están en [CONTRIBUTING.md](./CONTRIBUTING.md).
 
+Las correcciones de 1.5.2 se comprueban con `node scripts/v152-spelling-check.mjs` en `apps/desktop` (worker y diccionarios, sin abrir la app). Con el servidor de escritorio activo, `v152-suggestions-check.mjs` prueba el menú con LanguageTool local y con el respaldo de nspell; `v152-numbers-check.mjs` prueba numeración, columnas y actualización de bloques antiguos en un perfil aislado.
+
+En `apps/monograph`, `node scripts/v152-verse-check.mjs` verifica que el mismo pasaje se sirva con números a las apps nuevas y sin números a las anteriores, compartiendo caché. Usa una respuesta simulada de API.Bible y no necesita una llave.
+
+La numeración de las traducciones en línea requiere desplegar también la imagen nueva de `apps/monograph` en el servicio `notas`. Las apps nuevas piden `/api/verse` con `numbers=1`; las anteriores conservan la respuesta sin números. Una caché antigua se renueva al consultar, conservando su texto si no hay red. Los bloques de notas públicas conservan su copia publicada hasta que el autor vuelva a publicar.
+
 ## Soporte
 
 - Correo: support@azteya.tech

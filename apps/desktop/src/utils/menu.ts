@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import { strings } from "@notesnook/intl";
 import { Menu, MenuItem, clipboard, shell } from "electron";
 import { spellingSuggestions } from "./spell-check";
+import { grammarSpellingSuggestions } from "./grammar-check";
 import { userDictionary } from "./user-dictionary";
 
 /**
@@ -52,7 +53,11 @@ function setupMenu() {
     // Chromium fills `params.dictionarySuggestions` from its own dictionary,
     // which this app turned off (Paso 6.1): the suggestions come from ours,
     // and they take a message to a worker thread to arrive.
-    for (const suggestion of await spellingSuggestions(params.misspelledWord)) {
+    const candidates = await grammarSpellingSuggestions(params.misspelledWord);
+    for (const suggestion of await spellingSuggestions(
+      params.misspelledWord,
+      candidates
+    )) {
       menu.append(
         new MenuItem({
           label: suggestion,

@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import { strings } from "@notesnook/intl";
+import { renderVerseText } from "@notesnook/editor";
 import { attributionOf, getTranslation, resolveVerse } from "./scripture";
 
 /**
@@ -63,7 +64,7 @@ async function toggleVerse(reference: HTMLElement) {
   box.dataset.scriptureRef = ref;
   box.dataset.testId = "sermon-verse";
   const text = document.createElement("p");
-  text.textContent = verse.text;
+  renderVerseText(text, verse.text);
   const credit = document.createElement("p");
   credit.className = "sermon-verse-credit";
   credit.textContent = `${reference.textContent} · ${attributionOf(

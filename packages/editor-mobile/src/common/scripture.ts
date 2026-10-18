@@ -81,7 +81,9 @@ const VERSE_HOST = "https://notas.azteya.tech";
 const onlineProvider: ScriptureTextProvider = {
   async getVerseText(ref, translationId) {
     const response = await fetch(
-      `${VERSE_HOST}/api/verse?ref=${apiBiblePassageId(ref)}&t=${translationId}`
+      `${VERSE_HOST}/api/verse?ref=${apiBiblePassageId(
+        ref
+      )}&t=${translationId}&numbers=1`
     );
     if (!response.ok)
       throw new Error(`verse server responded ${response.status}`);

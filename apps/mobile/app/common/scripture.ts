@@ -52,7 +52,9 @@ async function readPack(translationId: string): Promise<Pack> {
     Platform.OS === "ios"
       ? `${RNFetchBlob.fs.dirs.MainBundleDir}/build.bundle/${file}`
       : `bundle-assets://${file}`;
-  const { verses } = JSON.parse(await RNFetchBlob.fs.readFile(path, "utf8")) as {
+  const { verses } = JSON.parse(
+    await RNFetchBlob.fs.readFile(path, "utf8")
+  ) as {
     verses: [string, number, number, string][];
   };
   const books: Pack = new Map();
@@ -81,9 +83,12 @@ async function onlineText(ref: string, translationId: string) {
   const range = parseRef(ref);
   if (!range) return "";
   const response = await fetch(
-    `${VERSE_HOST}/api/verse?ref=${apiBiblePassageId(range)}&t=${translationId}`
+    `${VERSE_HOST}/api/verse?ref=${apiBiblePassageId(
+      range
+    )}&t=${translationId}&numbers=1`
   );
-  if (!response.ok) throw new Error(`verse server responded ${response.status}`);
+  if (!response.ok)
+    throw new Error(`verse server responded ${response.status}`);
   const { text } = (await response.json()) as { text?: string };
   return text || "";
 }
@@ -107,8 +112,7 @@ export async function resolveVerse(ref: string, translationId: string) {
   } catch (error) {
     console.error("could not read the verse", error);
   }
-  if (translationId === DEFAULT_TRANSLATION)
-    return { text: "", translationId };
+  if (translationId === DEFAULT_TRANSLATION) return { text: "", translationId };
   return {
     text: await embeddedText(ref, DEFAULT_TRANSLATION),
     translationId: DEFAULT_TRANSLATION

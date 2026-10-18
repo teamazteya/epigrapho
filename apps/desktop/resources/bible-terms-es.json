@@ -2,7 +2,7 @@
   "id": "bible-terms-es",
   "name": "Términos bíblicos en español",
   "language": "es",
-  "version": 1,
+  "version": 2,
   "licence": "GPL-3.0-or-later",
   "notes": "Lista de palabras, no de texto bíblico: nombres, gentilicios y terminología. Ninguna entrada reproduce una traducción con licencia, y ninguna se aplica sola al texto de una nota.",
   "sources": {
@@ -24,6 +24,12 @@
     }
   },
   "entries": [
+    {
+      "word": "Aser",
+      "status": "preferred",
+      "categories": ["persona"],
+      "sourceId": "nombres-es"
+    },
     {
       "word": "Génesis",
       "status": "preferred",

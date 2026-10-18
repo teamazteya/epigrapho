@@ -95,7 +95,7 @@ try {
   console.log("insertado:", JSON.stringify(inserted));
   assert.equal(inserted.ref, "JHN.3.16");
   assert.equal(inserted.translationId, "VBL");
-  assert.match(inserted.text, /^“Porque Dios amó al mundo/);
+  assert.match(inserted.text, /^16 “Porque Dios amó al mundo/);
   assert.equal(inserted.attribution, "VBL — CC BY-SA 4.0");
 
   // The block's copy button copies it — a click on the block itself no longer
@@ -121,7 +121,7 @@ try {
   const [quoted, attribution] = copied.split(/\r?\n/);
   assert.match(
     quoted,
-    /^«“Porque Dios amó al mundo/,
+    /^«\[16\] “Porque Dios amó al mundo/,
     "falta el texto del verso"
   );
   assert.ok(
@@ -131,7 +131,7 @@ try {
   assert.equal(attribution, "VBL — CC BY-SA 4.0");
   assert.equal(
     quoted.slice(1, quoted.indexOf("» — ")),
-    inserted.text,
+    inserted.text.replace(/^16 /, "[16] "),
     "el verso copiado no es el del bloque"
   );
 

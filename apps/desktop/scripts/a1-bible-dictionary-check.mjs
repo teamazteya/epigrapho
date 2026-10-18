@@ -30,6 +30,13 @@ const app = await _electron.launch({
   timeout: 60000
 });
 const page = await app.firstWindow();
+await app.evaluate(({ BrowserWindow }) => {
+  const window = BrowserWindow.getAllWindows()[0];
+  window.webContents.setBackgroundThrottling(false);
+  window.show();
+  window.focus();
+  window.webContents.focus();
+});
 page.setDefaultTimeout(120000);
 page.on("pageerror", (error) => console.error("pageerror:", error.message));
 
@@ -43,9 +50,14 @@ page.on("pageerror", (error) => console.error("pageerror:", error.message));
  * the original — because a native menu would open and block the test.
  */
 async function menuAt(line) {
-  const box = await page
-    .locator(`.active .ProseMirror p:nth-of-type(${line})`)
-    .boundingBox();
+  const paragraph = page.locator(`.active .ProseMirror p:nth-of-type(${line})`);
+  await paragraph.scrollIntoViewIfNeeded();
+  const point = await paragraph.evaluate((element) => {
+    const range = document.createRange();
+    range.selectNodeContents(element);
+    const rect = range.getBoundingClientRect();
+    return { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 };
+  });
   const capture = app.evaluate(({ BrowserWindow, Menu }) => {
     const contents = BrowserWindow.getAllWindows()[0].webContents;
     return new Promise((resolve) => {
@@ -60,7 +72,7 @@ async function menuAt(line) {
       };
     });
   });
-  await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2, {
+  await page.mouse.click(point.x, point.y, {
     button: "right"
   });
   return capture;

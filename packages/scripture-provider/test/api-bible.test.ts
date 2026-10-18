@@ -64,7 +64,7 @@ test("la petición lleva la referencia y nada más", async () => {
     calls[0].url,
     "https://api.scripture.api.bible/v1/bibles/ce11b813f9a27e20-01/passages/JHN.3.16" +
       "?content-type=text&include-notes=false&include-titles=false" +
-      "&include-chapter-numbers=false&include-verse-numbers=false" +
+      "&include-chapter-numbers=false&include-verse-numbers=true" +
       "&include-verse-spans=false"
   );
   assert.deepEqual(calls[0].init, {
@@ -105,6 +105,7 @@ test("nada del usuario aparece en la petición", async () => {
     "include",
     "notes",
     "false",
+    "true",
     "titles",
     "chapter",
     "numbers",
@@ -125,6 +126,17 @@ test("nada del usuario aparece en la petición", async () => {
   assert.deepEqual(
     words.filter((word) => !allowed.has(word)),
     []
+  );
+});
+
+test("conserva números de la API y separa versos sin adivinarlos", async () => {
+  const { fetch } = spyFetch({
+    data: { content: " [36] Uno.\n [1] Dos. [2-3] Tres. " }
+  });
+  const provider = createApiBibleProvider({ apiKey: () => "test", fetch });
+  assert.equal(
+    await provider.getVerseText(JOHN, "NBLA"),
+    "[36] Uno.\n[1] Dos.\n[2-3] Tres."
   );
 });
 

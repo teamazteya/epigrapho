@@ -187,6 +187,13 @@ function updateNoteStatistics(id: string, content: () => Fragment) {
 
 const deferredUpdateNoteStatistics = debounce(updateNoteStatistics, 1000);
 
+async function resolveScriptureBlock(ref: string, translationId: string) {
+  const range = parseRef(ref);
+  return range
+    ? resolveVerse(range, translationId)
+    : { text: "", translationId };
+}
+
 function TipTap(props: TipTapProps) {
   const {
     id,
@@ -285,6 +292,7 @@ function TipTap(props: TipTapProps) {
       enableFontLigatures: fontLigatures,
       parseScriptureReferences: detectScriptureReferences,
       scriptureAttribution: attributionOf,
+      resolveScriptureBlock,
       compareScripture,
       insertScripture,
       insertInterlinear,
