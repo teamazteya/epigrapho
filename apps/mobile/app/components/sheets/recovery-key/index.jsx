@@ -21,7 +21,7 @@ import { sanitizeFilename } from "@notesnook/common";
 import { strings } from "@notesnook/intl";
 import Clipboard from "@react-native-clipboard/clipboard";
 import React, { createRef } from "react";
-import { PermissionsAndroid, Platform, View } from "react-native";
+import { Platform, View } from "react-native";
 import RNFetchBlob from "react-native-blob-util";
 import FileViewer from "react-native-file-viewer";
 import * as ScopedStorage from "react-native-scoped-storage";
@@ -110,7 +110,7 @@ class RecoveryKeySheet extends React.Component {
     this.svg.current?.toDataURL(async (data) => {
       try {
         let fileName =
-          "nn_" + this.user.email + "_recovery_key_qrcode" + "_" + Date.now();
+          "epigrapho_" + this.user.email + "_recovery_key_qrcode" + "_" + Date.now();
         fileName = sanitizeFilename(fileName, { replacement: "_" });
         fileName = fileName + ".png";
 
@@ -131,7 +131,7 @@ class RecoveryKeySheet extends React.Component {
   saveToTextFile = async () => {
     try {
       let path;
-      let fileName = "nn_" + this.user?.email + "_recovery_key";
+      let fileName = "epigrapho_" + this.user?.email + "_recovery_key";
       fileName = sanitizeFilename(fileName, { replacement: "_" });
       fileName = fileName + ".txt";
 
@@ -265,7 +265,8 @@ class RecoveryKeySheet extends React.Component {
                 getRef={this.svg}
                 size={500}
                 value={this.state.key}
-                //logo={{ uri: LOGO_BASE64 }}
+                logo={require("../../../assets/images/epigrapho-logo.png")}
+                ecl="H"
                 logoBorderRadius={10}
               />
             ) : null}

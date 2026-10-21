@@ -21,6 +21,7 @@ import { test, expect, describe, vi } from "vitest";
 import { databaseTest } from "./utils/index.ts";
 import { KeyManager } from "../src/api/key-manager.js";
 import { randomBytes } from "../src/utils/random.js";
+import http from "../src/utils/http.js";
 
 const FULL_USER: any = {
   id: "user-123",
@@ -230,16 +231,70 @@ describe("UserManager._updatePassword (change)", () => {
 // ─── _updatePassword (reset) ───────────────────────────────────────
 
 describe("UserManager._updatePassword (reset)", () => {
-  test("successful reset with explicit encryption key", async () => {
+  test("exported recovery key restores encrypted data without the old password", async () => {
     await databaseTest().then(async (db) => {
-      const { password, salt } = await setupLoggedInUser(db, "oldpassword");
+      const { masterKey, randomKey, salt } = await setupLoggedInUser(db);
+      const note = await db.storage().encrypt(randomKey, "Recovered note");
+      const attachment = await db
+        .storage()
+        .encrypt(randomKey, "Recovered attachment");
+      const recoveryKey = { key: masterKey!.key, salt };
+      await db.storage().remove("userEncryptionKey");
+      expect(await db.user.getMasterKey()).toBeUndefined();
+
+      await expect(
+        db.user.verifyEncryptionKey(recoveryKey)
+      ).resolves.toBeUndefined();
       const result = await db.user.resetPassword({
         newPassword: "newpassword",
-        encryptionKey: { password, salt }
+        encryptionKey: recoveryKey
       });
       expect(result).toBe(true);
       const newMasterKey = await db.user.getMasterKey();
       expect(newMasterKey).toBeDefined();
+      expect(newMasterKey!.key).not.toBe(recoveryKey.key);
+      const keys = await db.user.getDataEncryptionKeys();
+      const dataKey = keys!.find((entry) => entry.version === 1)!.key;
+      await expect(db.storage().decrypt(dataKey, note)).resolves.toBe(
+        "Recovered note"
+      );
+      const attachmentKey = await db.user.getAttachmentsKey();
+      await expect(
+        db.storage().decrypt(attachmentKey!, attachment)
+      ).resolves.toBe("Recovered attachment");
+      await expect(
+        db.user.verifyEncryptionKey(newMasterKey!)
+      ).resolves.toBeUndefined();
+      await expect(db.user.verifyEncryptionKey(recoveryKey)).rejects.toThrow();
+    });
+  });
+
+  test("another account's recovery key is rejected before updating the account", async () => {
+    await databaseTest().then(async (db) => {
+      const { masterKey } = await setupLoggedInUser(db);
+      const otherDb = await databaseTest();
+      const { masterKey: otherKey } = await setupLoggedInUser(otherDb);
+      const otherUser = await otherDb.user.getUser();
+      await otherDb.user.setUser({
+        ...otherUser!,
+        id: "other-user",
+        email: "other@example.com"
+      });
+      expect(otherKey!.key).not.toBe(masterKey!.key);
+      const userBefore = await db.user.getUser();
+      vi.mocked(http.patch.json).mockClear();
+
+      await expect(
+        db.user.resetPassword({
+          newPassword: "newpassword",
+          encryptionKey: { key: otherKey!.key, salt: userBefore!.salt }
+        })
+      ).rejects.toThrow(
+        "Your data cannot be decrypted using the provided encryption key."
+      );
+      expect(http.patch.json).not.toHaveBeenCalled();
+      expect(await db.user.getUser()).toEqual(userBefore);
+      expect(await db.user.getMasterKey()).toEqual(masterKey);
     });
   });
 

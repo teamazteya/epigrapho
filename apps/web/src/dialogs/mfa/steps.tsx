@@ -617,7 +617,7 @@ function BackupRecoveryCodes(props: TwoFactorEnabledProps) {
         action: () => {
           FileSaver.saveAs(
             new Blob([Buffer.from(codes.join("\n"))]),
-            `notesnook-recovery-codes.txt`
+            `epigrapho-recovery-codes.txt`
           );
         }
       },

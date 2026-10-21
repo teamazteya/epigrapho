@@ -21,7 +21,7 @@ import React, { useState } from "react";
 import { Text, Flex, Button } from "@theme-ui/components";
 import Dialog from "../components/dialog";
 import { db } from "../common/db";
-import Logo from "../assets/notesnook-logo.png";
+import Logo from "../assets/epigrapho-logo.png";
 import { writeText } from "clipboard-polyfill";
 import { Suspense } from "react";
 import Config from "../utils/config";
@@ -88,7 +88,7 @@ export const RecoveryKeyDialog = DialogManager.register(
                     logoImage={Logo}
                     logoWidth={40}
                     logoHeight={40}
-                    ecLevel={"M"}
+                    ecLevel={"H"}
                   />
                 </Suspense>
                 <Flex sx={{ flexDirection: "column" }}>
@@ -132,7 +132,7 @@ export const RecoveryKeyDialog = DialogManager.register(
                         blob
                           ? FileSaver.saveAs(
                               blob,
-                              `${email}-notesnook-recoverykey.png`
+                              `${email}-epigrapho-recoverykey.png`
                             )
                           : null;
                       });
@@ -155,7 +155,7 @@ export const RecoveryKeyDialog = DialogManager.register(
                         .then((user) => user?.email || "user");
                       FileSaver.saveAs(
                         new Blob([Buffer.from(key.value)]),
-                        `${email}-notesnook-recoverykey.txt`
+                        `${email}-epigrapho-recoverykey.txt`
                       );
                     }}
                     sx={{ fontSize: "body" }}
