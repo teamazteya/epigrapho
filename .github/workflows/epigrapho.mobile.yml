@@ -69,6 +69,10 @@ jobs:
           (cd packages/bible-pack && npm run build)
           npm run tx mobile:build
 
+      # A page that throws while loading opens every note blank (1.5.2).
+      - name: Check that the editor page loads
+        run: node packages/editor-mobile/scripts/load-check.mjs
+
       - name: Put the upload key in place
         if: runner.os == 'Linux'
         env:

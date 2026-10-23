@@ -14,6 +14,9 @@
 # to the installers). The tag's own message becomes the release notes the
 # app shows, so write it for the people who use Epigrapho:
 #   git tag -a v1.0.1 -m "Epigrapho 1.0.1" -m "- Qué cambió…" && git push epigrapho v1.0.1
+# A tag whose subject says "(solo Android)" builds only the phone app; its
+# release carries the previous release's desktop files, so the desktop apps
+# keep reading the version they have and offer nothing.
 # Run by hand, the workflow only builds and keeps the installers as files.
 name: Epigrapho installers
 
@@ -24,8 +27,26 @@ on:
       - "v*"
 
 jobs:
+  scope:
+    name: Scope
+    runs-on: ubuntu-24.04
+    outputs:
+      android_only: ${{ steps.subject.outputs.android_only }}
+    steps:
+      - uses: actions/checkout@v5
+      - id: subject
+        run: |
+          android_only=false
+          if [ "${GITHUB_REF_TYPE}" = tag ]; then
+            git fetch --force origin "refs/tags/$GITHUB_REF_NAME:refs/tags/$GITHUB_REF_NAME"
+            git tag -l --format='%(contents:subject)' "$GITHUB_REF_NAME" | grep -q "(solo Android)" && android_only=true
+          fi
+          echo "android_only=$android_only" >> "$GITHUB_OUTPUT"
+
   build:
     name: ${{ matrix.name }}
+    needs: scope
+    if: needs.scope.outputs.android_only != 'true'
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -159,8 +180,12 @@ jobs:
   # installers and update files, which the installed apps then find.
   release:
     name: Release
-    needs: [build, mobile]
-    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [scope, build, mobile]
+    # always(): a skipped desktop build must not skip the release with it.
+    if: >-
+      always() && startsWith(github.ref, 'refs/tags/v') &&
+      needs.mobile.result == 'success' &&
+      (needs.build.result == 'success' || needs.scope.outputs.android_only == 'true')
     runs-on: ubuntu-24.04
     permissions:
       contents: write
@@ -171,6 +196,17 @@ jobs:
         with:
           path: dist
           merge-multiple: true
+
+      # Android only: the desktop installers and latest*.yml of the release
+      # that is latest now, so the desktop apps see their own version again.
+      - name: Carry over the desktop files
+        if: needs.scope.outputs.android_only == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          previous=$(gh release view --json tagName -q .tagName)
+          gh release download "$previous" -D dist --skip-existing
+          grep -H "^version:" dist/latest*.yml
 
       - name: Publish the release
         env:

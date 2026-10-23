@@ -16,9 +16,11 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+// First: imports run before any statement here, and the editor's modules use
+// Buffer as they load (utils/commands reaches them through common/sermon).
+import "./polyfill";
 import "./utils/index";
 import "./utils/commands";
-global.Buffer = require("buffer").Buffer;
 import { i18n } from "@lingui/core";
 import "@notesnook/editor/styles/fonts.mobile.css";
 import "@notesnook/editor/styles/katex-fonts.mobile.css";
