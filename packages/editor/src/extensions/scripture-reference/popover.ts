@@ -68,14 +68,29 @@ const SEE_ALSO = 5;
 
 let popover: HTMLElement | undefined;
 let verseElement: HTMLElement | undefined;
-let attributionElement: HTMLElement | undefined;
-let noticeElement: HTMLElement | undefined;
-let seeAlsoElement: HTMLElement | undefined;
 /** The reference the popover describes, so the link can be undone on hide. */
 let describing: HTMLElement | undefined;
 let closeTimer: ReturnType<typeof setTimeout> | undefined;
 /** Bumped on every hide, so a slow lookup cannot fill a stale popover. */
 let request = 0;
+
+/** What a preview shows, the same in the popover and in the phone's panel. */
+type PreviewParts = {
+  verse: HTMLElement;
+  attribution: HTMLElement;
+  notice: HTMLElement;
+  seeAlso: HTMLElement;
+};
+
+/** What the box around a preview is told while it fills. */
+export type PreviewHooks = {
+  /** False once the preview has been closed or replaced. */
+  current: () => boolean;
+  /** The words or "See also" came in, and the box changed size. */
+  resized: () => void;
+  /** A "See also" reference went into the note. */
+  inserted: () => void;
+};
 
 function cancelClose() {
   if (closeTimer) clearTimeout(closeTimer);
@@ -88,19 +103,7 @@ function scheduleClose() {
   closeTimer = setTimeout(hide, CLOSE_DELAY);
 }
 
-function createPopover() {
-  // Everything about how this looks is in styles.css, beside the block's. Only
-  // where it sits is worked out here, because only that changes per hover.
-  const element = document.createElement("div");
-  element.id = POPOVER_ID;
-  element.className = "scripture-popover";
-  element.setAttribute("role", "tooltip");
-  element.dataset.testId = "scripture-popover";
-  // The box is reachable with the pointer: moving onto it keeps it open, and
-  // leaving it closes it the same way leaving the reference does.
-  element.addEventListener("pointerenter", cancelClose);
-  element.addEventListener("pointerleave", scheduleClose);
-
+function appendPreviewParts(element: HTMLElement): PreviewParts {
   const verse = document.createElement("div");
   verse.className = "scripture-popover-text";
   verse.dataset.testId = "scripture-popover-text";
@@ -123,11 +126,22 @@ function createPopover() {
   seeAlso.hidden = true;
 
   element.append(verse, attribution, notice, seeAlso);
+  return { verse, attribution, notice, seeAlso };
+}
+
+function createPopover() {
+  // Everything about how this looks is in styles.css, beside the block's. Only
+  // where it sits is worked out here, because only that changes per hover.
+  const element = document.createElement("div");
+  element.id = POPOVER_ID;
+  element.className = "scripture-popover";
+  element.setAttribute("role", "tooltip");
+  element.dataset.testId = "scripture-popover";
+  // The box is reachable with the pointer: moving onto it keeps it open, and
+  // leaving it closes it the same way leaving the reference does.
+  element.addEventListener("pointerenter", cancelClose);
+  element.addEventListener("pointerleave", scheduleClose);
   document.body.append(element);
-  seeAlsoElement = seeAlso;
-  verseElement = verse;
-  attributionElement = attribution;
-  noticeElement = notice;
   return element;
 }
 
@@ -192,19 +206,18 @@ function hide() {
   popover?.remove();
   popover = undefined;
   verseElement = undefined;
-  attributionElement = undefined;
-  noticeElement = undefined;
-  seeAlsoElement = undefined;
 }
 
 /** The references a verse points to, five at first and all on request. */
 function fillSeeAlso(
+  seeAlso: HTMLElement,
   refs: string[],
   target: HTMLElement,
   options: NonNullable<ScripturePopoverOptions["crossReferences"]>,
+  hooks: PreviewHooks,
   all = false
 ) {
-  if (!seeAlsoElement || !refs.length) return;
+  if (!refs.length) return;
   const heading = document.createElement("div");
   heading.className = "scripture-popover-see-also-heading";
   heading.textContent = strings.crossReferences.seeAlso();
@@ -219,7 +232,7 @@ function fillSeeAlso(
     button.title = strings.crossReferences.insert();
     button.addEventListener("click", () => {
       options.insert(ref, target);
-      hide();
+      hooks.inserted();
     });
     list.append(button);
   }
@@ -232,8 +245,8 @@ function fillSeeAlso(
     more.dataset.testId = "scripture-popover-see-all";
     more.textContent = strings.crossReferences.seeAll(refs.length);
     more.addEventListener("click", () => {
-      fillSeeAlso(refs, target, options, true);
-      place(target);
+      fillSeeAlso(seeAlso, refs, target, options, hooks, true);
+      hooks.resized();
     });
     children.push(more);
   }
@@ -242,8 +255,61 @@ function fillSeeAlso(
   credit.textContent = options.credit;
   children.push(credit);
 
-  seeAlsoElement.replaceChildren(...children);
-  seeAlsoElement.hidden = false;
+  seeAlso.replaceChildren(...children);
+  seeAlso.hidden = false;
+}
+
+/**
+ * Builds the preview of `target` inside `element` and fills it as the words
+ * arrive: the verse, its credit, why it is not the fresh text when it is not,
+ * and "See also". Resolves once everything is in, or once it stopped being
+ * current.
+ */
+export async function fillScripturePreview(
+  element: HTMLElement,
+  target: HTMLElement,
+  options: ScripturePopoverOptions,
+  hooks: PreviewHooks
+) {
+  const ref = target.getAttribute("data-scripture-ref");
+  if (!ref) return;
+  const parts = appendPreviewParts(element);
+  // Read now, not once: the person can change it between two previews.
+  const translationId = options.translation();
+  parts.verse.textContent = "…";
+  parts.attribution.textContent = options.attributionOf(translationId);
+
+  let verse: ResolvedVerse = { text: "", translationId };
+  try {
+    verse = await options.resolve(ref, translationId);
+  } catch (error) {
+    console.error("could not read the verse", error);
+  }
+  // The preview may have been closed while the pack was being read.
+  if (!hooks.current()) return;
+
+  renderVerseText(
+    parts.verse,
+    verse.text || strings.scriptureNoTextForRef(translationId)
+  );
+  // Credit what was actually served; the notice below it says why that is not
+  // the fresh text of what was asked for.
+  parts.attribution.textContent = options.attributionOf(verse.translationId);
+  const notice = noticeFor(verse.notice, verse.translationId);
+  parts.notice.textContent = notice;
+  parts.notice.hidden = !notice;
+
+  if (options.crossReferences) {
+    // The verse is in: measured now, so the box is never drawn off the window
+    // while "See also" is still being read.
+    hooks.resized();
+    const refs = await options.crossReferences
+      .load(ref)
+      .catch(() => [] as string[]);
+    if (!hooks.current()) return;
+    fillSeeAlso(parts.seeAlso, refs, target, options.crossReferences, hooks);
+  }
+  hooks.resized();
 }
 
 async function show(target: HTMLElement, options: ScripturePopoverOptions) {
@@ -257,60 +323,31 @@ async function show(target: HTMLElement, options: ScripturePopoverOptions) {
 
   hide();
   const current = request;
-  // Read now, not at module load: the person can change it between two hovers.
-  const translationId = options.translation();
-  popover = createPopover();
+  const element = createPopover();
+  popover = element;
   // Which reference is on show, so a reader — or a test — can tell one
   // popover from the next instead of guessing by its text.
-  popover.dataset.scriptureRef = ref;
+  element.dataset.scriptureRef = ref;
   // A screen reader stays on the reference and reads the verse as its
   // description; until the words arrive there is nothing worth reading.
-  popover.setAttribute("aria-busy", "true");
+  element.setAttribute("aria-busy", "true");
   describing = target;
   target.setAttribute("aria-describedby", POPOVER_ID);
-  if (verseElement) verseElement.textContent = "…";
-  if (attributionElement)
-    attributionElement.textContent = options.attributionOf(translationId);
-  place(target);
 
-  let verse: ResolvedVerse = { text: "", translationId };
-  try {
-    verse = await options.resolve(ref, translationId);
-  } catch (error) {
-    console.error("could not read the verse", error);
-  }
-  // The pointer may have moved on while the pack was being read.
-  if (current !== request || !verseElement) return;
-
-  renderVerseText(
-    verseElement,
-    verse.text || strings.scriptureNoTextForRef(translationId)
-  );
-  // Credit what was actually served; the notice below it says why that is not
-  // the fresh text of what was asked for.
-  if (attributionElement)
-    attributionElement.textContent = options.attributionOf(verse.translationId);
-  if (noticeElement) {
-    const notice = noticeFor(verse.notice, verse.translationId);
-    noticeElement.textContent = notice;
-    noticeElement.hidden = !notice;
-  }
-  if (options.crossReferences) {
-    // The verse is in: placed now, so the box is never drawn off the window
-    // while "See also" is still being read.
-    place(target);
-    const refs = await options.crossReferences
-      .load(ref)
-      .catch(() => [] as string[]);
-    if (current !== request) return;
-    fillSeeAlso(refs, target, options.crossReferences);
-  }
-  popover?.setAttribute("aria-busy", "false");
-  // Placed again now that the verse is in: the box was measured at its
-  // loading size and the words almost always make it wider. Doing it here
-  // rather than on the next frame means there is never a frame in which the
-  // popover is drawn hanging off the edge of the window.
+  const filling = fillScripturePreview(element, target, options, {
+    current: () => current === request,
+    // Placed again whenever the words change its size: the box was measured
+    // at its loading size and the words almost always make it wider. Doing
+    // it here rather than on the next frame means there is never a frame in
+    // which the popover is drawn hanging off the edge of the window.
+    resized: () => place(target),
+    inserted: hide
+  });
+  verseElement =
+    element.querySelector<HTMLElement>(".scripture-popover-text") ?? undefined;
   place(target);
+  await filling;
+  if (current === request) element.setAttribute("aria-busy", "false");
 }
 
 /**

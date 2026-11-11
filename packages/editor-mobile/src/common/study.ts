@@ -28,10 +28,11 @@ import {
 import { strings } from "@notesnook/intl";
 import {
   dictionaryArticle,
+  download,
   isOldTestament,
   lexiconEntry,
   originalTokens,
-  setOriginalBase,
+  setOriginalReader,
   translationWord,
   type DictionarySource
 } from "@notesnook/original-languages";
@@ -54,9 +55,13 @@ import { getBookNameLocale } from "./scripture";
  * instead of a side panel.
  */
 
-// The packs are read from beside the page, like the scripture packs: on a
-// phone that is file:///android_asset/, where a relative path is right.
-setOriginalBase("");
+// The packs are read in place, beside the page: on a phone that is
+// file:///android_asset/, where a relative path is right. A copy in
+// IndexedDB, as a web page keeps, made the first dictionary search take a
+// minute on the emulator (A6 Fase 7).
+setOriginalReader((name) => download(`original/${name}`));
+// The copy earlier versions kept there.
+indexedDB.deleteDatabase("epigrapho-original");
 
 const spanish = () => `${globalThis.LINGUI_LOCALE || "es"}`.startsWith("es");
 
@@ -118,18 +123,22 @@ export const DICTIONARY_NAMES: Record<DictionarySource, string> = {
   RAND: "Diccionario de la Santa Biblia (Rand, 1890)",
   EAS: "Easton's Bible Dictionary (1897)",
   SMI: "Smith's Bible Dictionary (1863)",
-  HIT: "Hitchcock's Bible Names Dictionary (1869)"
+  HIT: "Hitchcock's Bible Names Dictionary (1869)",
+  WIKT: "Wikcionario en español",
+  EASES: "Easton (1897), traducción automática al español"
 };
 
 export const dictionaryLanguage = (source: DictionarySource) =>
-  source === "TW" || source === "RAND" ? "es" : "en";
+  ["TW", "RAND", "WIKT", "EASES"].includes(source) ? "es" : "en";
 
 const CREDITS: Record<DictionarySource, string> = {
   TW: STUDY_PROVENANCE.ES419TW.attribution,
   RAND: "Rand, Diccionario de la Santa Biblia (1890) — dominio público",
   EAS: STUDY_PROVENANCE.NEUU.attribution,
   SMI: STUDY_PROVENANCE.NEUU.attribution,
-  HIT: STUDY_PROVENANCE.NEUU.attribution
+  HIT: STUDY_PROVENANCE.NEUU.attribution,
+  WIKT: STUDY_PROVENANCE.WIKT.attribution,
+  EASES: STUDY_PROVENANCE.EASES.attribution
 };
 
 /** A stored entry id, ready for the block to show. */

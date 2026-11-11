@@ -38,13 +38,13 @@ import {
   PROVENANCE,
   STUDY_PROVENANCE
 } from "@notesnook/scripture-provider";
-import { Platform } from "react-native";
 import RNFetchBlob from "react-native-blob-util";
 import { db } from "../common/database";
 import { MMKV } from "../common/database/mmkv";
 import { getTranslation, resolveVerse } from "../common/scripture";
 import { getUiLocale } from "../common/ui-locale";
 import { presentDialog } from "../components/dialog/functions";
+import { originalPath } from "./wiktionary-update";
 
 /**
  * Exporting a note with study blocks (M1 Fase 4, A2 Paso 3.3): a note keeps
@@ -53,13 +53,9 @@ import { presentDialog } from "../components/dialog/functions";
  * same table and the same text, read here from the packs inside the app
  * package, because the export runs in the app and not in the editor's page.
  */
-setOriginalReader(async (name) => {
-  const path =
-    Platform.OS === "ios"
-      ? `${RNFetchBlob.fs.dirs.MainBundleDir}/build.bundle/original/${name}`
-      : `bundle-assets://original/${name}`;
-  return JSON.parse(await RNFetchBlob.fs.readFile(path, "utf8"));
-});
+setOriginalReader(async (name) =>
+  JSON.parse(await RNFetchBlob.fs.readFile(originalPath(name), "utf8"))
+);
 
 const shortStrong = (strong: string) =>
   strong.replace(/^([GHA])0+(\d)/, "$1$2");
@@ -117,7 +113,9 @@ const DICTIONARY_NAMES: Record<DictionarySource, string> = {
   RAND: "Diccionario de la Santa Biblia (Rand, 1890)",
   EAS: "Easton's Bible Dictionary (1897)",
   SMI: "Smith's Bible Dictionary (1863)",
-  HIT: "Hitchcock's Bible Names Dictionary (1869)"
+  HIT: "Hitchcock's Bible Names Dictionary (1869)",
+  WIKT: "Wikcionario en español",
+  EASES: "Easton (1897), traducción automática al español"
 };
 
 const CREDITS: Record<DictionarySource, string> = {
@@ -125,7 +123,9 @@ const CREDITS: Record<DictionarySource, string> = {
   RAND: "Rand, Diccionario de la Santa Biblia (1890) — dominio público",
   EAS: STUDY_PROVENANCE.NEUU.attribution,
   SMI: STUDY_PROVENANCE.NEUU.attribution,
-  HIT: STUDY_PROVENANCE.NEUU.attribution
+  HIT: STUDY_PROVENANCE.NEUU.attribution,
+  WIKT: STUDY_PROVENANCE.WIKT.attribution,
+  EASES: STUDY_PROVENANCE.EASES.attribution
 };
 
 async function renderDictionaryEntry(id: string) {

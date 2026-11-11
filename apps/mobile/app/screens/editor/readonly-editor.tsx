@@ -37,6 +37,7 @@ import { db } from "../../common/database";
 import { i18n } from "@lingui/core";
 import { defaultBorderRadius } from "../../utils/size";
 import { DefaultAppStyles } from "../../utils/styles";
+import { wiktionaryCopyUrl } from "../../services/wiktionary-update";
 
 const onShouldStartLoadWithRequest = (request: ShouldStartLoadRequest) => {
   if (request.url.includes("https")) {
@@ -150,6 +151,9 @@ export function ReadonlyEditor(props: {
         globalThis.LINGUI_LOCALE_DATA = ${JSON.stringify({
           [i18n.locale]: i18n.messages
         })};
+        globalThis.WIKTIONARY_COPY = ${JSON.stringify(
+          wiktionaryCopyUrl()
+        )};
         globalThis.loadApp();`}
         useSharedProcessPool={false}
         javaScriptEnabled={true}

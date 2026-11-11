@@ -28,6 +28,9 @@ import {
   searchDictionary,
   searchOriginalWord,
   type Concordance,
+  dictionarySection,
+  dleUrl,
+  groupDictionaryHits,
   type DictionaryArticle,
   type DictionaryHit,
   type OriginalWordMatch
@@ -247,6 +250,7 @@ function Hit({ hit, inserting }: { hit: DictionaryHit; inserting: boolean }) {
           Strong: {article.strongs.map(shortStrong).join(", ")}
         </p>
       )}
+      {open && dictionarySection(hit) === "spanish" && <DleLink word={hit.term} />}
       {inserting && (
         <button
           className="scripture-prompt-button study-insert"
@@ -269,6 +273,15 @@ function Hit({ hit, inserting }: { hit: DictionaryHit; inserting: boolean }) {
   );
 }
 
+/** The word in the Real Academia's dictionary, in the browser (A6 Paso 7.3). */
+function DleLink({ word }: { word: string }) {
+  return (
+    <a className="study-link" href={dleUrl(word)} data-test-id="dictionary-dle">
+      {strings.seeInDle()}
+    </a>
+  );
+}
+
 function DictionaryResults({
   query,
   inserting
@@ -276,7 +289,7 @@ function DictionaryResults({
   query: string;
   inserting: boolean;
 }) {
-  const [hits, setHits] = useState<DictionaryHit[]>();
+  const [hits, setHits] = useState<DictionaryHit[] | "failed">();
   useEffect(() => {
     let alive = true;
     setHits(undefined);
@@ -284,7 +297,7 @@ function DictionaryResults({
       .then((found) => alive && setHits(found))
       .catch((error) => {
         console.error("could not search the dictionary", error);
-        if (alive) setHits([]);
+        if (alive) setHits("failed");
       });
     return () => {
       alive = false;
@@ -292,16 +305,32 @@ function DictionaryResults({
   }, [query]);
 
   if (!hits) return <p className="study-note">{strings.loading()}</p>;
+  if (hits === "failed")
+    return (
+      <p className="study-note study-error" data-test-id="dictionary-error">
+        {strings.dictionaryFailed()}
+      </p>
+    );
   if (!hits.length)
     return (
-      <p className="study-note" data-test-id="dictionary-empty">
-        {strings.dictionaryNothing(query)}
-      </p>
+      <>
+        <p className="study-note" data-test-id="dictionary-empty">
+          {strings.dictionaryNothing(query)}
+        </p>
+        <DleLink word={query} />
+      </>
     );
   return (
     <>
-      {hits.map((hit) => (
-        <Hit key={hit.id} hit={hit} inserting={inserting} />
+      {groupDictionaryHits(hits).map(([section, found]) => (
+        <div key={section} data-test-id={`dictionary-section-${section}`}>
+          <h4 className="study-section">
+            {strings.dictionarySections[section]()}
+          </h4>
+          {found.map((hit) => (
+            <Hit key={hit.id} hit={hit} inserting={inserting} />
+          ))}
+        </div>
       ))}
     </>
   );

@@ -38,6 +38,9 @@ import { hashNavigate, navigate } from "./navigation";
 import { desktop } from "./common/desktop-bridge";
 import { FeatureDialog, hasFeatureToShow } from "./dialogs/feature-dialog";
 import { askMarketingOnce } from "./common/marketing";
+import { shouldShowWelcome } from "./common/welcome";
+import { WelcomeDialog } from "./dialogs/welcome-dialog";
+import { startWiktionaryUpdates } from "./common/wiktionary-update";
 import { logger } from "./utils/logger";
 import { showToast } from "./utils/toast";
 import { strings } from "@notesnook/intl";
@@ -58,6 +61,10 @@ export default function AppEffects() {
       initStore();
       initSettingStore();
 
+      // Not awaited: the weekly check downloads about 15 MB. Before the
+      // dialogs below, which wait for the person.
+      startWiktionaryUpdates().catch(logger.error);
+
       (async function () {
         await initEditorStore();
         await attachDesktopListeners();
@@ -66,6 +73,9 @@ export default function AppEffects() {
         await updateLastSynced();
         await initUser();
         // await resetNotices();
+
+        if (shouldShowWelcome(await db.notes.all.count()))
+          await WelcomeDialog.show({});
 
         if (hasFeatureToShow("highlights"))
           await FeatureDialog.show({ featureName: "highlights" });

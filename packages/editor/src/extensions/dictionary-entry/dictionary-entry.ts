@@ -123,8 +123,23 @@ export const DictionaryEntry = Node.create<DictionaryEntryOptions>({
       dom.append(term, source, body, credit);
 
       const { load } = this.options;
-      (load?.(node.attrs.id) ?? Promise.resolve(undefined))
+      const id: string = node.attrs.id || "";
+      (load?.(id) ?? Promise.resolve(undefined))
         .then((entry) => {
+          if (!entry && id.startsWith("WIKT:")) {
+            // A weekly copy can drop a lemma (A6 Paso 7.4): the note keeps
+            // its term, and the page may still be on Wiktionary.
+            body.textContent = strings.wiktionaryGone();
+            const link = document.createElement("a");
+            link.href = `https://es.wiktionary.org/wiki/${encodeURIComponent(
+              id.slice(5)
+            )}`;
+            link.target = "_blank";
+            link.rel = "noreferrer";
+            link.textContent = strings.openWiktionary();
+            credit.append(link);
+            return;
+          }
           if (!entry) {
             body.textContent = strings.dictionaryEntryUnavailable();
             return;

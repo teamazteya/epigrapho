@@ -64,6 +64,7 @@ import { strings } from "@notesnook/intl";
 import { i18n } from "@lingui/core";
 import { useVaultStatus } from "../../hooks/use-vault-status";
 import { useSettingStore } from "../../stores/use-setting-store";
+import { wiktionaryCopyUrl } from "../../services/wiktionary-update";
 import { NativeEvents } from "@notesnook/editor-mobile/src/utils/native-events";
 
 const style: ViewStyle = {
@@ -162,6 +163,9 @@ const Editor = React.memo(
               globalThis.LINGUI_LOCALE_DATA = ${JSON.stringify({
                 [i18n.locale]: i18n.messages
               })};
+              globalThis.WIKTIONARY_COPY = ${JSON.stringify(
+                wiktionaryCopyUrl()
+              )};
               globalThis.loadApp();
           `}
             useSharedProcessPool={false}

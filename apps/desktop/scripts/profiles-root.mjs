@@ -11,6 +11,10 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+// The welcome center opens by itself on a new profile and would cover the
+// app; only the oracles about it turn it back on (src/preload.ts).
+process.env.EPIGRAPHO_WELCOME ??= "off";
+
 export function profilesRoot() {
   const root =
     process.env.EPIGRAPHO_PROFILES ||

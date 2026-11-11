@@ -112,14 +112,18 @@ const DICTIONARY_NAMES: Record<DictionarySource, string> = {
   RAND: "Diccionario de la Santa Biblia (Rand, 1890)",
   EAS: "Easton's Bible Dictionary (1897)",
   SMI: "Smith's Bible Dictionary (1863)",
-  HIT: "Hitchcock's Bible Names Dictionary (1869)"
+  HIT: "Hitchcock's Bible Names Dictionary (1869)",
+  WIKT: "Wikcionario en español",
+  EASES: "Easton (1897), traducción automática al español"
 };
 const DICTIONARY_CREDITS: Record<DictionarySource, string> = {
   TW: STUDY_PROVENANCE.ES419TW.attribution,
   RAND: "Rand, Diccionario de la Santa Biblia (1890) — dominio público",
   EAS: STUDY_PROVENANCE.NEUU.attribution,
   SMI: STUDY_PROVENANCE.NEUU.attribution,
-  HIT: STUDY_PROVENANCE.NEUU.attribution
+  HIT: STUDY_PROVENANCE.NEUU.attribution,
+  WIKT: STUDY_PROVENANCE.WIKT.attribution,
+  EASES: STUDY_PROVENANCE.EASES.attribution
 };
 
 export async function loadDictionaryEntry(
@@ -131,7 +135,9 @@ export async function loadDictionaryEntry(
     term: article.term,
     sourceName: DICTIONARY_NAMES[article.source],
     body: article.body,
-    lang: article.source === "TW" || article.source === "RAND" ? "es" : "en",
+    lang: ["TW", "RAND", "WIKT", "EASES"].includes(article.source)
+      ? "es"
+      : "en",
     credit: DICTIONARY_CREDITS[article.source]
   };
 }

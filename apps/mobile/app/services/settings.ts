@@ -53,6 +53,8 @@ function resetSettings() {
   const settings: SettingStore["settings"] = {
     ...defaultSettings,
     introCompleted: true,
+    // Epigrapho A6: the welcome center's answer belongs to this phone.
+    welcomeShow: get().welcomeShow,
     serverUrls: get().serverUrls,
     backupDirectoryAndroid: get().backupDirectoryAndroid,
     darkTheme: get().darkTheme,

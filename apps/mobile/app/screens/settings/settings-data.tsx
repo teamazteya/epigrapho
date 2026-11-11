@@ -42,6 +42,11 @@ import { VaultStatusType, useVaultStatus } from "../../hooks/use-vault-status";
 import { BackgroundSync } from "../../services/background-sync";
 import BackupService from "../../services/backup";
 import { setMarketingConsent } from "../../services/marketing";
+import {
+  updateWiktionary,
+  useWiktionaryStore
+} from "../../services/wiktionary-update";
+import { getUiLocale } from "../../common/ui-locale";
 import BiometricService from "../../services/biometrics";
 import {
   ToastManager,
@@ -1367,6 +1372,16 @@ export const settingsGroups: SettingSection[] = [
     name: strings.helpAndSupport(),
     sections: [
       {
+        // Epigrapho A6: the tour a new install opens, any time.
+        id: "welcome-center",
+        name: strings.welcome.title(),
+        icon: "compass-outline",
+        modifer: () => {
+          Navigation.navigate("Welcome");
+        },
+        description: strings.welcome.helpDesc()
+      },
+      {
         id: "report-issue",
         name: strings.reportAnIssue(),
         icon: "bug",
@@ -1446,6 +1461,53 @@ export const settingsGroups: SettingSection[] = [
     id: "about",
     name: strings.about(),
     sections: [
+      {
+        id: "wiktionary-auto-update",
+        type: "switch",
+        icon: "book-sync-outline",
+        name: strings.wiktionaryUpdate.auto(),
+        description: strings.wiktionaryUpdate.autoDesc(),
+        property: "wiktionaryAutoUpdate"
+      },
+      {
+        id: "wiktionary-update-now",
+        icon: "book-arrow-down-outline",
+        name: strings.wiktionaryUpdate.now(),
+        useHook: () => useWiktionaryStore(),
+        description: (current) => {
+          const { busy, date } = current as { busy: boolean; date?: string };
+          if (busy) return strings.wiktionaryUpdate.updating();
+          return date
+            ? strings.wiktionaryUpdate.inUse(
+                new Date(date).toLocaleDateString(getUiLocale(), {
+                  dateStyle: "long",
+                  timeZone: "UTC"
+                })
+              )
+            : "";
+        },
+        modifer: async () => {
+          if (useWiktionaryStore.getState().busy) return;
+          try {
+            const status = await updateWiktionary();
+            ToastManager.show({
+              message:
+                status === "updated"
+                  ? strings.wiktionaryUpdate.updated()
+                  : status === "incompatible"
+                  ? strings.wiktionaryUpdate.incompatible()
+                  : strings.wiktionaryUpdate.current(),
+              type: status === "incompatible" ? "error" : "success"
+            });
+          } catch (e) {
+            console.error("wiktionary update", e);
+            ToastManager.show({
+              message: strings.wiktionaryUpdate.failed(),
+              type: "error"
+            });
+          }
+        }
+      },
       {
         id: "download",
         name: strings.downloadOnDesktop(),

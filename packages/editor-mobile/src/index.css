@@ -100,6 +100,23 @@ input:focus {
   font-size: 0.9rem;
 }
 
+.study-section {
+  margin: 12px 4px 4px;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  color: var(--paragraph-secondary);
+}
+
+.study-error {
+  color: var(--paragraph-error);
+}
+
+.study-link {
+  display: inline-block;
+  margin: 4px;
+  color: var(--accent);
+}
+
 .study-article {
   margin: 4px;
   white-space: pre-line;

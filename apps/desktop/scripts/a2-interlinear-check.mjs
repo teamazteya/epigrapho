@@ -33,7 +33,9 @@ const packs = [];
 await page.context().route("**/*", (route) => {
   const url = new URL(route.request().url());
   if (url.hostname === "localhost" || url.protocol !== "http:" && url.protocol !== "https:") {
-    if (url.pathname.startsWith("/original/")) packs.push(url.pathname);
+    // The weekly Wiktionary check reads its index when the app starts.
+    if (url.pathname.startsWith("/original/") && !url.pathname.startsWith("/original/wikt-"))
+      packs.push(url.pathname);
     return route.continue();
   }
   outside.push(url.href);

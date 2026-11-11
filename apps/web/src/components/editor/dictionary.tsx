@@ -20,13 +20,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import {
   dictionaryArticle,
+  dictionarySection,
+  dleUrl,
+  groupDictionaryHits,
   searchDictionary,
   type DictionaryArticle,
   type DictionaryHit
 } from "@notesnook/original-languages";
 import { strings } from "@notesnook/intl";
 import { shortStrong } from "@notesnook/editor";
-import { Button, Flex, Input, Text } from "@theme-ui/components";
+import { Button, Flex, Input, Link, Text } from "@theme-ui/components";
 import { useEffect, useState } from "react";
 import { Section } from "../properties";
 import { ScopedThemeProvider } from "../theme-provider";
@@ -101,6 +104,7 @@ function Hit({
           Strong: {article.strongs.map(shortStrong).join(", ")}
         </Text>
       )}
+      {open && dictionarySection(hit) === "spanish" && <DleLink word={hit.term} />}
       {inserting && (
         <Button
           variant="secondary"
@@ -121,6 +125,22 @@ function Hit({
   );
 }
 
+/** The word in the Real Academia's dictionary, in the browser (A6 Paso 7.3). */
+function DleLink({ word }: { word: string }) {
+  return (
+    <Link
+      href={dleUrl(word)}
+      target="_blank"
+      rel="noreferrer"
+      data-test-id="dictionary-dle"
+      variant="text.body"
+      sx={{ color: "accent", px: 1, mt: 1 }}
+    >
+      {strings.seeInDle()}
+    </Link>
+  );
+}
+
 /**
  * The Bible dictionaries (A2 Fases 6 and 7): search by term, read an entry,
  * and, when the "+" menu opened it, pick one to insert in the note. The
@@ -131,7 +151,7 @@ function DictionaryPanel({ sessionId }: { sessionId: string }) {
   const query = pane?.query ?? "";
   const inserting = !!pane?.inserting;
   const [input, setInput] = useState(query);
-  const [hits, setHits] = useState<DictionaryHit[]>();
+  const [hits, setHits] = useState<DictionaryHit[] | "failed">();
 
   useEffect(() => setInput(query), [query]);
   useEffect(() => {
@@ -142,7 +162,7 @@ function DictionaryPanel({ sessionId }: { sessionId: string }) {
       .then((found) => alive && setHits(found))
       .catch((error) => {
         console.error("could not search the dictionary", error);
-        if (alive) setHits([]);
+        if (alive) setHits("failed");
       });
     return () => {
       alive = false;
@@ -203,22 +223,48 @@ function DictionaryPanel({ sessionId }: { sessionId: string }) {
               <Text variant="body" sx={{ color: "paragraph-secondary", p: 1 }}>
                 {strings.loading()}
               </Text>
-            ) : hits.length === 0 ? (
+            ) : hits === "failed" ? (
               <Text
-                data-test-id="dictionary-empty"
+                data-test-id="dictionary-error"
                 variant="body"
-                sx={{ color: "paragraph-secondary", p: 1 }}
+                sx={{ color: "paragraph-error", p: 1 }}
               >
-                {strings.dictionaryNothing(query)}
+                {strings.dictionaryFailed()}
               </Text>
+            ) : hits.length === 0 ? (
+              <Flex sx={{ flexDirection: "column" }}>
+                <Text
+                  data-test-id="dictionary-empty"
+                  variant="body"
+                  sx={{ color: "paragraph-secondary", p: 1 }}
+                >
+                  {strings.dictionaryNothing(query)}
+                </Text>
+                <DleLink word={query} />
+              </Flex>
             ) : (
-              hits.map((hit) => (
-                <Hit
-                  key={hit.id}
-                  sessionId={sessionId}
-                  hit={hit}
-                  inserting={inserting}
-                />
+              groupDictionaryHits(hits).map(([section, found]) => (
+                <Flex
+                  key={section}
+                  data-test-id={`dictionary-section-${section}`}
+                  sx={{ flexDirection: "column" }}
+                >
+                  <Text
+                    as="h3"
+                    variant="subtitle"
+                    sx={{ px: 1, mt: 1, mb: 1 }}
+                  >
+                    {strings.dictionarySections[section]()}
+                  </Text>
+                  {found.map((hit) => (
+                    <Hit
+                      key={hit.id}
+                      sessionId={sessionId}
+                      hit={hit}
+                      inserting={inserting}
+                    />
+                  ))}
+                </Flex>
               ))
             )}
           </Flex>

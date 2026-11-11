@@ -91,6 +91,28 @@ for (const entry of pack.entries) {
   terms.set(entry.word, entry);
 }
 
+// The names and terms of the study packs (A6 Fase 8), built by
+// packages/original-languages from the VBL and the dictionaries. The web
+// build sits beside this worker, so the packs are in original/. The curated
+// pack above wins: its deprecated spellings are never offered.
+try {
+  const study: string[] = JSON.parse(
+    readFileSync(path.join(__dirname, "original", "spell-terms-es.json"), "utf8")
+  );
+  for (const word of study) {
+    if (terms.has(word)) continue;
+    for (const speller of spellers) speller.add(word);
+    terms.set(word, {
+      word,
+      status: "accepted",
+      categories: [],
+      sourceId: "estudio"
+    });
+  }
+} catch (error) {
+  console.error("spell-terms-es.json could not be read", error);
+}
+
 const corrections: Record<string, string[]> = JSON.parse(
   readFileSync(path.join(dictionaries, "spelling-corrections-es.json"), "utf8")
 ).entries;

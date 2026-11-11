@@ -93,6 +93,8 @@ import {
   ScriptureReference,
   ScriptureReferenceOptions
 } from "./extensions/scripture-reference/scripture-reference.js";
+import { ScriptureInlinePreview } from "./extensions/scripture-reference/inline-preview.js";
+import { type ScripturePopoverOptions } from "./extensions/scripture-reference/popover.js";
 import {
   GrammarCheck,
   GrammarCheckOptions
@@ -178,6 +180,8 @@ export type TiptapOptions = EditorOptions &
     lexicon?: InterlinearOptions["lexicon"];
     openConcordance?: InterlinearOptions["openConcordance"];
     loadDictionaryEntry?: DictionaryEntryOptions["load"];
+    // Epigrapho (A6): on a phone the verse opens in the note, not over it.
+    scripturePreview?: ScripturePopoverOptions;
   } & {
     placeholder: string;
   };
@@ -218,6 +222,7 @@ const useTiptap = (
     openConcordance,
     insertDictionaryEntry,
     loadDictionaryEntry,
+    scripturePreview,
     ...restOptions
   } = options;
 
@@ -460,7 +465,10 @@ const useTiptap = (
           lexicon,
           openConcordance
         }),
-        DictionaryEntry.configure({ load: loadDictionaryEntry })
+        DictionaryEntry.configure({ load: loadDictionaryEntry }),
+        ScriptureInlinePreview.configure({
+          preview: isMobile ? scripturePreview : undefined
+        })
       ],
       onBeforeCreate: ({ editor }) => {
         editor.storage.dateFormat = dateFormat;
@@ -516,6 +524,7 @@ const useTiptap = (
       openConcordance,
       insertDictionaryEntry,
       loadDictionaryEntry,
+      scripturePreview,
       options.placeholder
     ]
   );

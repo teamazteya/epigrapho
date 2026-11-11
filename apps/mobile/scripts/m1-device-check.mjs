@@ -38,13 +38,13 @@ adb(
   "1"
 );
 
-await waitFor("Empezar", 180000);
+await waitFor("welcome-enter", 180000);
 assert.ok(
   !visibleText().includes("Ya tengo una cuenta"),
   "la intro ofrece iniciar sesión"
 );
 shot("device-1-intro");
-await tap("Empezar");
+await tap("welcome-enter");
 await waitFor("Buscar en Notas");
 assert.ok(
   !/Inicia sesión|Cambiar de plan|Crear cuenta/.test(visibleText()),
@@ -62,10 +62,10 @@ assert.ok(
 await tap("sidemenu-settings-icon");
 await tap("Ajustes");
 // M1 Fase 5b: the account is offered here, and only here, as on the desktop.
-assert.ok(
-  visibleText().includes("Sincronizar entre dispositivos"),
-  "Ajustes no ofrece la cuenta opcional"
-);
+// Settings can take a moment to draw on a busy emulator.
+await waitFor("Sincronizar entre dispositivos", 15000).catch(() => {
+  throw new Error("Ajustes no ofrece la cuenta opcional");
+});
 assert.ok(
   !/Cambiar de plan|Pro\b/.test(visibleText()),
   "Ajustes ofrece un plan"

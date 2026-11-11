@@ -62,6 +62,8 @@ export type Settings = {
   rateApp?: boolean | number;
   migrated?: boolean;
   introCompleted?: boolean;
+  /** Epigrapho A6: "Don't show again" unchecked, so the welcome center opens at each start. */
+  welcomeShow?: boolean;
   nextBackupRequestTime?: number;
   lastBackupDate?: number;
   userEmailConfirmed?: boolean;
@@ -98,6 +100,8 @@ export type Settings = {
   serverUrls?: Record<HostId, string>;
   defaultSidebarTab: number;
   checkForUpdates?: boolean;
+  /** The weekly Wiktionary copy, on Wi-Fi (A6 Fase 6). */
+  wiktionaryAutoUpdate?: boolean;
   defaultLineHeight: number;
   /** Epigrapho: the translation verses are read in (only embedded ones). */
   scriptureTranslation: string;
@@ -212,6 +216,7 @@ export const defaultSettings: SettingStore["settings"] = {
   fullBackupReminder: "never",
   lastFullBackupDate: 0,
   checkForUpdates: true,
+  wiktionaryAutoUpdate: true,
   defaultLineHeight: EDITOR_LINE_HEIGHT.DEFAULT,
   scriptureTranslation: "VBL",
   imageCompression: "ask-every-time",

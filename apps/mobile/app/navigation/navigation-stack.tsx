@@ -305,6 +305,10 @@ export const RootNavigation = () => {
   const introCompleted = useSettingStore(
     (state) => state.settings.introCompleted
   );
+  // Epigrapho A6: read once, at start; leaving the welcome center changes it.
+  const welcomeShow = React.useRef(
+    useSettingStore.getState().settings.welcomeShow
+  ).current;
 
   const initialShortcut = React.useRef(
     useSettingStore.getState().pendingShortcut
@@ -375,7 +379,8 @@ export const RootNavigation = () => {
     return unsubscribe;
   }, [reminderFeature]);
 
-  const initialRouteName = !introCompleted
+  const initialRouteName =
+    !introCompleted || (welcomeShow && !initialShortcut)
     ? "Welcome"
     : initialShortcut?.type === "epigrapho.action.newreminder"
     ? "AddReminder"

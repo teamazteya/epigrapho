@@ -69,8 +69,8 @@ adb(
   "android.intent.category.LAUNCHER",
   "1"
 );
-await waitFor("Empezar", 180000);
-await tap("Empezar");
+await waitFor("welcome-enter", 180000);
+await tap("welcome-enter");
 await waitFor("Buscar en Notas");
 
 // --- A4: one of the new themes --------------------------------------------

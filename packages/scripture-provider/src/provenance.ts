@@ -137,7 +137,8 @@ export const STUDY_PROVENANCE: Record<string, ResourceProvenance> = {
     name: "Clear Bible Alignments: RV1909",
     language: "es",
     licence: "CC BY 4.0",
-    attribution: "Alineación RV1909 © 2024 BiblioNexus, Clear Bible — CC BY 4.0",
+    attribution:
+      "Alineación RV1909 © 2024 BiblioNexus, Clear Bible — CC BY 4.0",
     deliveryMode: "embedded-offline"
   },
   ES419TW: {
@@ -166,6 +167,27 @@ export const STUDY_PROVENANCE: Record<string, ResourceProvenance> = {
     language: "mul",
     licence: "CC BY",
     attribution: "Referencias cruzadas: OpenBible.info — CC BY",
+    deliveryMode: "embedded-offline"
+  },
+  // A6: Easton machine-translated into Spanish, always marked as such.
+  EASES: {
+    id: "EASES",
+    name: "Easton (1897), traducción automática al español",
+    language: "es",
+    licence: "Public Domain; dataset CC BY 4.0",
+    attribution:
+      "Easton's Bible Dictionary (1897) — dominio público; datos de NEUU (github.com/neuu-org) — CC BY 4.0. Traducción automática al español (IA), sin revisión humana",
+    deliveryMode: "embedded-offline"
+  },
+  // A6: the general Spanish dictionary, through Kaikki's extraction. Each
+  // entry's page is es.wiktionary.org/wiki/<lemma>.
+  WIKT: {
+    id: "WIKT",
+    name: "Wikcionario en español",
+    language: "es",
+    licence: "CC BY-SA 4.0",
+    attribution:
+      "Wikcionario (es.wiktionary.org), extraído por Kaikki.org — CC BY-SA 4.0",
     deliveryMode: "embedded-offline"
   }
 };

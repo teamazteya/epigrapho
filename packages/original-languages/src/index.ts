@@ -26,13 +26,34 @@ import {
   type ConcordancePack,
   type CrossReferencePack,
   type DictionaryPack,
-  type DictionarySource,
+  type DictionaryWordsPack,
   type LexiconEntry,
   type LexiconPack,
-  type TranslationWordsPack
+  type TranslationWordsPack,
+  type WiktionaryIndexPack
 } from "./pack";
+import {
+  fold,
+  indexOnce,
+  mergeDictionaries,
+  searchIndex,
+  wiktionaryGroup,
+  type DictionaryEntry,
+  type DictionaryHit
+} from "./search";
 
 export * from "./pack";
+export type {
+  DictionaryEntry,
+  DictionaryHit,
+  DictionarySection
+} from "./search";
+export {
+  DICTIONARY_SECTIONS,
+  dictionarySection,
+  dleUrl,
+  groupDictionaryHits
+} from "./search";
 
 /** One original-language word of a verse (ADR-0009). */
 export type OriginalToken = {
@@ -76,7 +97,7 @@ function openDb() {
 }
 
 /** Same reason as scripture-provider's readPack: XHR can read file://. */
-function download<T>(url: string) {
+export function download<T>(url: string) {
   return new Promise<T>((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     xhr.open("GET", url);
@@ -109,6 +130,19 @@ export function setOriginalReader(read: (name: string) => Promise<unknown>) {
 
 const files = new Map<string, Promise<unknown>>();
 
+let wiktionaryCopy: string | undefined;
+/**
+ * A newer Wiktionary than the app's own (A6 Fase 6): the folder, ending in
+ * "/", holding that copy's wikt-*.json. Its name carries the copy's date, and
+ * the files are already on the device, so none is kept in IndexedDB.
+ */
+export function setWiktionaryCopy(folder: string | undefined) {
+  wiktionaryCopy = folder;
+  for (const name of files.keys())
+    if (name.startsWith("wikt-")) files.delete(name);
+  dictionaryIndex = indexOnce(dictionaries);
+}
+
 /**
  * A pack file, read once per page. The first time on a device it is fetched
  * and kept in IndexedDB, so a book downloads when it is first used and never
@@ -118,6 +152,8 @@ function file<T>(name: string): Promise<T> {
   let found = files.get(name) as Promise<T> | undefined;
   if (!found) {
     found = (async () => {
+      if (wiktionaryCopy && name.startsWith("wikt-"))
+        return await download<T>(wiktionaryCopy + name);
       if (reader) return (await reader(name)) as T;
       const db = await openDb();
       try {
@@ -229,7 +265,7 @@ export async function crossReferences(ref: string): Promise<string[]> {
   const [book, chapter, verse] = ref.split(".");
   if (!book || !chapter || !verse) return [];
   const pack = await file<CrossReferencePack>(`xref-${book}.json`).catch(
-    () => ({}) as CrossReferencePack
+    () => ({} as CrossReferencePack)
   );
   return pack[`${chapter}.${verse}`] ?? [];
 }
@@ -261,16 +297,6 @@ export async function concordance(
     books
   };
 }
-
-/** Accents, breathings and points off, so "agape" and "αγαπη" both find ἀγάπη. */
-// The class is U+0300–U+036F (Greek accents and breathings), U+0591–U+05C7
-// (Hebrew points and cantillation), the transliteration's syllable dots and
-// its apostrophes.
-const fold = (text: string) =>
-  text
-    .normalize("NFD")
-    .replace(/[̀-֑ͯ-ׇ.'’ʼ]/g, "")
-    .toLowerCase();
 
 export type OriginalWordMatch = {
   strong: string;
@@ -312,67 +338,58 @@ export async function searchOriginalWord(
     .map(({ exact: _, ...match }) => match);
 }
 
-export type DictionaryHit = {
-  /** "EAS:bethel", "TW:kt/grace": what a note keeps. */
-  id: string;
-  term: string;
-  source: DictionarySource;
-};
-
-export type DictionaryArticle = DictionaryHit & {
+export type DictionaryArticle = DictionaryEntry & {
   body: string;
   /** es-419 lists the Strong numbers an entry covers. */
   strongs: string[];
 };
 
-// The order results come in: the Spanish works first (A2 Fase 7), the modern
-// before the 1890 one, then the English ones.
-const SOURCE_ORDER: DictionarySource[] = ["TW", "RAND", "EAS", "SMI", "HIT"];
-
-/** Every dictionary, as one pack: the English file plus es-419. */
-async function dictionaries(): Promise<DictionaryPack> {
-  const [english, rand, words] = await Promise.all([
+/**
+ * Every dictionary, as one pack: the English file plus es-419; and
+ * Wiktionary's index, whose articles stay in their groups.
+ */
+async function dictionaries(): Promise<
+  [DictionaryPack, WiktionaryIndexPack?, DictionaryWordsPack?]
+> {
+  const [english, rand, easton, words, wiktionary, text] = await Promise.all([
     file<DictionaryPack>("dictionary-en.json"),
     file<DictionaryPack>("dictionary-es-rand.json"),
-    file<TranslationWordsPack>("es-419-tw.json")
+    file<DictionaryPack>("dictionary-es-easton.json"),
+    file<TranslationWordsPack>("es-419-tw.json"),
+    // The general Spanish dictionary is extra: without it (a page offline
+    // on its first search) the biblical ones still answer.
+    file<WiktionaryIndexPack>("wikt-index.json").catch(() => undefined),
+    file<DictionaryWordsPack>("dictionary-words.json")
   ]);
-  const all: DictionaryPack = { ...english, ...rand };
-  for (const [id, [title, body]] of Object.entries(words))
-    all[`TW:${id}`] = [title, "TW", body];
-  return all;
+  return [mergeDictionaries([english, rand, easton], words), wiktionary, text];
 }
 
-/** Folded for comparing terms: "Bet-el", "Betel" and "BETEL" are one. */
-const foldTerm = (text: string) => fold(text).replace(/[\s-]/g, "");
+let dictionaryIndex = indexOnce(dictionaries);
+
+/** The Wiktionary copy in use: the day Kaikki extracted it, and its SHA-256. */
+export async function wiktionaryInUse() {
+  const { date, sha256 } = await file<WiktionaryIndexPack>("wikt-index.json");
+  return { date, source: sha256 };
+}
 
 /**
- * The dictionary entries whose term matches `query`: exact matches first,
- * then the ones that start with it, each group in SOURCE_ORDER. es-419
- * titles list several terms ("amor, amar, amado"); any of them counts.
+ * The dictionary entries for `query`: by title first (exact, plural or
+ * singular, prefix), then the ones that only mention it ("Aparece en").
  */
 export async function searchDictionary(
   query: string,
   limit = 60
 ): Promise<DictionaryHit[]> {
-  const wanted = foldTerm(query.trim());
-  if (!wanted) return [];
-  const hits: (DictionaryHit & { rank: number })[] = [];
-  for (const [id, [term, source]] of Object.entries(await dictionaries())) {
-    // "amor, amar, amado" (es-419) and "Zur o Sur" (Rand) name several.
-    const terms = term.split(/,| o /).map(foldTerm);
-    const exact = terms.includes(wanted);
-    if (!exact && !terms.some((each) => each.startsWith(wanted))) continue;
-    hits.push({
-      id,
-      term,
-      source,
-      rank: (exact ? 0 : 10) + SOURCE_ORDER.indexOf(source)
-    });
-  }
-  return hits
-    .sort((a, b) => a.rank - b.rank || a.term.localeCompare(b.term))
-    .slice(0, limit)
-    .map(({ rank: _, ...hit }) => hit);
+  const [index, wiktionary] = await Promise.all([
+    dictionaryIndex(),
+    file<WiktionaryIndexPack>("wikt-index.json").catch(() => undefined)
+  ]);
+  // "amó" leads to "amar" through the forms of its group.
+  const group = wiktionaryGroup(query.trim());
+  const forms = wiktionary?.forms.includes(group)
+    ? await file<Record<string, string[]>>(`wikt-forms-${group}.json`)
+    : undefined;
+  return searchIndex(index, query, limit, forms);
 }
 
 /** One dictionary entry by the id a note keeps. */
@@ -393,8 +410,18 @@ export async function dictionaryArticle(
   }
   const found = (
     await file<DictionaryPack>(
-      id.startsWith("RAND:") ? "dictionary-es-rand.json" : "dictionary-en.json"
-    )
+      id.startsWith("WIKT:")
+        ? `wikt-${wiktionaryGroup(id.slice(5))}.json`
+        : id.startsWith("RAND:")
+        ? "dictionary-es-rand.json"
+        : id.startsWith("EASES:")
+        ? "dictionary-es-easton.json"
+        : "dictionary-en.json"
+    ).catch((error) => {
+      // A lemma whose group is gone from a newer copy (Fase 7 shows it).
+      if (id.startsWith("WIKT:")) return {} as DictionaryPack;
+      throw error;
+    })
   )[id];
   return (
     found && {

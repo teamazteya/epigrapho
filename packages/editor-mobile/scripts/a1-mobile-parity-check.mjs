@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // The four things Fase 8 asks of mobile, against the page the phone's WebView
-// loads: writing a reference marks it, resting on it shows the verse, the
+// loads: writing a reference marks it, tapping it shows the verse, the
 // block is inserted, and copying it hands the app the attribution.
 //
 // This is the editor bundle itself, served by its own dev server; the native
@@ -81,9 +81,10 @@ try {
   assert.equal(marked.ref, "ROM.8.28");
   assert.equal(marked.text, "Romanos 8:28");
 
-  // 2. Resting on it shows the verse and says where it comes from.
-  await reference.hover();
-  const popover = page.locator('[data-test-id="scripture-popover"]');
+  // 2. A tap on it opens the verse under the paragraph and says where it
+  // comes from (A6: in the note, not over it).
+  await reference.click();
+  const popover = page.locator('[data-test-id="scripture-inline-preview"]');
   await popover.waitFor({ timeout: 15000 });
   // The box opens with an ellipsis and fills once the pack has been read.
   await page.waitForFunction(
@@ -107,8 +108,11 @@ try {
   assert.ok(preview.text && preview.text !== "…" && preview.text.length > 20);
   assert.equal(preview.attribution, "VBL — CC BY-SA 4.0");
 
+  // A second tap closes it.
+  await reference.click();
+  await popover.waitFor({ state: "detached", timeout: 5000 });
+
   // 3. The block is inserted from the editor's own action.
-  await page.mouse.move(0, 0);
   await editor.click();
   await page.keyboard.press("Control+End");
   await page.keyboard.press("Enter");

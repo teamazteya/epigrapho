@@ -27,6 +27,7 @@ import "@notesnook/editor/styles/katex-fonts.mobile.css";
 import "@notesnook/editor/styles/katex.min.css";
 import "@notesnook/editor/styles/styles.css";
 import { setI18nGlobal } from "@notesnook/intl";
+import { setWiktionaryCopy } from "@notesnook/original-languages";
 import { loadScripturePacks } from "./common/scripture";
 import { createRoot } from "react-dom/client";
 import "./index.css";
@@ -67,6 +68,8 @@ function loadApp() {
       );
 
   locale.then(async (locale: { [name: string]: any }) => {
+    // The weekly Wiktionary copy, if the app has one (A6 Fase 6).
+    if (globalThis.WIKTIONARY_COPY) setWiktionaryCopy(globalThis.WIKTIONARY_COPY);
     i18n.load(locale);
     i18n.activate(globalThis.LINGUI_LOCALE || "en");
     //@ts-ignore

@@ -160,16 +160,56 @@ export const SOURCES: Record<
 const sha256 = (data: Buffer) =>
   createHash("sha256").update(data).digest("hex");
 
+/**
+ * The Spanish Wiktionary as Kaikki extracts it (A6 Fase 4), CC BY-SA 4.0 and
+ * GFDL like Wiktionary. Kaikki keeps only the latest extraction, so this
+ * source has no fixed checksum: the import records the date and hash of the
+ * copy it read, and a newer one replaces it when `fresh` is asked for (the
+ * weekly update, Fase 6).
+ */
+export const WIKTIONARY = {
+  url: "https://kaikki.org/eswiktionary/raw-wiktextract-data.jsonl.gz",
+  file: `${CACHE}eswiktionary.jsonl.gz`
+};
+
+/** Downloads the Wiktionary extraction if missing; its date and SHA-256. */
+export async function fetchWiktionary(fresh = false) {
+  const dated = `${WIKTIONARY.file}.date`;
+  if (fresh || !existsSync(WIKTIONARY.file) || !existsSync(dated)) {
+    mkdirSync(CACHE, { recursive: true });
+    console.error("descargando el Wikcionario de Kaikki (unos 100 MB)");
+    const response = await fetch(WIKTIONARY.url);
+    if (!response.ok)
+      throw new Error(`${WIKTIONARY.url} respondió ${response.status}`);
+    writeFileSync(WIKTIONARY.file, Buffer.from(await response.arrayBuffer()));
+    // Kaikki writes the file once per extraction: its Last-Modified is the
+    // extraction's date.
+    const modified = response.headers.get("last-modified");
+    writeFileSync(
+      dated,
+      (modified ? new Date(modified) : new Date()).toISOString().slice(0, 10)
+    );
+  }
+  return {
+    date: readFileSync(dated, "utf8").trim(),
+    sha256: sha256(readFileSync(WIKTIONARY.file))
+  };
+}
+
 /** Downloads whatever is missing from the cache, and checks every file. */
 export async function fetchSources() {
   mkdirSync(CACHE, { recursive: true });
-  for (const [name, { url, sha256: expected, files, vendored }] of Object.entries(
-    SOURCES
-  )) {
+  for (const [
+    name,
+    { url, sha256: expected, files, vendored }
+  ] of Object.entries(SOURCES)) {
     // A source kept in the repo (data/) is copied, not downloaded; `url`
     // says where it came from.
     if (vendored && !existsSync(CACHE + name))
-      copyFileSync(fileURLToPath(new URL(`../data/${name}`, import.meta.url)), CACHE + name);
+      copyFileSync(
+        fileURLToPath(new URL(`../data/${name}`, import.meta.url)),
+        CACHE + name
+      );
     const download = async (from: string, to: string) => {
       if (existsSync(to)) return;
       console.error(`descargando ${from.slice(from.lastIndexOf("/") + 1)}`);
@@ -186,7 +226,11 @@ export async function fetchSources() {
         } catch (error) {
           if (attempt === 4) throw error;
           const wait = 5000 * 2 ** (attempt - 1);
-          console.error(`  falló (${(error as Error).message}); reintento en ${wait / 1000} s`);
+          console.error(
+            `  falló (${(error as Error).message}); reintento en ${
+              wait / 1000
+            } s`
+          );
           await new Promise((resolve) => setTimeout(resolve, wait));
         }
       }
@@ -194,10 +238,12 @@ export async function fetchSources() {
     let actual: string;
     if (files) {
       mkdirSync(CACHE + name, { recursive: true });
-      const local = (file: string) => `${CACHE}${name}/${file.replace("/", "-")}`;
+      const local = (file: string) =>
+        `${CACHE}${name}/${file.replace("/", "-")}`;
       for (const file of files) await download(url + file, local(file));
       const hash = createHash("sha256");
-      for (const file of files.map(local).sort()) hash.update(readFileSync(file));
+      for (const file of files.map(local).sort())
+        hash.update(readFileSync(file));
       actual = hash.digest("hex");
     } else {
       await download(url, CACHE + name);

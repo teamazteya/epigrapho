@@ -142,7 +142,7 @@ try {
     "android.intent.category.LAUNCHER",
     "1"
   );
-  await tap("Empezar", 180000);
+  await tap("welcome-enter", 180000);
   await waitFor("Buscar en Notas");
   adb("shell", "input", "tap", "118", "191"); // the menu button in the search bar
   await tap("sidemenu-settings-icon");

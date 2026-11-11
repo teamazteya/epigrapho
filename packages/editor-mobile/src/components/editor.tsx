@@ -19,7 +19,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import {
   attachScriptureCopy,
-  attachScripturePopover,
   Editor,
   getFontById,
   getTableOfContents,
@@ -109,13 +108,14 @@ const Tiptap = ({
     setPasswordError(null);
   }, [tab.session?.noteId]);
 
-  // Epigrapho (Fase 8): resting on a reference shows the verse, and a tap on
-  // a block copies it with its attribution. Both are drawn by the editor
-  // package; what this page supplies is where the words come from and how
-  // they reach the clipboard, which on a phone is the app around this page.
-  useEffect(() => {
-    const content = getContentDiv();
-    const detachPopover = attachScripturePopover(content, {
+  // Epigrapho (Fase 8, A6): a tap on a reference opens its verse in the note,
+  // under the block that holds it; a tap on a block copies it with its
+  // attribution. Both are drawn by the editor package; what this page
+  // supplies is where the words come from and how they reach the clipboard,
+  // which on a phone is the app around this page. Made once: the editor is
+  // rebuilt whenever its options change.
+  const scripturePreview = useMemo(
+    () => ({
       translation: getTranslation,
       resolve: resolveVerse,
       attributionOf,
@@ -124,7 +124,7 @@ const Tiptap = ({
       crossReferences: {
         load: crossReferences,
         label: formatReference,
-        insert: (ref, after) => {
+        insert: (ref: string, after: HTMLElement) => {
           const editor = editors[tabRef.current.id];
           if (!editor) return;
           const end = editor.view.posAtDOM(after, after.childNodes.length);
@@ -138,17 +138,17 @@ const Tiptap = ({
         },
         credit: STUDY_PROVENANCE.OPENBIBLE.attribution
       }
-    });
-    const detachCopy = attachScriptureCopy(content, {
+    }),
+    []
+  );
+
+  useEffect(() => {
+    return attachScriptureCopy(getContentDiv(), {
       formatReference,
       attributionOf,
       copy: (text) =>
         globalThis.editorControllers[tabRef.current.id]?.copyToClipboard(text)
     });
-    return () => {
-      detachPopover();
-      detachCopy();
-    };
   }, [getContentDiv]);
 
   logger("info", tabRef.current.id, "rendering");
@@ -281,6 +281,7 @@ const Tiptap = ({
       },
       content: globalThis.editorControllers[tab.id]?.content?.current,
       isMobile: true,
+      scripturePreview,
       doubleSpacedLines: settings.doubleSpacedLines,
       openLink: (url) => {
         return globalThis.editorControllers[tab.id]?.openLink(url) || true;
@@ -360,6 +361,7 @@ const Tiptap = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     getContentDiv,
+    scripturePreview,
     tab.session?.readonly,
     settings.doubleSpacedLines,
     settings.corsProxy,

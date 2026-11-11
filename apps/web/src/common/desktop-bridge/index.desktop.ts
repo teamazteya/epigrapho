@@ -72,6 +72,10 @@ function attachListeners() {
   TaskScheduler.register("updateCheck", "0 0 */12 * * * *", () => {
     checkForUpdate(settingStore.get().autoUpdates);
   });
+  // A6 Fase 6: it checks only once a week, but the app may stay open longer.
+  TaskScheduler.register("wiktionaryCheck", "0 30 */12 * * * *", () =>
+    import("../wiktionary-update").then((m) => m.checkWiktionaryWeekly())
+  );
 }
 
 function attachListener(event: string) {

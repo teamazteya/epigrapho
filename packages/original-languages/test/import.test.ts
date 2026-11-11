@@ -49,7 +49,15 @@ test("GEN 1:1 da los tokens hebreos en orden, sin cantilación", () => {
   const tokens = books.get("GEN")!.verses["1:1"];
   assert.deepEqual(
     tokens.map(([surface]) => surface),
-    ["בְּרֵאשִׁית", "בָּרָא", "אֱלֹהִים", "אֵת", "הַשָּׁמַיִם", "וְאֵת", "הָאָרֶץ"].map(nfc)
+    [
+      "בְּרֵאשִׁית",
+      "בָּרָא",
+      "אֱלֹהִים",
+      "אֵת",
+      "הַשָּׁמַיִם",
+      "וְאֵת",
+      "הָאָרֶץ"
+    ].map(nfc)
   );
   assert.equal(tokens[0][2], "H7225G");
 });
@@ -88,7 +96,9 @@ test("la unión con la alineación pierde menos de un punto", () => {
       [...sourceWords.values()].filter(Boolean).length / sourceWords.size;
     const { tokens, withSpanish } = coverage[testament];
     console.log(
-      `${testament}: ${((withSpanish / tokens) * 100).toFixed(1)} % con glosa, la alineación cubre ${(ceiling * 100).toFixed(1)} %`
+      `${testament}: ${((withSpanish / tokens) * 100).toFixed(
+        1
+      )} % con glosa, la alineación cubre ${(ceiling * 100).toFixed(1)} %`
     );
     assert.ok(withSpanish / tokens > ceiling - 0.01);
   }
@@ -163,7 +173,11 @@ test("Rand: Betel es una entrada limpia, sin pies de grabado", () => {
 });
 
 test("Rand: las lecturas erróneas del OCR se corrigen, con sus mayúsculas", () => {
-  const fixes = new Map([["cindadanos", "ciudadanos"], ["yna", "una"], ["jernsalem", "jerusalem"]]);
+  const fixes = new Map([
+    ["cindadanos", "ciudadanos"],
+    ["yna", "una"],
+    ["jernsalem", "jerusalem"]
+  ]);
   assert.equal(
     correctOcr("300,000 cindadanos, yna calle de JERNSALEM a Jernsalem", fixes),
     "300,000 ciudadanos, una calle de JERUSALEM a Jerusalem"

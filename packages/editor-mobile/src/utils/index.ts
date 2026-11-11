@@ -64,6 +64,8 @@ export type Settings = {
 declare global {
   var LINGUI_LOCALE: string;
   var LINGUI_LOCALE_DATA: { [name: string]: any };
+  /** file:// folder of the weekly Wiktionary copy (A6 Fase 6). */
+  var WIKTIONARY_COPY: string | undefined;
   var pendingResolvers: {
     [key: string]: (value: any) => void;
   };

@@ -67,7 +67,9 @@ function logout() {
     "theme:dark",
     "colorScheme",
     "followSystemTheme",
-    "doubleSpacedLines"
+    "doubleSpacedLines",
+    // Epigrapho A6: the welcome center's answer belongs to this computer.
+    "welcome:hide"
   ];
   const vals = {} as Record<string, any>;
 

@@ -31,19 +31,23 @@ export const DICTIONARY_NAMES: Record<DictionarySource, string> = {
   RAND: "Diccionario de la Santa Biblia (Rand, 1890)",
   EAS: "Easton's Bible Dictionary (1897)",
   SMI: "Smith's Bible Dictionary (1863)",
-  HIT: "Hitchcock's Bible Names Dictionary (1869)"
+  HIT: "Hitchcock's Bible Names Dictionary (1869)",
+  WIKT: "Wikcionario en español",
+  EASES: "Easton (1897), traducción automática al español"
 };
 
 /** The language a dictionary is written in. */
 export const dictionaryLanguage = (source: DictionarySource) =>
-  source === "TW" || source === "RAND" ? "es" : "en";
+  ["TW", "RAND", "WIKT", "EASES"].includes(source) ? "es" : "en";
 
 const CREDITS: Record<DictionarySource, string> = {
   TW: STUDY_PROVENANCE.ES419TW.attribution,
   RAND: "Rand, Diccionario de la Santa Biblia (1890) — dominio público",
   EAS: STUDY_PROVENANCE.NEUU.attribution,
   SMI: STUDY_PROVENANCE.NEUU.attribution,
-  HIT: STUDY_PROVENANCE.NEUU.attribution
+  HIT: STUDY_PROVENANCE.NEUU.attribution,
+  WIKT: STUDY_PROVENANCE.WIKT.attribution,
+  EASES: STUDY_PROVENANCE.EASES.attribution
 };
 
 /** A stored entry id, ready for the block to show. */
@@ -76,5 +80,7 @@ export async function renderDictionaryEntryForExport(id: string) {
     .split(/\n{2,}/)
     .map((paragraph) => `<p>${escape(paragraph)}</p>`)
     .join("");
-  return `<h4>${escape(entry.term)}</h4><p><em>${escape(entry.sourceName)}</em></p>${paragraphs}<p><em>${escape(entry.credit)}</em></p>`;
+  return `<h4>${escape(entry.term)}</h4><p><em>${escape(
+    entry.sourceName
+  )}</em></p>${paragraphs}<p><em>${escape(entry.credit)}</em></p>`;
 }

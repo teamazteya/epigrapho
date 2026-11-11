@@ -96,8 +96,9 @@ try {
     three.map(([id]) => id),
     ["VBL", "BSB", "KJV"]
   );
-  assert.match(three[1][1], /^For God so loved/);
-  assert.match(three[2][1], /^For God so loved/);
+  // Since 1.5.2 a verse keeps its number ("[16] For God…").
+  assert.match(three[1][1], /^(\[16\] )?For God so lov/);
+  assert.match(three[2][1], /^(\[16\] )?For God so lov/);
   const layout = await block.evaluate((element) => ({
     columns: element.getAttribute("data-columns"),
     tops: [

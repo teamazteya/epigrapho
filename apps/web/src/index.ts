@@ -18,6 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import "./polyfills";
+// Epigrapho A6: first, so it sees the profile before anything writes to it.
+import "./common/welcome";
 import "./app.css";
 import { AppEventManager, AppEvents } from "./common/app-events";
 import { register } from "./service-worker-registration";

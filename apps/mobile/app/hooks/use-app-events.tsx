@@ -71,6 +71,7 @@ import {
   presentSheet
 } from "../services/event-manager";
 import { askMarketingOnce } from "../services/marketing";
+import { startWiktionaryUpdates } from "../services/wiktionary-update";
 import { clearMessage, setUpdateAvailableMessage } from "../services/message";
 import Navigation from "../services/navigation";
 import { NotePreviewWidget } from "../services/note-preview-widget";
@@ -382,6 +383,7 @@ const doAppLoadActions = async () => {
   notifee.setBadgeCount(0);
   // Not awaited: it waits for the first sync before asking (A4).
   askMarketingOnce().catch((e) => DatabaseLogger.error(e));
+  startWiktionaryUpdates().catch((e) => DatabaseLogger.error(e));
   if (NewFeature.present()) return;
 };
 

@@ -37,10 +37,18 @@ import {
 } from "./sources.ts";
 import { buildRand } from "./rand.ts";
 import { buildCrossReferences } from "./cross-references.ts";
+import { buildWordIndex, mergeDictionaries } from "../src/search.ts";
+import { buildEastonEs } from "./easton-es.ts";
+import { buildWiktionary, wiktionaryFiles } from "./wiktionary.ts";
+import { buildSpellTerms, vblTexts } from "./spell-terms.ts";
 
 /** The 30-entry sample of Rand was reviewed and approved, with the OCR
  * corrections, on 2026-09-27 (A2 Paso 7.2). */
 const RAND_APPROVED = true;
+
+/** The 30-entry sample of Easton in Spanish was approved on 2026-11-04, with
+ * the names in their modern form and RV1909's in brackets (A6 Paso 5.3). */
+const EASTON_ES_APPROVED = true;
 
 /** STEP's book abbreviations, in canonical order, as USFM codes. */
 const STEP_BOOKS: Record<string, string> = Object.fromEntries(
@@ -470,18 +478,35 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     const lexicon = buildLexicon(books, words);
     for (const [language, entries] of Object.entries(lexicon))
       write(`lexicon-${language}.json`, entries);
-    write("dictionary-en.json", buildDictionaryEn());
+    const english = buildDictionaryEn();
+    write("dictionary-en.json", english);
     // Rand ships only once a person has read a sample of the cleaned OCR
     // (A2 Paso 7.2, 🛑); until then the file is there, and empty.
-    write("dictionary-es-rand.json", RAND_APPROVED ? buildRand() : {});
+    const rand = RAND_APPROVED ? buildRand() : {};
+    write("dictionary-es-rand.json", rand);
+    const easton = EASTON_ES_APPROVED ? buildEastonEs() : {};
+    write("dictionary-es-easton.json", easton);
+    write(
+      "dictionary-words.json",
+      buildWordIndex(mergeDictionaries([english, rand, easton], words))
+    );
     for (const [book, pack] of buildCrossReferences())
       write(`xref-${book}.json`, pack);
     for (const [language, index] of Object.entries(buildConcordance(books)))
       write(`concordance-${language}.json`, index);
+    const wiktionary = await buildWiktionary();
+    for (const [name, data] of wiktionaryFiles(wiktionary)) write(name, data);
+    // The desktop spell checker reads it from the page's original/ (A6 Fase 8).
+    write(
+      "spell-terms-es.json",
+      buildSpellTerms(vblTexts(), rand, words, wiktionary.index)
+    );
     console.error(
       `${books.size} libros, ${Object.keys(words).length} entradas es-419 y ${
         Object.keys(lexicon.G).length + Object.keys(lexicon.H).length
-      } del léxico escritos en ${outs.join(", ")}`
+      } del léxico y ${wiktionary.index.lemmas.length} lemas del Wikcionario (${
+        wiktionary.index.date
+      }) escritos en ${outs.join(", ")}`
     );
   } else {
     const [book, rest] = (process.argv[2] ?? "JHN 3:16").split(/\s+/);

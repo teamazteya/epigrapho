@@ -87,8 +87,66 @@ export type DictionaryPack = Record<
   [term: string, source: DictionarySource, body: string]
 >;
 
-/** Easton, Smith and Hitchcock (English); es-419 and Rand (Spanish). */
-export type DictionarySource = "EAS" | "SMI" | "HIT" | "TW" | "RAND";
+/**
+ * Easton, Smith and Hitchcock (English); es-419 and Rand (Spanish); the
+ * Spanish Wiktionary and Easton machine-translated into Spanish (A6).
+ */
+export type DictionarySource =
+  | "EAS"
+  | "SMI"
+  | "HIT"
+  | "TW"
+  | "RAND"
+  | "WIKT"
+  | "EASES";
+
+/**
+ * The shape of the wikt-*.json files. A weekly copy (A6 Fase 6) in another
+ * format is not installed; bump it when an older app could not read them.
+ */
+export const WIKTIONARY_FORMAT = 1;
+
+/** manifest.json of a release in teamazteya/epigrapho-datos. */
+export type WiktionaryManifest = {
+  format: number;
+  /** The day Kaikki extracted the copy, and the extraction's SHA-256. */
+  date: string;
+  source: string;
+  /** SHA-256 and size in bytes of wikt.zip. */
+  sha256: string;
+  size: number;
+};
+
+/**
+ * The Spanish Wiktionary's index, wikt-index.json (A6 Fase 4). Its articles
+ * are in wikt-<group>.json and its inflected forms in
+ * wikt-forms-<group>.json, by wiktionaryGroup.
+ */
+export type WiktionaryIndexPack = {
+  /** The day Kaikki extracted the copy, and its SHA-256. */
+  date: string;
+  sha256: string;
+  /**
+   * Every lemma folded as search folds it, in order; the lemma itself is at
+   * the same place in `lemmas`. "WIKT:<lemma>" is its id.
+   */
+  keys: string[];
+  lemmas: string[];
+  /** The lemmas also shown as a biblical source. */
+  biblical: string[];
+  /** The groups that have a wikt-forms-<group>.json. */
+  forms: string[];
+};
+
+/**
+ * The words of the dictionaries' text, dictionary-words.json (A6 Fase 4), for
+ * "Aparece en": the ids of the combined packs, and each folded word → the
+ * places in `ids` of the entries that have it.
+ */
+export type DictionaryWordsPack = {
+  ids: string[];
+  words: Record<string, number[]>;
+};
 
 /** One book of the corpus, in canonical versification (ADR-0004). */
 export type BookPack = {

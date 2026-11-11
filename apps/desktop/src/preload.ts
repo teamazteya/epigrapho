@@ -66,5 +66,11 @@ webFrame.setSpellCheckProvider("es-MX", {
       .catch(() => callback([]))
 });
 
+// Epigrapho A6: the oracles start on a new profile, where the welcome center
+// opens by itself; they ask it not to (scripts/profiles-root.mjs).
+declare const localStorage: { setItem(key: string, value: string): void };
+if (process.env.EPIGRAPHO_WELCOME === "off")
+  localStorage.setItem("welcome:hide", "true");
+
 contextBridge.exposeInMainWorld("electronTRPC", electronTRPC);
 contextBridge.exposeInMainWorld("os", os);

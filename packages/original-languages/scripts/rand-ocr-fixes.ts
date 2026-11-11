@@ -40,7 +40,9 @@ import { fileURLToPath } from "node:url";
 import { paragraphsOfRand } from "./rand.ts";
 import { fetchSources, readSource } from "./sources.ts";
 
-const desktop = fileURLToPath(new URL("../../../apps/desktop/", import.meta.url));
+const desktop = fileURLToPath(
+  new URL("../../../apps/desktop/", import.meta.url)
+);
 const require = createRequire(desktop);
 const nspell = require("nspell");
 const dictionary = `${desktop}node_modules/dictionary-es/`;
@@ -64,7 +66,13 @@ const count = (into: Map<string, number>, text: string) => {
 await fetchSources();
 const bibles = new Map<string, number>();
 for (const file of ["nt_RV09.tsv", "ot_RV09.tsv"] as const)
-  count(bibles, readSource(file).split("\n").map((line) => line.split("\t")[2] ?? "").join(" "));
+  count(
+    bibles,
+    readSource(file)
+      .split("\n")
+      .map((line) => line.split("\t")[2] ?? "")
+      .join(" ")
+  );
 for (const translation of ["vbl", "pddpt"]) {
   const folder = fileURLToPath(
     new URL(`../../bible-pack/data/${translation}/`, import.meta.url)
@@ -76,7 +84,13 @@ const rand = new Map<string, number>();
 for (const paragraph of paragraphsOfRand()) count(rand, paragraph);
 
 const capitalised = (word: string) => word[0].toUpperCase() + word.slice(1);
-const ACCENTED: Record<string, string> = { a: "á", e: "é", i: "í", o: "ó", u: "ú" };
+const ACCENTED: Record<string, string> = {
+  a: "á",
+  e: "é",
+  i: "í",
+  o: "ó",
+  u: "ú"
+};
 const inDictionary = (word: string) =>
   speller.correct(word) || speller.correct(capitalised(word));
 /** Spanish as written, or missing only the accent 1890 left off ("caido"). */
@@ -98,8 +112,17 @@ const target = (word: string) =>
   (bibles.get(word) ?? 0) >= (word.length > 3 ? 5 : 500);
 
 const CONFUSIONS: [string, string][] = [
-  ["u", "n"], ["n", "u"], ["rn", "m"], ["c", "e"], ["e", "c"], ["l", "i"],
-  ["i", "l"], ["y", "u"], ["ii", "u"], ["li", "h"], ["j", "i"]
+  ["u", "n"],
+  ["n", "u"],
+  ["rn", "m"],
+  ["c", "e"],
+  ["e", "c"],
+  ["l", "i"],
+  ["i", "l"],
+  ["y", "u"],
+  ["ii", "u"],
+  ["li", "h"],
+  ["j", "i"]
 ];
 
 const fixes: [string, string][] = [];
@@ -107,7 +130,11 @@ for (const [word, seen] of rand) {
   if (word.length < 3 || seen >= 3 || spanish(word)) continue;
   const candidates = new Set<string>();
   for (const [from, to] of CONFUSIONS)
-    for (let at = word.indexOf(from); at >= 0; at = word.indexOf(from, at + 1)) {
+    for (
+      let at = word.indexOf(from);
+      at >= 0;
+      at = word.indexOf(from, at + 1)
+    ) {
       const candidate = word.slice(0, at) + to + word.slice(at + from.length);
       if (target(candidate)) candidates.add(candidate);
     }
@@ -118,4 +145,6 @@ writeFileSync(
   fileURLToPath(new URL("../data/rand-ocr-fixes.tsv", import.meta.url)),
   fixes.map((fix) => fix.join("\t")).join("\n") + "\n"
 );
-console.error(`${fixes.length} correcciones escritas en data/rand-ocr-fixes.tsv`);
+console.error(
+  `${fixes.length} correcciones escritas en data/rand-ocr-fixes.tsv`
+);

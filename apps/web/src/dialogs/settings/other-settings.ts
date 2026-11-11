@@ -35,6 +35,20 @@ import { TaskManager } from "../../common/task-manager";
 import { useStore as useSettingStore } from "../../stores/setting-store";
 import { STUDY_PROVENANCE } from "@notesnook/scripture-provider";
 import { CommunityThemes } from "@notesnook/theme";
+import Config from "../../utils/config";
+import { WelcomeDialog } from "../welcome-dialog";
+import { getUiLocale } from "../../common/ui-locale";
+import {
+  AUTO_UPDATE_KEY,
+  updateWiktionary,
+  useWiktionaryStore
+} from "../../common/wiktionary-update";
+
+const longDate = (date: string) =>
+  new Date(`${date}T00:00:00Z`).toLocaleDateString(getUiLocale(), {
+    dateStyle: "long",
+    timeZone: "UTC"
+  });
 
 export const AboutSettings: SettingsGroup[] = [
   {
@@ -189,6 +203,60 @@ export const AboutSettings: SettingsGroup[] = [
     ]
   },
   {
+    // A6 Fase 6: only the desktop app can download the weekly copy.
+    key: "wiktionary-update",
+    section: "about",
+    header: strings.wiktionaryUpdate.title(),
+    isHidden: () => !IS_DESKTOP_APP,
+    onStateChange: (listener) => useWiktionaryStore.subscribe(listener),
+    settings: [
+      {
+        key: "wiktionary-auto-update",
+        title: strings.wiktionaryUpdate.auto(),
+        description: strings.wiktionaryUpdate.autoDesc(),
+        components: [
+          {
+            type: "toggle",
+            isToggled: () => Config.get(AUTO_UPDATE_KEY, true),
+            toggle: () => {
+              Config.set(AUTO_UPDATE_KEY, !Config.get(AUTO_UPDATE_KEY, true));
+              useWiktionaryStore.setState({});
+            }
+          }
+        ]
+      },
+      {
+        key: "wiktionary-update-now",
+        title: strings.wiktionaryUpdate.now(),
+        description: () => {
+          const { busy, date } = useWiktionaryStore.getState();
+          if (busy) return strings.wiktionaryUpdate.updating();
+          return date ? strings.wiktionaryUpdate.inUse(longDate(date)) : "";
+        },
+        onStateChange: (listener) => useWiktionaryStore.subscribe(listener),
+        components: [
+          {
+            type: "button",
+            title: strings.wiktionaryUpdate.now(),
+            variant: "secondary",
+            action: async () => {
+              try {
+                const status = await updateWiktionary();
+                if (status === "updated")
+                  showToast("success", strings.wiktionaryUpdate.updated());
+                else if (status === "incompatible")
+                  showToast("error", strings.wiktionaryUpdate.incompatible());
+                else showToast("info", strings.wiktionaryUpdate.current());
+              } catch {
+                showToast("error", strings.wiktionaryUpdate.failed());
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
     // CC BY and CC BY-SA ask for the credit where the data is used and in
     // the app's notices; the interlinear credits its corpus at the foot too.
     key: "study-data",
@@ -257,6 +325,19 @@ export const SupportSettings: SettingsGroup[] = [
     section: "support",
     header: strings.helpAndSupport(),
     settings: [
+      {
+        key: "welcome-center",
+        title: strings.welcome.title(),
+        description: strings.welcome.helpDesc(),
+        components: [
+          {
+            type: "button",
+            action: () => WelcomeDialog.show({}),
+            title: strings.open(),
+            variant: "secondary"
+          }
+        ]
+      },
       {
         key: "report-issue",
         title: strings.reportAnIssue(),

@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Exercises the bundled worker with the same dictionaries as the installer.
+// Exercises the bundled worker with the same dictionaries as the installer,
+// and the study packs' names and terms beside it (A6 Fase 8: run
+// `npm run build` in packages/original-languages first).
 import assert from "node:assert/strict";
 import { mkdtemp, mkdir, copyFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -35,6 +37,12 @@ for (const name of ["bible-terms-es.json", "spelling-corrections-es.json"]) {
     path.join(target, "dictionaries", name)
   );
 }
+// The web build sits beside the worker, with the packs in original/.
+await mkdir(path.join(target, "original"));
+await copyFile(
+  path.join(root, "../web/public/original/spell-terms-es.json"),
+  path.join(target, "original/spell-terms-es.json")
+);
 let worker;
 const bilingual = new Map();
 try {
@@ -75,7 +83,11 @@ try {
       resureccion: "resurrección",
       dicipulos: "discípulos",
       Tesalonisenses: "Tesalonicenses",
-      Gethsemani: "Getsemaní"
+      Gethsemani: "Getsemaní",
+      Melquisedeq: "Melquisedec",
+      Nabucodonosr: "Nabucodonosor",
+      // Only in the study packs' list, not in bible-terms-es.json.
+      Mefibozet: "Mefiboset"
     })) {
       const { suggestions } = await ask({ suggest: word });
       console.log(`${languages.join("+")} ${word}: ${suggestions.join(", ")}`);
@@ -111,7 +123,19 @@ try {
     assert.ok(!suggestions.includes("Alòs") && !suggestions.includes("INE"));
     assert.equal(new Set(suggestions).size, suggestions.length);
     const { misspelled } = await ask({
-      words: ["Aser", "Yahvé", "Yahweh", "hamartiología", "8:28"]
+      words: [
+        "Aser",
+        "Yahvé",
+        "Yahweh",
+        "hamartiología",
+        "8:28",
+        "Melquisedec",
+        "Getsemaní",
+        "Nabucodonosor",
+        "Mefiboset",
+        "Jocabed",
+        "Abiatar"
+      ]
     });
     assert.deepEqual(misspelled, []);
     assert.deepEqual((await ask({ suggest: "Aser" })).suggestions, []);

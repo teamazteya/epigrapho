@@ -29,6 +29,7 @@ import { windowRouter } from "./window";
 import { sqliteRouter } from "./sqlite-kysely";
 import { backupsRouter } from "./backups";
 import { scriptureRouter } from "./scripture";
+import { dictionaryRouter } from "./dictionary";
 
 const t = initTRPC.create();
 
@@ -43,7 +44,8 @@ export const router = t.router({
   window: windowRouter,
   sqlite: sqliteRouter,
   backups: backupsRouter,
-  scripture: scriptureRouter
+  scripture: scriptureRouter,
+  dictionary: dictionaryRouter
 });
 
 const createCaller = t.createCallerFactory(router);

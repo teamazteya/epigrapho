@@ -26,6 +26,9 @@ export default defineConfig({
       "@/": "./"
     },
     environment: "happy-dom",
+    // Node 25+ has its own localStorage, undefined without a file, and it hides
+    // happy-dom's.
+    poolOptions: { forks: { execArgv: ["--no-experimental-webstorage"] } },
     typecheck: {
       tsconfig: "./tsconfig.tests.json"
     }

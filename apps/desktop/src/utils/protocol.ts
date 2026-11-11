@@ -22,6 +22,7 @@ import { isDevelopment } from "./index";
 import { createReadStream } from "fs";
 import { extname, normalize } from "path";
 import { URL } from "url";
+import { wiktionaryRoot } from "../api/dictionary";
 
 const BASE_PATH = isDevelopment() ? "../public" : "";
 const HOSTNAME = `app.epigrapho.local`;
@@ -45,11 +46,19 @@ function registerProtocol() {
     if (shouldInterceptRequest(url)) {
       console.info("Intercepting request:", request.url);
       const loadIndex = !extname(url.pathname);
-      const filePath = normalize(
-        `${__dirname}${
-          loadIndex ? `${BASE_PATH}/index.html` : `${BASE_PATH}/${url.pathname}`
-        }`
+      // The weekly Wiktionary copy (A6 Fase 6) lives in userData, not the app.
+      const copy = /^\/wiktionary\/([\w-]+)\/(wikt-[^/]+\.json)$/.exec(
+        decodeURIComponent(url.pathname)
       );
+      const filePath = copy
+        ? normalize(`${wiktionaryRoot()}/${copy[1]}/${copy[2]}`)
+        : normalize(
+            `${__dirname}${
+              loadIndex
+                ? `${BASE_PATH}/index.html`
+                : `${BASE_PATH}/${url.pathname}`
+            }`
+          );
       if (!filePath) {
         console.error("Local asset file not found at", filePath);
         return new Response(undefined, {

@@ -1473,6 +1473,41 @@ del.diffdel {
   color: var(--paragraph-secondary);
 }
 
+/* Epigrapho (A6): the phone's preview, in the note under the block that holds
+   the reference. It reads like the popover, but at the width of the note and
+   at full length: the note scrolls, not the box, so there is no inner scroll
+   for a finger to fight with. */
+.ProseMirror .scripture-inline-preview {
+  box-sizing: border-box;
+  margin: 6px 0 10px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background-color: var(--background-secondary);
+  color: var(--paragraph);
+  user-select: text;
+  white-space: normal;
+}
+
+.ProseMirror .scripture-inline-preview .scripture-popover-text,
+.ProseMirror .scripture-inline-preview .scripture-popover-see-also-list {
+  max-height: none;
+  overflow: visible;
+}
+
+.ProseMirror .scripture-inline-preview-close {
+  display: block;
+  min-height: 44px;
+  margin: 6px 0 0 auto;
+  padding: 0 12px;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 0.875rem;
+  color: var(--accent);
+  cursor: pointer;
+}
+
 /* Epigrapho: a grammar finding (ADR-0010). A wavy line in the accent colour,
    so it never reads as the red one spelling mistakes get. */
 .ProseMirror .grammar-error {

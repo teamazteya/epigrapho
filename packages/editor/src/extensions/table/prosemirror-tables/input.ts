@@ -197,6 +197,9 @@ export function handleMouseDown(
   startEvent: MouseEvent | TouchEvent
 ): void {
   if (startEvent.ctrlKey || startEvent.metaKey) return;
+  // A right click opens the spelling menu, which swallows the mouseup: tracking
+  // a drag from it turned the next mouse move into a cell selection.
+  if (!isTouchEvent(startEvent) && startEvent.button !== 0) return;
   if (columnResizingPluginKey.getState(view.state)?.dragging) return;
 
   const startDOMCell = domInCell(view, startEvent.target as Node);

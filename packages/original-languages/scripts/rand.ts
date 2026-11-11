@@ -81,7 +81,10 @@ const titleCase = (headword: string) =>
     .map((word, index) =>
       index > 0 && /^(o|ó|y|de|del|la|las|los|el|en|con)$/.test(word)
         ? word.replace("ó", "o")
-        : word.replace(/(^|-)(\p{L})/gu, (_, dash, letter) => dash + letter.toUpperCase())
+        : word.replace(
+            /(^|-)(\p{L})/gu,
+            (_, dash, letter) => dash + letter.toUpperCase()
+          )
     )
     .join(" ");
 
@@ -95,9 +98,15 @@ const slug = (term: string) =>
 
 /** The OCR text as paragraphs of one line each, without page furniture. */
 function paragraphs(text: string) {
-  const lines = text.split("\n").map((line) => line.replace(/\s+/g, " ").trim());
-  const start = lines.findIndex((line) => line.startsWith("A, la primera letra"));
-  const end = lines.findIndex((line, index) => index > start && line === "APÉNDICE.");
+  const lines = text
+    .split("\n")
+    .map((line) => line.replace(/\s+/g, " ").trim());
+  const start = lines.findIndex((line) =>
+    line.startsWith("A, la primera letra")
+  );
+  const end = lines.findIndex(
+    (line, index) => index > start && line === "APÉNDICE."
+  );
   const out: string[] = [];
   let current = "";
   let blank = false;
@@ -144,7 +153,9 @@ export const paragraphsOfRand = () =>
  */
 function ocrFixes() {
   const table = new Map<string, string>();
-  const file = fileURLToPath(new URL("../data/rand-ocr-fixes.tsv", import.meta.url));
+  const file = fileURLToPath(
+    new URL("../data/rand-ocr-fixes.tsv", import.meta.url)
+  );
   for (const line of readFileSync(file, "utf8").split("\n")) {
     const [wrong, right] = line.split("\t");
     if (wrong && right) table.set(wrong, right);
@@ -166,10 +177,7 @@ export function correctOcr(text: string, fixes: Map<string, string>) {
       })
       // "gobernante 6 consejero": the "ó" read as a six. A six between two
       // words stays a number when a count follows it ("6 millas", "de 6 a").
-      .replace(
-        /(?<=\p{L},? )6(?= (?!a\b)\p{Ll}+\b(?<!s))/gu,
-        "o"
-      )
+      .replace(/(?<=\p{L},? )6(?= (?!a\b)\p{Ll}+\b(?<!s))/gu, "o")
       .replace(/(?<=\p{Lu}{2},? )6(?= \p{Lu}{2})/gu, "o")
   );
 }

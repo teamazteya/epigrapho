@@ -121,6 +121,11 @@ try {
   console.log("scrollTop tras la rueda:", scrolled);
   assert.ok(scrolled > 0, "el popover se cerró o no se movió al hacer scroll");
 
+  // Escape closes it without moving the pointer (A6: the desktop keeps it).
+  await page.keyboard.press("Escape");
+  await page.locator(POPOVER).waitFor({ state: "detached", timeout: 5000 });
+  console.log("Escape lo cierra");
+
   // 3. A range across chapters reads past the chapter's end.
   const within = await preview(marks.nth(1));
   const across = await preview(marks.nth(2));
@@ -133,7 +138,7 @@ try {
   );
 
   console.log(
-    "GREEN: el capítulo se lee con scroll dentro del popover y el rango entre capítulos muestra todos sus versos."
+    "GREEN: el capítulo se lee con scroll dentro del popover, Escape lo cierra y el rango entre capítulos muestra todos sus versos."
   );
   console.log(`Evidencia: ${profile}`);
 } catch (error) {

@@ -3099,6 +3099,16 @@ Continue without attachments?`,
     t`Search a term and pick the entry to insert in the note.`,
   dictionaryNothing: (query: string) =>
     t`No dictionary has an entry for "${query}".`,
+  dictionaryFailed: () =>
+    t`The dictionaries could not be searched. Try again.`,
+  dictionarySections: {
+    biblical: () => t`Biblical`,
+    spanish: () => t`General Spanish`,
+    english: () => t`English`
+  },
+  seeInDle: () => t`View in the DLE (RAE)`,
+  wiktionaryGone: () => t`No longer in Wiktionary.`,
+  openWiktionary: () => t`Open in Wiktionary`,
   insertInNote: () => t`Insert in the note`,
   noChangelog: () => t`No changelog found.`,
   macUpdateTitle: (version: string) => t`Install version ${version}`,
@@ -3357,5 +3367,162 @@ Continue without attachments?`,
     translationsUsed: (list: string) => t`Translations: ${list}`,
     shownInstead: (shown: string, asked: string) =>
       t`${shown} is shown because ${asked} needs an internet connection`
+  },
+
+  // Epigrapho A6: the weekly Spanish Wiktionary copy.
+  wiktionaryUpdate: {
+    title: () => t`Spanish dictionary`,
+    auto: () => t`Update the dictionary automatically`,
+    autoDesc: () =>
+      t`Once a week, looks for a newer copy of the Spanish Wiktionary and switches to it when the download finishes. On a phone, only on Wi-Fi.`,
+    now: () => t`Update dictionary now`,
+    inUse: (date: string) => t`Copy in use: Wiktionary of ${date}.`,
+    updating: () => t`Updating the dictionary…`,
+    updated: () => t`The dictionary was updated.`,
+    current: () => t`The dictionary is up to date.`,
+    incompatible: () =>
+      t`The newest copy needs a newer version of Epigrapho.`,
+    failed: () =>
+      t`The dictionary could not be updated. The copy in use stays.`
+  },
+
+  // Epigrapho A6: the welcome center, nine pages. A page's mobile text is
+  // there only where the phone's controls differ.
+  welcome: {
+    title: () => t`Welcome center`,
+    indexSummary: () => t`Explore the 9 pages`,
+    indexLabel: () => t`Tour contents`,
+    discover: () => t`Discover what you can do`,
+    count: (page: number) => t`${page} of 9`,
+    enter: () => t`Enter Epigrapho`,
+    createFirstNote: () => t`Create my first note`,
+    dontShow: () => t`Don't show again`,
+    reopen: () =>
+      t`You can come back from Settings → Help and support → Welcome center.`,
+    helpDesc: () => t`A tour of what you can do in Epigrapho, in 9 pages.`,
+    railTitle: [() => t`Your study.`, () => t`Your way.`],
+    railNote: [
+      () => t`Free and open source.`,
+      () => t`Start without creating an account.`
+    ],
+    zoom: () => t`Enlarge capture`,
+    zoomOf: (caption: string) => t`Enlarge the real capture: ${caption}`,
+    captureAlt: (caption: string) => t`${caption} in the real app`,
+    captureDesktop: () => t`Real desktop app · sample data`,
+    captureAndroid: () => t`Real Android app · sample data`,
+    captureViews: () => t`Real views`,
+    shots: {
+      editor: () => t`Note editor`,
+      notes: () => t`Notes list`,
+      preview: () => t`Passage preview`,
+      block: () => t`Scripture block`,
+      related: () => t`Related notes`,
+      crossReferences: () => t`Cross references`,
+      parallel: () => t`Parallel translations`,
+      dictionary: () => t`Dictionary and sources`,
+      interlinear: () => t`Interlinear`,
+      lexicon: () => t`Lexicon`,
+      concordance: () => t`Concordance`,
+      plan: () => t`Plan and progress`,
+      reading: () => t`Reading text`,
+      templates: () => t`Templates`,
+      sermon: () => t`Sermon mode`,
+      themes: () => t`Included themes`,
+      export: () => t`Export`,
+      share: () => t`Publish by link`
+    },
+    pages: [
+      {
+        nav: () => t`Write and organize`,
+        title: () => t`Write. Study. Connect the Scriptures.`,
+        body: () =>
+          t`Create notes with headings, lists, tables and attachments. Organize your studies with notebooks and tags, and find them again with search.`,
+        tip: () =>
+          t`The + button creates a note. The editor toolbar gathers the formatting options and the study tools.`,
+        mobileTip: () =>
+          t`The + button creates a note. The bottom bar gathers formatting and the insert menu; properties open from the top menu.`
+      },
+      {
+        nav: () => t`Bible references`,
+        title: () => t`A reference opens a whole passage.`,
+        body: () =>
+          t`Type “John 3:16” and read the text without leaving the note. From the editor's + menu you can insert a Scripture block with its translation and license.`,
+        tip: () =>
+          t`On desktop, hover over the reference. VBL, BSB and KJV are included offline; NTV, NBLA and NASB need the Internet.`,
+        mobileTip: () =>
+          t`On a phone, tap the reference to see the passage. VBL, BSB and KJV are included offline; NTV, NBLA and NASB need the Internet.`
+      },
+      {
+        nav: () => t`Connect your studies`,
+        title: () => t`Connect what you study with what you already wrote.`,
+        body: () =>
+          t`Open “Notes on the same passage” to bring back your other notes. The preview offers cross references, and a Scripture block lets you compare up to three translations.`,
+        tip: () =>
+          t`The related notes panel keeps the titles of your notes and the passage that connects them.`,
+        mobileTitle: () => t`Connect passages. Compare translations.`,
+        mobileBody: () =>
+          t`Tap a reference to open “See also” and explore cross references. In a Scripture block, “Compare” shows up to three translations.`,
+        mobileTip: () =>
+          t`The comparison keeps the passage and each translation's attribution. On a small screen, scroll to read it all.`
+      },
+      {
+        nav: () => t`Dictionaries`,
+        title: () => t`Look up a word without leaving your study.`,
+        body: () =>
+          t`Open the dictionary from the editor toolbar and type a word. The results come in Biblical, General Spanish and English, and each one shows its source.`,
+        tip: () =>
+          t`To add an entry to your note, open + → Insert dictionary entry. In General Spanish, “View in the DLE (RAE)” opens the RAE in your browser.`,
+        mobileBody: () =>
+          t`From + → Insert dictionary entry, search a word and open an entry to read it. The results come in Biblical, General Spanish and English, each with its source.`,
+        mobileTip: () =>
+          t`“Insert in the note” adds the entry with its source. In General Spanish, “View in the DLE (RAE)” opens the RAE in your browser.`
+      },
+      {
+        nav: () => t`Hebrew and Greek`,
+        title: () => t`Come closer to the words of the original text.`,
+        body: () =>
+          t`From + → Insert interlinear, choose the passage. Each word shows its transliteration, Strong number, morphology and gloss. Tap it to open the lexicon.`,
+        tip: () =>
+          t`In the lexicon, “See all occurrences” opens the concordance. These tools work offline; some definitions are in English.`
+      },
+      {
+        nav: () => t`Reading plans`,
+        title: () => t`Make room to read every day.`,
+        body: () =>
+          t`Open “Reading plans”, choose a plan and follow the day's readings. You can show each passage's text, mark the day as read and set a reminder.`,
+        tip: () =>
+          t`“Write about this” creates a note with the day's references. Progress is kept by whole days.`
+      },
+      {
+        nav: () => t`Templates and sermon`,
+        title: () => t`From a first draft to a prepared teaching.`,
+        body: () =>
+          t`Next to the new note button you'll find the templates: expository sermon, SOAP, inductive study and class notes. Sermon mode opens from a note's properties.`,
+        tip: () =>
+          t`Sermon mode keeps the note's content, enlarges the text and offers size controls and a timer.`,
+        mobileBody: () =>
+          t`Tap the templates icon on the top bar of the notes list to choose expository sermon, SOAP, inductive study or class notes. Sermon mode opens from a note's properties.`,
+        mobileTip: () =>
+          t`To open sermon mode: the note's top menu → Properties → Sermon mode. It offers text size controls and a timer.`
+      },
+      {
+        nav: () => t`Themes and export`,
+        title: () => t`Make it yours. Take it with you.`,
+        body: () =>
+          t`In Settings → Appearance you can choose the color scheme and an included theme. From a note's menu, “Export as” offers PDF, Word and other formats.`,
+        tip: () =>
+          t`The export capture shows the real menu: it doesn't download files or change the note.`,
+        mobileBody: () =>
+          t`In Settings → Appearance → Themes you can choose one of the included themes. In a note, open the top menu → Properties → Export to choose Word, PDF and other formats.`
+      },
+      {
+        nav: () => t`Privacy and sharing`,
+        title: () => t`Your notes, under your control.`,
+        body: () =>
+          t`You can write locally without creating an account. A free account lets you sync your encrypted notes and publish by link.`,
+        tip: () =>
+          t`Sharing publishes a copy; it is not the same as private sync. The capture shows the real state before you sign in.`
+      }
+    ]
   }
 };
