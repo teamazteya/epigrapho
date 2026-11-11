@@ -58,7 +58,7 @@ jobs:
               apps/desktop/output/*.exe
               apps/desktop/output/*.blockmap
               apps/desktop/output/latest*.yml
-          - os: macos-14
+          - os: macos-15
             name: macOS
             artifacts: |
               apps/desktop/output/*.dmg
