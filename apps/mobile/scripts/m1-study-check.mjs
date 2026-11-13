@@ -3,7 +3,7 @@
 // A theme, a note from a template, NTV with network and a cross-reference, a
 // block compared with BSB, sermon mode, the note as .docx and PDF, a day of a
 // reading plan, and VBL with no network. Nothing is mocked: NTV comes from
-// notas.azteya.tech.
+// publica.epigrapho.app.
 //
 // Needs what m1-device-check.mjs needs: the debug build installed and the dev
 // server (npx react-native start) running for it.

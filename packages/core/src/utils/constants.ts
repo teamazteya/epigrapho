@@ -52,7 +52,7 @@ export const hosts = {
     ? "https://issues.streetwriters.co"
     : "http://localhost:2624",
   MONOGRAPH_HOST: isProduction()
-    ? "https://notas.azteya.tech"
+    ? "https://publica.epigrapho.app"
     : "http://localhost:6264",
   NOTESNOOK_HOST: isProduction()
     ? "https://notesnook.com"

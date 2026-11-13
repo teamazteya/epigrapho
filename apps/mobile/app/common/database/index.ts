@@ -52,14 +52,14 @@ export async function setupDatabase(password?: string) {
   // });
 
   // Epigrapho: sync, auth and events run on Epigrapho's server (S1), and
-  // shared notes on notas.azteya.tech (A5), the same hosts as the desktop.
+  // shared notes on publica.epigrapho.app (A5), the same hosts as the desktop.
   database.host({
     API_HOST: "https://sync.azteya.tech",
     AUTH_HOST: "https://auth.azteya.tech",
     SSE_HOST: "https://events.azteya.tech",
     SUBSCRIPTIONS_HOST: "https://subscriptions.streetwriters.co",
     ISSUES_HOST: "https://issues.streetwriters.co",
-    MONOGRAPH_HOST: "https://notas.azteya.tech",
+    MONOGRAPH_HOST: "https://publica.epigrapho.app",
     NOTESNOOK_HOST: "https://notesnook.com",
     ...(SettingsService.getProperty("serverUrls") || {})
   });
@@ -74,7 +74,7 @@ export async function setupDatabase(password?: string) {
       ({
         compress: Gzip.deflate,
         decompress: Gzip.inflate
-      }) as ICompressor,
+      } as ICompressor),
     batchSize: 50,
     sqliteOptions: {
       dialect: (name) => ({

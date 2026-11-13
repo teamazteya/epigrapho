@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import type { VerseRange } from "@notesnook/scripture-parser";
 import {
   PROVENANCE,
+  apiBiblePassageId,
   cacheKey,
   embeddedProvider,
   indexedDbVerseCache,
@@ -41,18 +42,32 @@ export type ResolvedVerse = {
 };
 
 /**
- * The online layer as seen from the renderer: it asks the main process, which
- * holds the key and makes the request. On the web build there is no main
- * process, so the brand translations are simply unavailable and the fallback
- * below takes over.
+ * Epigrapho's server holds the API.Bible key (apps/monograph, /api/verse).
+ * Only the reference goes out. It answers this origin with CORS (W1).
+ */
+const VERSE_HOST = "https://publica.epigrapho.app";
+
+/**
+ * The online layer as seen from the renderer: on desktop it asks the main
+ * process, which holds the key or asks the server; on the web it asks the
+ * server itself.
  */
 const onlineProvider: ScriptureTextProvider = {
   async getVerseText(ref: VerseRange, translationId: string) {
-    if (!desktop) return "";
-    return desktop.scripture.verse.query({
-      reference: ref,
-      translationId
-    });
+    if (desktop)
+      return desktop.scripture.verse.query({
+        reference: ref,
+        translationId
+      });
+    const response = await fetch(
+      `${VERSE_HOST}/api/verse?ref=${apiBiblePassageId(
+        ref
+      )}&t=${translationId}&numbers=1`
+    );
+    if (!response.ok)
+      throw new Error(`verse server responded ${response.status}`);
+    const { text } = (await response.json()) as { text?: string };
+    return text || "";
   }
 };
 

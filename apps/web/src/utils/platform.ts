@@ -51,6 +51,14 @@ export function isMac() {
   );
 }
 
+// Epigrapho (W1): iPadOS Safari says it is a Mac; only touch gives it away.
+export function isIOS() {
+  return (
+    getPlatform() === "iOS" ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)
+  );
+}
+
 export function isMacStoreApp() {
   return window.os ? window.os() === "mas" : false;
 }

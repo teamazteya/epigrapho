@@ -54,7 +54,10 @@ async function initializeDatabase(persistence: DatabasePersistence) {
       "SUBSCRIPTIONS_HOST",
       "https://subscriptions.streetwriters.co"
     ),
-    MONOGRAPH_HOST: getHostUrl("MONOGRAPH_HOST", "https://notas.azteya.tech"),
+    MONOGRAPH_HOST: getHostUrl(
+      "MONOGRAPH_HOST",
+      "https://publica.epigrapho.app"
+    ),
     NOTESNOOK_HOST: getHostUrl("NOTESNOOK_HOST", "https://notesnook.com"),
     ...Config.get("serverUrls", {})
   });

@@ -41,7 +41,7 @@ import { useSettingStore } from "../stores/use-setting-store";
  * by book, or share the editor's cache, if either ever shows.
  */
 export const DEFAULT_TRANSLATION = "VBL";
-const VERSE_HOST = "https://notas.azteya.tech";
+const VERSE_HOST = "https://publica.epigrapho.app";
 
 type Pack = Map<string, Map<string, string>>;
 const packs = new Map<string, Promise<Pack>>();

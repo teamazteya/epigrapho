@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import { redirect } from "@remix-run/node";
 
 /** Epigrapho: there is no index of shared notes; the bare address leads home. */
-export const LANDING_URL = "https://epigrapho.netlify.app";
+export const LANDING_URL = "https://epigrapho.app";
 
 export function loader() {
   return redirect(LANDING_URL, 302);

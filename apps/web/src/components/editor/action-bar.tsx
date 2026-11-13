@@ -151,7 +151,7 @@ export function EditorActionBar() {
       hidden: activeSession?.type === "readonly"
     },
     {
-      // Epigrapho (A5): shared notes live at notas.azteya.tech.
+      // Epigrapho (A5): shared notes live at publica.epigrapho.app.
       title: isNotePublished ? strings.sharedNote() : strings.shareNote(),
       icon: isNotePublished ? Published : Publish,
       hideOnMobile: true,

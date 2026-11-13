@@ -21,14 +21,16 @@ import { ManifestOptions } from "vite-plugin-pwa";
 
 export const WEB_MANIFEST: Partial<ManifestOptions> = {
   name: "Epigrapho",
+  // Epigrapho (W1): the installed app on iPhone and iPad, in Spanish first.
   description:
-    "A fully open source & end-to-end encrypted note taking alternative to Evernote.",
+    "Notas privadas que entienden las referencias bíblicas, cifradas de extremo a extremo.",
+  lang: "es-MX",
   short_name: "Epigrapho",
   shortcuts: [
     {
-      name: "New note",
+      name: "Nueva nota",
       url: "/#/notes/create",
-      description: "Create a new note",
+      description: "Crea una nota nueva",
       icons: [
         {
           src: "/android-chrome-192x192.png",
@@ -38,9 +40,9 @@ export const WEB_MANIFEST: Partial<ManifestOptions> = {
       ]
     },
     {
-      name: "New notebook",
+      name: "Nuevo cuaderno",
       url: "/#/notebooks/create",
-      description: "Create a new notebook",
+      description: "Crea un cuaderno nuevo",
       icons: [
         {
           src: "/android-chrome-192x192.png",
@@ -78,7 +80,7 @@ export const WEB_MANIFEST: Partial<ManifestOptions> = {
   prefer_related_applications: false,
   orientation: "any",
   start_url: ".",
-  theme_color: "#01c352",
+  theme_color: "#17223B",
   background_color: "#ffffff",
   display: "standalone",
   categories: ["productivity", "lifestyle", "education", "books"]

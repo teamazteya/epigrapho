@@ -71,7 +71,7 @@ export function formatReference(ref: string) {
   return range ? formatReadableRef(range, getBookNameLocale()) : ref;
 }
 
-const VERSE_HOST = "https://notas.azteya.tech";
+const VERSE_HOST = "https://publica.epigrapho.app";
 
 /**
  * The server holds the key and answers with the words. The page is a file://

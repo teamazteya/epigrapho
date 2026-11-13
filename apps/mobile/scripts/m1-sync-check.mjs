@@ -9,7 +9,7 @@
 //      arrive on the phone exactly as the desktop wrote them;
 //   3. a note written on the phone shows up on the desktop in under 5 s;
 //   4. the phone shares that note with a link, the link opens on
-//      notas.azteya.tech in a browser, and stops opening once unshared.
+//      publica.epigrapho.app in a browser, and stops opening once unshared.
 //
 // The account is the S1 test account; its details never go in the repo:
 //   S1_EMAIL, S1_PASSWORD, S1_TOTP_SECRET
@@ -338,7 +338,7 @@ try {
     await until(
       () =>
         screen().find((node) =>
-          node.text.startsWith("https://notas.azteya.tech/")
+          node.text.startsWith("https://publica.epigrapho.app/")
         ),
       Boolean,
       60000,
@@ -365,7 +365,7 @@ try {
 
     await tap("Dejar de compartir");
     await until(
-      () => onPhone("https://notas.azteya.tech/"),
+      () => onPhone("https://publica.epigrapho.app/"),
       (shown) => !shown,
       30000,
       "el enlace siguió en la hoja"
@@ -377,7 +377,7 @@ try {
   }
 
   console.log(
-    "GREEN: el teléfono y el escritorio, con la misma cuenta, se sincronizan en vivo en los dos sentidos, una nota de estudio con adjunto llega igual, y el teléfono comparte una nota con un enlace que abre en notas.azteya.tech."
+    "GREEN: el teléfono y el escritorio, con la misma cuenta, se sincronizan en vivo en los dos sentidos, una nota de estudio con adjunto llega igual, y el teléfono comparte una nota con un enlace que abre en publica.epigrapho.app."
   );
 } catch (error) {
   shot("sync-failure");

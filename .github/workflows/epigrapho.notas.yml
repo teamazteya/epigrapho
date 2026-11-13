@@ -1,5 +1,5 @@
 # Builds the public page of shared notes (apps/monograph, served at
-# notas.azteya.tech) as a Docker image for the Oracle VM, which is arm64, and
+# publica.epigrapho.app) as a Docker image for the Oracle VM, which is arm64, and
 # for amd64. A tag vX.Y.Z publishes ghcr.io/teamazteya/epigrapho-notas:vX.Y.Z;
 # run by hand, it publishes :sha-<commit>, so the page can be deployed and
 # tried before the release reaches anyone. The sync server's

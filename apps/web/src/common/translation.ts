@@ -26,7 +26,7 @@ import { setPreference } from "./synced-preferences";
 
 /**
  * Every translation a person can pick, embedded ones first. The brand ones
- * need the network (and the key the desktop app holds); which of them is
+ * need the network (and the key Epigrapho's server holds); which of them is
  * available offline is what the badge in the list says.
  */
 export const TRANSLATIONS = [

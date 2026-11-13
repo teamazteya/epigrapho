@@ -43,7 +43,8 @@ import {
   attachScriptureCopy,
   MAX_PARALLEL,
   type ParallelColumn,
-  type ScriptureBlockAttributes
+  type ScriptureBlockAttributes,
+  type ScripturePopoverOptions
 } from "@notesnook/editor";
 import { Box, Flex } from "@theme-ui/components";
 import {
@@ -51,7 +52,8 @@ import {
   useEffect,
   useLayoutEffect,
   useMemo,
-  useRef
+  useRef,
+  useState
 } from "react";
 import { IEditor, MAX_AUTO_SAVEABLE_WORDS } from "./types";
 import { useEditorConfig, useToolbarConfig, useEditorManager } from "./manager";
@@ -194,6 +196,12 @@ async function resolveScriptureBlock(ref: string, translationId: string) {
     : { text: "", translationId };
 }
 
+/** A reference as the reader writes it, in the language the app is in. */
+function readableRef(ref: string) {
+  const range = parseRef(ref);
+  return range ? formatReadableRef(range, getBookNameLocale()) : ref;
+}
+
 function TipTap(props: TipTapProps) {
   const {
     id,
@@ -259,6 +267,47 @@ function TipTap(props: TipTapProps) {
 
   const oldNonce = useRef<number>();
 
+  // Epigrapho (W1): where a finger is the pointer (iPhone, iPad), the verse
+  // opens in the note under its reference, as in the phone app (A6); a box
+  // floating over the note closes the moment the finger moves inside it.
+  // With a mouse it floats, as before.
+  const [touch] = useState(
+    () => window.matchMedia("(pointer: coarse)").matches
+  );
+  const editorRef = useRef<Editor>();
+  // Made once: the editor is rebuilt whenever its options change.
+  const scriptureOptions = useMemo<ScripturePopoverOptions>(
+    () => ({
+      translation: getTranslation,
+      resolve: (ref, translationId) => {
+        const range = parseRef(ref);
+        if (!range) throw new Error(`Not a reference: ${ref}`);
+        return resolveVerse(range, translationId);
+      },
+      attributionOf,
+      crossReferences: {
+        load: crossReferences,
+        label: readableRef,
+        // After the reference being previewed, never inside it: the text goes
+        // in unmarked and detection marks it as its own reference.
+        insert: (ref, after) => {
+          const editor = editorRef.current;
+          if (!editor) return;
+          const end = editor.view.posAtDOM(after, after.childNodes.length);
+          editor
+            .chain()
+            .insertContentAt(end, {
+              type: "text",
+              text: `; ${readableRef(ref)}`
+            })
+            .run();
+        },
+        credit: STUDY_PROVENANCE.OPENBIBLE.attribution
+      }
+    }),
+    []
+  );
+
   const tiptapOptions = useMemo<Partial<TiptapOptions>>(() => {
     return {
       editorProps: {
@@ -292,6 +341,7 @@ function TipTap(props: TipTapProps) {
       enableFontLigatures: fontLigatures,
       parseScriptureReferences: detectScriptureReferences,
       scriptureAttribution: attributionOf,
+      scripturePreview: touch ? scriptureOptions : undefined,
       resolveScriptureBlock,
       compareScripture,
       insertScripture,
@@ -538,6 +588,7 @@ function TipTap(props: TipTapProps) {
     // IMPORTANT: only put stuff here that the editor depends on.
     [tiptapOptions]
   );
+  editorRef.current = editor;
 
   useEffect(() => {
     function onClick(e: MouseEvent) {
@@ -563,36 +614,10 @@ function TipTap(props: TipTapProps) {
     const container = editorContainer() || editor.view.dom;
     // Epigrapho: the two behaviours are the editor package's; what the app
     // supplies is where the words come from and how they reach the clipboard.
-    const readableRef = (ref: string) => {
-      const range = parseRef(ref);
-      return range ? formatReadableRef(range, getBookNameLocale()) : ref;
-    };
-    const detachScripturePopover = attachScripturePopover(container, {
-      translation: getTranslation,
-      resolve: (ref, translationId) => {
-        const range = parseRef(ref);
-        if (!range) throw new Error(`Not a reference: ${ref}`);
-        return resolveVerse(range, translationId);
-      },
-      attributionOf,
-      crossReferences: {
-        load: crossReferences,
-        label: readableRef,
-        // After the reference being previewed, never inside it: the text goes
-        // in unmarked and detection marks it as its own reference.
-        insert: (ref, after) => {
-          const end = editor.view.posAtDOM(after, after.childNodes.length);
-          editor
-            .chain()
-            .insertContentAt(end, {
-              type: "text",
-              text: `; ${readableRef(ref)}`
-            })
-            .run();
-        },
-        credit: STUDY_PROVENANCE.OPENBIBLE.attribution
-      }
-    });
+    // On a touch screen the verse opens in the note instead (scripturePreview).
+    const detachScripturePopover = touch
+      ? () => undefined
+      : attachScripturePopover(container, scriptureOptions);
     const detachScriptureCopy = attachScriptureCopy(container, {
       formatReference: readableRef,
       attributionOf,
@@ -611,7 +636,7 @@ function TipTap(props: TipTapProps) {
       detachScripturePopover();
       detachScriptureCopy();
     };
-  }, [editor, editorContainer]);
+  }, [editor, editorContainer, touch, scriptureOptions]);
 
   useEffect(() => {
     const unsubscribe = useEditorManager.subscribe(

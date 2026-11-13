@@ -83,7 +83,7 @@ const direct = createApiBibleProvider({
  */
 type VerseRange = Parameters<typeof apiBiblePassageId>[0];
 const VERSE_HOST =
-  process.env.EPIGRAPHO_VERSE_HOST || "https://notas.azteya.tech";
+  process.env.EPIGRAPHO_VERSE_HOST || "https://publica.epigrapho.app";
 
 async function viaServer(ref: VerseRange, translationId: string) {
   const response = await net.fetch(

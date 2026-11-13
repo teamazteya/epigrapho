@@ -597,7 +597,8 @@ export function RecoveryForm<T extends RecoveryRoutes>(
 }
 
 function openURL(url: string) {
-  window.open(url, "_self");
+  // Epigrapho (W1): replace, as hardNavigate does (iOS back/forward cache).
+  window.location.replace(url);
 }
 
 function isSessionExpired() {

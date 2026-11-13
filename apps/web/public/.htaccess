@@ -1,0 +1,22 @@
+# Epigrapho (W1): the web build on Hostinger (Apache/LiteSpeed).
+
+# Routes such as /login are full page loads (hardNavigate). Until the service
+# worker controls the page (always, on a first visit in iOS) the server must
+# answer them with the app, not a 404.
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+# A missing asset (an old chunk) stays a 404, not HTML with a 200.
+RewriteCond %{REQUEST_URI} !\.[a-zA-Z0-9]+$
+RewriteRule ^ /index.html [L]
+
+AddType application/manifest+json .webmanifest
+
+# Without these, a new version waits on the browser's HTTP cache.
+<IfModule mod_headers.c>
+  <FilesMatch "^(index\.html|service-worker\.js|manifest\.webmanifest)$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "no-referrer"
+</IfModule>

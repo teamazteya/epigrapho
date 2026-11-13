@@ -3119,6 +3119,8 @@ Continue without attachments?`,
   updateWhatsNew: () => t`What's new in this version:`,
   installNow: () => t`Install now`,
   remindMeLater: () => t`Remind me later`,
+  iosInstallNotice: () =>
+    t`Install Epigrapho on your iPhone or iPad: tap Share, then "Add to Home Screen". Create an account so your notes are backed up.`,
   embedNeedsIframe: () => t`Embed code must include an iframe.`,
   embedNeedsIframeSrc: () =>
     t`Embed code must include an iframe with an src attribute.`,

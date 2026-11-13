@@ -181,6 +181,7 @@ export type TiptapOptions = EditorOptions &
     openConcordance?: InterlinearOptions["openConcordance"];
     loadDictionaryEntry?: DictionaryEntryOptions["load"];
     // Epigrapho (A6): on a phone the verse opens in the note, not over it.
+    // W1: so does the web on a touch screen (iPhone, iPad).
     scripturePreview?: ScripturePopoverOptions;
   } & {
     placeholder: string;
@@ -467,7 +468,8 @@ const useTiptap = (
         }),
         DictionaryEntry.configure({ load: loadDictionaryEntry }),
         ScriptureInlinePreview.configure({
-          preview: isMobile ? scripturePreview : undefined
+          // The page decides: the phone app always, the web on touch screens.
+          preview: scripturePreview
         })
       ],
       onBeforeCreate: ({ editor }) => {

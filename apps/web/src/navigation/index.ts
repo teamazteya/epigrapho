@@ -117,7 +117,10 @@ export function extendHomeRoute(route: string) {
 }
 
 export function hardNavigate(route: string, search?: string) {
-  window.open(makeURL(route, getCurrentHash(), search), "_self");
+  // Epigrapho (W1): replace, not a new history entry. Safari on iPhone and
+  // iPad keeps the page left behind alive in its back/forward cache, and its
+  // database worker with it, so the next page waits on the database forever.
+  window.location.replace(makeURL(route, getCurrentHash(), search));
 }
 
 export function makeURL(route: string, hash?: string, search?: string) {

@@ -8,7 +8,7 @@ Epigrapho es una app de notas para estudiar la Biblia. La hace Azteya. Este avis
 
 Puedes usar Epigrapho sin crear una cuenta. En ese caso tus notas viven solo en tu computadora o tu teléfono, cifradas, y Epigrapho no las envía a ningún servidor.
 
-Hay una sola excepción, y no depende de tener cuenta: las traducciones que solo funcionan en línea (NTV, NBLA y NASB). Para mostrar uno de esos versículos, la app le pide la referencia, por ejemplo `JHN.3.16`, al servidor de Epigrapho (`notas.azteya.tech`), que a su vez se la pide a API.Bible. Solo envía la referencia, y el servidor no guarda quién la pidió. El texto de tus notas nunca sale de tu dispositivo.
+Hay una sola excepción, y no depende de tener cuenta: las traducciones que solo funcionan en línea (NTV, NBLA y NASB). Para mostrar uno de esos versículos, la app le pide la referencia, por ejemplo `JHN.3.16`, al servidor de Epigrapho (`publica.epigrapho.app`), que a su vez se la pide a API.Bible. Solo envía la referencia, y el servidor no guarda quién la pidió. El texto de tus notas nunca sale de tu dispositivo.
 
 El corrector gramatical (LanguageTool), que solo está en la app de computadora, corre dentro de ella y tampoco envía nada.
 

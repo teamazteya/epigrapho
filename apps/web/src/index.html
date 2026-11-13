@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="utf-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -20,17 +20,50 @@
       work correctly both with client-side routing and a non-root public URL.
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
-    <meta name="description" content="Your private note taking space" />
+    <meta
+      name="description"
+      content="Notas privadas que entienden las referencias bíblicas."
+    />
+    <meta name="theme-color" content="#17223B" />
+    <!-- Epigrapho (W1): added to the home screen on iPhone and iPad. -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Epigrapho" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta property="og:title" content="Epigrapho" />
     <meta
       property="og:description"
-      content="A fully open source & end-to-end encrypted note taking alternative to Evernote."
+      content="Notas privadas que entienden las referencias bíblicas, cifradas de extremo a extremo."
     />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Epigrapho" />
     <meta name="twitter:card" content="summary_large_image" />
     <title>Epigrapho</title>
 
+    <script>
+      // Epigrapho (W1): right after a new version is uploaded, a page the old
+      // service worker served can ask for scripts the server no longer has,
+      // and the app never starts. Reload once; the new version answers then.
+      (function () {
+        function retry() {
+          try {
+            if (sessionStorage.getItem("epigrapho-reloaded")) return;
+            sessionStorage.setItem("epigrapho-reloaded", "1");
+          } catch (e) {
+            return;
+          }
+          window.location.reload();
+        }
+        window.addEventListener(
+          "error",
+          function (e) {
+            if (e.target && e.target.tagName === "SCRIPT") retry();
+          },
+          true
+        );
+        window.addEventListener("vite:preloadError", retry);
+      })();
+    </script>
     <style id="theme-colors"></style>
     <script>
       (async function validateServiceWorkerTrack() {

@@ -47,6 +47,7 @@ import { getFontSizes } from "@notesnook/theme/theme/font/fontsize.js";
 import { useWindowControls } from "./hooks/use-window-controls";
 import { STATUS_BAR_HEIGHT } from "./common/constants";
 import { NavigationEvents } from "./navigation";
+import IosInstallNotice from "./components/ios-install-notice";
 
 function App() {
   const isMobile = useMobile();
@@ -127,6 +128,7 @@ function App() {
           containerClassName="toasts-container"
           containerStyle={{ bottom: STATUS_BAR_HEIGHT + 10 }}
         />
+        <IosInstallNotice />
       </Flex>
     </>
   );

@@ -1,4 +1,4 @@
-# Epigrapho: the public page of shared notes (notas.azteya.tech).
+# Epigrapho: the public page of shared notes (publica.epigrapho.app).
 # Build first: npm run build (it copies the Bible data and writes output/).
 FROM oven/bun:1.3.14-slim
 
