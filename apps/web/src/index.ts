@@ -24,6 +24,7 @@ import "./app.css";
 import { AppEventManager, AppEvents } from "./common/app-events";
 import { register } from "./service-worker-registration";
 import { getServiceWorkerVersion } from "./utils/version";
+import { autoUpdate } from "./utils/pwa-update";
 import { register as registerStreamSaver } from "./utils/stream-saver/mitm";
 import { ThemeDark, ThemeLight, themeToCSS } from "@notesnook/theme";
 import Config from "./utils/config";
@@ -90,8 +91,9 @@ if (!IS_DESKTOP_APP) {
         version: formatted
       });
     },
-    onSuccess() {
+    onSuccess(registration) {
       registerStreamSaver();
+      autoUpdate(registration);
     }
   });
 
