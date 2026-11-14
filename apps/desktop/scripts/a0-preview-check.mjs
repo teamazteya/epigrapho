@@ -60,7 +60,7 @@ try {
   await page.waitForFunction(
     () =>
       new Promise((resolve) => {
-        const open = indexedDB.open("epigrapho-scripture", 1);
+        const open = indexedDB.open("epigrapho-scripture");
         open.onsuccess = () => {
           const db = open.result;
           if (![...db.objectStoreNames].includes("verses")) {
@@ -110,8 +110,9 @@ try {
   );
   const john = await readPopover();
   console.log("Juan 3:16:", JSON.stringify(john));
-  assert.match(john.text, /^16 “Porque Dios amó al mundo/);
-  assert.equal(john.attribution, "VBL — CC BY-SA 4.0");
+  // Since A7 the section title comes first, borrowed from PdDpt and credited.
+  assert.match(john.text, /^El amor de Dios\s*16 “Porque Dios amó al mundo/);
+  assert.equal(john.attribution, "VBL — CC BY-SA 4.0 · Títulos: PdDpt");
   assert.ok(john.onScreen, "el popover se salió de la pantalla");
 
   // Moving off the reference closes it.
@@ -134,7 +135,8 @@ try {
   );
   const psalm = await readPopover();
   console.log("Salmo 23:1:", JSON.stringify(psalm));
-  assert.match(psalm.text, /^1 El Señor es mi pastor/);
+  // A7: the psalm's own title (\d) comes first.
+  assert.match(psalm.text, /^Un Salmo de David\.\s*1 El Señor es mi pastor/);
   assert.equal(psalm.attribution, "VBL — CC BY-SA 4.0");
 
   console.log("GREEN: el popover muestra el verso de VBL con su atribución.");

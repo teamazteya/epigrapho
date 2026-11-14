@@ -41,6 +41,9 @@ export enum ImageCompressionOptions {
   DISABLE
 }
 
+/** How a reference shows its verse on desktop and web (A7). */
+export type ScripturePreviewMode = "hover" | "inline" | "both";
+
 export type HomePage = {
   type: "notebook" | "tag" | "color" | "route";
   id: string;
@@ -54,6 +57,11 @@ class SettingStore extends BaseStore<SettingStore> {
   doubleSpacedParagraphs = Config.get("doubleSpacedLines", true);
   markdownShortcuts = Config.get("markdownShortcuts", false);
   fontLigatures = Config.get("fontLigatures", false);
+  // Epigrapho A7: per device, since it depends on the pointer this one has.
+  scripturePreviewMode = Config.get<ScripturePreviewMode>(
+    "scripture-preview-mode",
+    "hover"
+  );
   notificationsSettings = Config.get("notifications", { reminder: true });
   isFullOfflineMode = Config.get("fullOfflineMode", false);
   serverUrls: Partial<Record<HostId, string>> = Config.get("serverUrls", {});
@@ -245,6 +253,11 @@ class SettingStore extends BaseStore<SettingStore> {
     const fontLigatures = this.get().fontLigatures;
     this.set((state) => (state.fontLigatures = toggleState ?? !fontLigatures));
     Config.set("fontLigatures", !fontLigatures);
+  };
+
+  setScripturePreviewMode = (mode: ScripturePreviewMode) => {
+    this.set((state) => (state.scripturePreviewMode = mode));
+    Config.set("scripture-preview-mode", mode);
   };
 
   togglePrivacyMode = async () => {

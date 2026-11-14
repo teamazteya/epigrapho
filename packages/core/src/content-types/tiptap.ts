@@ -83,8 +83,28 @@ const splitter = /\W+/gm;
 
 /** Plain exports keep the same verse markers as the clipboard. */
 function portableScriptureHtml(html: string) {
-  if (!html.includes("data-verse-number")) return html;
+  if (
+    !html.includes("data-verse-number") &&
+    !html.includes("data-verse-heading")
+  )
+    return html;
   const document = parseDocument(html);
+  // A heading (A7) keeps its own line, as bold or italics: never "#", which
+  // would make every section title a heading of the note.
+  for (const heading of findAll(
+    (element) => !!element.attribs["data-verse-heading"],
+    document.childNodes
+  ))
+    replaceElement(
+      heading,
+      new Element("div", {}, [
+        new Element(
+          heading.attribs["data-verse-heading"] === "s1" ? "strong" : "em",
+          {},
+          heading.children
+        )
+      ])
+    );
   for (const number of findAll(
     (element) => !!element.attribs["data-verse-number"],
     document.childNodes

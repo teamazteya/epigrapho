@@ -29,7 +29,7 @@ const versesLoaded = (page) =>
       const names = (await indexedDB.databases()).map((each) => each.name);
       if (!names.includes("epigrapho-scripture")) return false;
       return new Promise((resolve) => {
-        const open = indexedDB.open("epigrapho-scripture", 1);
+        const open = indexedDB.open("epigrapho-scripture");
         open.onsuccess = () => {
           const db = open.result;
           if (![...db.objectStoreNames].includes("verses")) {
@@ -68,7 +68,7 @@ const settled = (page) =>
     () =>
       new Promise((resolve) => {
         const started = performance.now();
-        const open = indexedDB.open("epigrapho-scripture", 1);
+        const open = indexedDB.open("epigrapho-scripture");
         open.onerror = () => resolve(false);
         open.onsuccess = () => {
           const read = open.result

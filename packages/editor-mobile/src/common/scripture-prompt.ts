@@ -27,7 +27,11 @@ import {
 import { formatRef, parseReferences } from "@notesnook/scripture-parser";
 import { PROVENANCE } from "@notesnook/scripture-provider";
 import { ask, choose } from "./prompt";
-import { formatReference, getTranslation, resolveVerse } from "./scripture";
+import {
+  formatReference,
+  getTranslation,
+  resolveWithHeadings
+} from "./scripture";
 
 export type ScriptureToInsert = {
   ref: string;
@@ -54,7 +58,7 @@ export function askForScripture(): Promise<ScriptureToInsert | undefined> {
       const asked = getTranslation();
       const ref = formatRef(reference);
       try {
-        const verse = await resolveVerse(ref, asked);
+        const verse = await resolveWithHeadings(ref, asked);
         if (!verse.text)
           return { error: strings.scriptureNoTextFor(asked, typed) };
         // The block records the translation that actually served the words,
@@ -103,7 +107,7 @@ export function compareScripture(
         return;
       }
       if (columns.length >= MAX_PARALLEL) return strings.compareMax();
-      const verse = await resolveVerse(block.ref, translationId);
+      const verse = await resolveWithHeadings(block.ref, translationId);
       if (!verse.text)
         return strings.scriptureNoTextFor(
           translationId,

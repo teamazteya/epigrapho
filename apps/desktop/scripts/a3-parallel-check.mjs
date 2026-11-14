@@ -96,9 +96,10 @@ try {
     three.map(([id]) => id),
     ["VBL", "BSB", "KJV"]
   );
-  // Since 1.5.2 a verse keeps its number ("[16] For God…").
-  assert.match(three[1][1], /^(\[16\] )?For God so lov/);
-  assert.match(three[2][1], /^(\[16\] )?For God so lov/);
+  // Since 1.5.2 a verse keeps its number ("[16] For God…"), and since A7 its
+  // section title comes first ("[§s1] Jesus and Nicodemus").
+  assert.match(three[1][1], /^\[§s1\] Jesus and Nico/);
+  assert.match(three[2][1], /^\[§s1\] Jesus and Nico/);
   const layout = await block.evaluate((element) => ({
     columns: element.getAttribute("data-columns"),
     tops: [

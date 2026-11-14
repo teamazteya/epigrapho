@@ -54,7 +54,13 @@ export async function resolveVerse(
   translationId: string
 ): Promise<ResolvedVerse> {
   const response = await fetch(
-    `/api/verse?${new URLSearchParams({ ref, t: translationId, numbers: "1" })}`
+    `/api/verse?${new URLSearchParams({
+      ref,
+      t: translationId,
+      numbers: "1",
+      // A7: the preview shows the section titles, as in the app.
+      headings: "1"
+    })}`
   );
   if (!response.ok) throw new Error(`verse ${ref}: ${response.status}`);
   const { text } = await response.json();

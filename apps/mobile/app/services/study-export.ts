@@ -23,7 +23,8 @@ import {
   buildStudyDocument,
   Note,
   studyDocumentDocx,
-  studyDocumentHtml
+  studyDocumentHtml,
+  studyPdfFonts
 } from "@notesnook/core";
 import { strings } from "@notesnook/intl";
 import {
@@ -210,5 +211,5 @@ export async function studyExportData(
   if (!document) return;
   return format === "docx"
     ? studyDocumentDocx(document, await import("docx"), "base64")
-    : studyDocumentHtml(document);
+    : studyDocumentHtml(document, await studyPdfFonts());
 }

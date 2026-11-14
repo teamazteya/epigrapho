@@ -23,7 +23,10 @@ import {
   onEditorConfigChange,
   useEditorManager
 } from "../../components/editor/manager";
-import { useStore as useSettingStore } from "../../stores/setting-store";
+import {
+  useStore as useSettingStore,
+  type ScripturePreviewMode
+} from "../../stores/setting-store";
 import { getFonts } from "@notesnook/editor";
 import { useSpellChecker } from "../../hooks/use-spell-checker";
 import { CustomizeToolbar } from "./components/customize-toolbar";
@@ -59,6 +62,31 @@ export const EditorSettings: SettingsGroup[] = [
             })),
             selectedOption: () => getTranslation(),
             onSelectionChanged: (value) => setTranslation(value)
+          }
+        ]
+      },
+      {
+        key: "scripture-preview-mode",
+        title: strings.versePreviewMode(),
+        description: strings.versePreviewModeDesc(),
+        // A finger has no hover: touch screens always open the verse inline.
+        isHidden: () => window.matchMedia("(pointer: coarse)").matches,
+        onStateChange: (listener) =>
+          useSettingStore.subscribe((c) => c.scripturePreviewMode, listener),
+        components: [
+          {
+            type: "dropdown",
+            options: [
+              { value: "hover", title: strings.versePreviewHover() },
+              { value: "inline", title: strings.versePreviewInline() },
+              { value: "both", title: strings.versePreviewBoth() }
+            ],
+            selectedOption: () =>
+              useSettingStore.getState().scripturePreviewMode,
+            onSelectionChanged: (value) =>
+              useSettingStore
+                .getState()
+                .setScripturePreviewMode(value as ScripturePreviewMode)
           }
         ]
       }

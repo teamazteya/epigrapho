@@ -467,13 +467,14 @@ const useTiptap = (
           openConcordance
         }),
         DictionaryEntry.configure({ load: loadDictionaryEntry }),
-        ScriptureInlinePreview.configure({
-          // The page decides: the phone app always, the web on touch screens.
-          preview: scripturePreview
-        })
+        // The page decides: the phone app always, the web on touch screens
+        // or by setting. Passed through storage (onBeforeCreate) so a change
+        // reaches the open editor.
+        ScriptureInlinePreview
       ],
       onBeforeCreate: ({ editor }) => {
         editor.storage.dateFormat = dateFormat;
+        editor.storage.scripturePreview = scripturePreview;
         editor.storage.timeFormat = timeFormat;
         editor.storage.dayFormat = dayFormat;
 

@@ -11,4 +11,5 @@ node_modules
 # Epigrapho: copied from apps/web/public by scripts/data.mjs.
 public/vbl.json
 public/bsb.json
+public/pddpt.json
 public/original

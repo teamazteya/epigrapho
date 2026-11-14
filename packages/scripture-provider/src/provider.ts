@@ -32,5 +32,19 @@ import type { VerseRange } from "@notesnook/scripture-parser";
  */
 export type ScriptureTextProvider = {
   /** One line per verse: [16] text. Numbers come from the translation, including gaps. */
-  getVerseText(ref: VerseRange, translationId: string): Promise<string>;
+  getVerseText(
+    ref: VerseRange,
+    translationId: string,
+    options?: VerseTextOptions
+  ): Promise<string>;
+};
+
+export type VerseTextOptions = {
+  /**
+   * Section titles, psalm titles and who speaks, as lines of their own
+   * ("[§s1] The Creation") before the verse they stand over (A7). Asked for,
+   * never given unasked: whatever counts, compares or searches verses keeps
+   * reading verse lines only.
+   */
+  headings?: boolean;
 };

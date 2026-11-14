@@ -80,7 +80,8 @@ export type StudyDocumentOptions = {
     ref: string,
     translationId: string
   ) => Promise<StudyVerse | undefined>;
-  attributionOf: (translationId: string) => string;
+  /** With the text, it also credits borrowed section titles (A7). */
+  attributionOf: (translationId: string, text?: string) => string;
   /** "Nueva Traducción Viviente (NTV)". */
   translationName: (translationId: string) => string;
 };
@@ -92,12 +93,20 @@ const childElements = (element: Element, match: (child: Element) => boolean) =>
 const hasClass = (name: string) => (child: Element) =>
   child.classList.contains(name);
 
+/** The headings a passage carries between its verses (A7). */
+const HEADING_KINDS = ["s1", "s2", "d", "sp"];
+
 function scriptureText(element: Element | null) {
   if (!element) return "";
-  const lines = Array.from(element.querySelectorAll("[data-verse-line]"));
+  const lines = Array.from(
+    element.querySelectorAll("[data-verse-line], [data-verse-heading]")
+  );
   return lines.length
     ? lines
         .map((line) => {
+          const kind = line.getAttribute("data-verse-heading");
+          if (kind && HEADING_KINDS.includes(kind))
+            return `[§${kind}] ${line.textContent || ""}`;
           const number = line.querySelector("[data-verse-number]");
           const label = number?.getAttribute("data-verse-number");
           return label && /^\d+[a-z]?(?:[-–]\d+[a-z]?)?$/i.test(label)
@@ -223,7 +232,7 @@ export async function buildStudyDocument(
           "",
         columns: columns.map((column) => ({
           text: column.text,
-          attribution: options.attributionOf(column.id)
+          attribution: options.attributionOf(column.id, column.text)
         }))
       });
     } else
@@ -256,18 +265,24 @@ const escape = (text: string) =>
 
 const verseLines = (text: string) =>
   text.split("\n").map((line) => {
+    const heading = /^\[§(s1|s2|d|sp)\]\s*(.*)$/.exec(line);
+    if (heading)
+      return { number: undefined, heading: heading[1], text: heading[2] };
     const match = /^\[(\d+[a-z]?(?:[-–]\d+[a-z]?)?)\]\s*(.*)$/i.exec(line);
-    return { number: match?.[1], text: match?.[2] ?? line };
+    return { number: match?.[1], heading: undefined, text: match?.[2] ?? line };
   });
 const verseHtml = (text: string) =>
   verseLines(text)
-    .map(
-      (line) =>
-        `${
-          line.number
-            ? `<sup class="verse-number">${escape(line.number)}</sup> `
-            : ""
-        }${escape(line.text)}`
+    .map((line) =>
+      line.heading
+        ? `<span class="verse-heading-${line.heading}">${escape(
+            line.text
+          )}</span>`
+        : `${
+            line.number
+              ? `<sup class="verse-number">${escape(line.number)}</sup> `
+              : ""
+          }${escape(line.text)}`
     )
     .join("<br>");
 
@@ -285,6 +300,12 @@ function inlineHtml(inlines: Inline[]) {
     .join("");
 }
 
+/** The PDF's embedded fonts (~250 KB), loaded only when a PDF is made. */
+export const studyPdfFonts = () =>
+  import("./study-document-fonts.js").then(
+    (fonts) => fonts.STUDY_PDF_FONT_FACES
+  );
+
 /**
  * The PDF's page: a cover, the note, and its verses in full. Chromium does not
  * lay out footnotes per page, so they are gathered at the end under "Notas",
@@ -292,8 +313,11 @@ function inlineHtml(inlines: Inline[]) {
  *
  * ponytail: notes at the end; per-page footnotes need a paged-media polyfill
  * (paged.js), a new dependency the person has to approve.
+ *
+ * `fontFaces` is the CSS that embeds the fonts (from `studyPdfFonts()`);
+ * without it the page falls back to system fonts.
  */
-export function studyDocumentHtml(document: StudyDocument) {
+export function studyDocumentHtml(document: StudyDocument, fontFaces = "") {
   const blocks = document.blocks
     .map((block) => {
       if (block.type === "heading")
@@ -348,18 +372,28 @@ export function studyDocumentHtml(document: StudyDocument) {
 <meta charset="utf-8">
 <title>${escape(document.title)}</title>
 <style>
+  ${fontFaces}
   @page { margin: 22mm 20mm; }
-  body { font-family: "Inter", "Segoe UI", system-ui, sans-serif; font-size: 11pt; line-height: 1.55; color: #17223b; }
+  body { font-family: "Source Sans 3", "Segoe UI", system-ui, sans-serif; font-size: 11pt; line-height: 1.55; color: #17223b; }
   .cover { height: 230mm; display: flex; flex-direction: column; justify-content: center; page-break-after: always; break-after: page; }
-  .cover h1 { font-size: 30pt; line-height: 1.15; margin: 0 0 18pt; }
+  .cover h1, h1, h2 { font-family: "Cormorant Garamond", Georgia, serif; font-weight: 600; text-wrap: balance; }
+  .cover h1 { font-size: 34pt; line-height: 1.1; margin: 0 0 18pt; }
+  h1 { font-size: 24pt; }
+  h2 { font-size: 18pt; }
+  h3 { font-size: 13pt; font-weight: 600; }
+  h4 { font-size: 11pt; font-weight: 600; }
+  p, li { text-wrap: pretty; }
   .cover p { margin: 4pt 0; font-size: 12pt; }
   .cover .translations { margin-top: 18pt; font-size: 10pt; color: #4a5468; }
   h1, h2, h3, h4 { line-height: 1.25; break-after: avoid; }
   .scripture { margin: 12pt 0; padding: 10pt 12pt; border: 1px solid #d9d2c3; border-radius: 4pt; background: #f4efe4; break-inside: avoid; }
   .scripture .label { margin: 0 0 4pt; font-weight: 600; font-size: 10pt; color: #4a5468; }
   .scripture .columns { display: grid; grid-template-columns: repeat(var(--columns), minmax(0, 1fr)); gap: 14pt; }
-  .verse { margin: 0; font-family: "Cormorant Garamond", "Source Serif 4", Georgia, serif; font-size: 12pt; line-height: 1.5; }
+  .verse { margin: 0; font-family: "Source Serif 4", Georgia, serif; font-size: 11pt; line-height: 1.5; }
   .verse-number { font-size: 0.75em; line-height: 0; color: #4a5468; }
+  .verse-heading-s1 { font-weight: 600; }
+  .verse-heading-s2 { font-style: italic; }
+  .verse-heading-d, .verse-heading-sp { font-style: italic; font-size: 0.85em; color: #4a5468; }
   .credit { margin: 4pt 0 0; font-size: 8.5pt; color: #4a5468; }
   .study { margin: 10pt 0; break-inside: avoid; }
   sup.note-ref a { text-decoration: none; color: #2e6b5e; font-size: 8pt; }
@@ -454,27 +488,49 @@ export async function studyDocumentDocx(
     HeadingLevel.HEADING_6
   ];
   const border = { style: BorderStyle.SINGLE, size: 4, color: "D9D2C3" };
+  // A heading (A7) is a run of its own, styled by kind. Never a Word heading
+  // style: those would put every section title in the document's outline.
   const verseRuns = (text: string, size?: number) =>
-    verseLines(text).flatMap((line, i) => [
-      ...(line.number
+    verseLines(text).flatMap((line, i) =>
+      line.heading
         ? [
             new TextRun({
-              text: line.number,
-              superScript: true,
-              color: MUTED,
+              text: line.text,
               font: SERIF,
-              size,
+              bold: line.heading === "s1",
+              italics: line.heading !== "s1",
+              color:
+                line.heading === "d" || line.heading === "sp"
+                  ? MUTED
+                  : undefined,
+              size:
+                line.heading === "d" || line.heading === "sp"
+                  ? Math.round((size ?? 24) * 0.85)
+                  : size,
               break: i ? 1 : undefined
             })
           ]
-        : []),
-      new TextRun({
-        text: `${line.number ? " " : ""}${line.text}`,
-        font: SERIF,
-        size,
-        break: i && !line.number ? 1 : undefined
-      })
-    ]);
+        : [
+            ...(line.number
+              ? [
+                  new TextRun({
+                    text: line.number,
+                    superScript: true,
+                    color: MUTED,
+                    font: SERIF,
+                    size,
+                    break: i ? 1 : undefined
+                  })
+                ]
+              : []),
+            new TextRun({
+              text: `${line.number ? " " : ""}${line.text}`,
+              font: SERIF,
+              size,
+              break: i && !line.number ? 1 : undefined
+            })
+          ]
+    );
 
   const children: (
     | InstanceType<typeof Paragraph>

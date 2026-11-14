@@ -189,10 +189,13 @@ function updateNoteStatistics(id: string, content: () => Fragment) {
 
 const deferredUpdateNoteStatistics = debounce(updateNoteStatistics, 1000);
 
+/** The previews and the blocks carry section titles (A7). */
+const WITH_HEADINGS = { headings: true };
+
 async function resolveScriptureBlock(ref: string, translationId: string) {
   const range = parseRef(ref);
   return range
-    ? resolveVerse(range, translationId)
+    ? resolveVerse(range, translationId, WITH_HEADINGS)
     : { text: "", translationId };
 }
 
@@ -274,6 +277,12 @@ function TipTap(props: TipTapProps) {
   const [touch] = useState(
     () => window.matchMedia("(pointer: coarse)").matches
   );
+  // A7: with a mouse, the person picks the box, the passage in the note, or
+  // both. A touch screen always gets the passage in the note.
+  const previewMode = useSettingsStore((store) => store.scripturePreviewMode);
+  const inlinePanel =
+    touch || previewMode === "inline" || previewMode === "both";
+  const hoverBox = !touch && previewMode !== "inline";
   const editorRef = useRef<Editor>();
   // Made once: the editor is rebuilt whenever its options change.
   const scriptureOptions = useMemo<ScripturePopoverOptions>(
@@ -282,7 +291,7 @@ function TipTap(props: TipTapProps) {
       resolve: (ref, translationId) => {
         const range = parseRef(ref);
         if (!range) throw new Error(`Not a reference: ${ref}`);
-        return resolveVerse(range, translationId);
+        return resolveVerse(range, translationId, WITH_HEADINGS);
       },
       attributionOf,
       crossReferences: {
@@ -341,7 +350,7 @@ function TipTap(props: TipTapProps) {
       enableFontLigatures: fontLigatures,
       parseScriptureReferences: detectScriptureReferences,
       scriptureAttribution: attributionOf,
-      scripturePreview: touch ? scriptureOptions : undefined,
+      scripturePreview: inlinePanel ? scriptureOptions : undefined,
       resolveScriptureBlock,
       compareScripture,
       insertScripture,
@@ -580,7 +589,8 @@ function TipTap(props: TipTapProps) {
     timeFormat,
     dayFormat,
     markdownShortcuts,
-    fontLigatures
+    fontLigatures,
+    inlinePanel
   ]);
 
   const editor = useTiptap(
@@ -614,10 +624,13 @@ function TipTap(props: TipTapProps) {
     const container = editorContainer() || editor.view.dom;
     // Epigrapho: the two behaviours are the editor package's; what the app
     // supplies is where the words come from and how they reach the clipboard.
-    // On a touch screen the verse opens in the note instead (scripturePreview).
-    const detachScripturePopover = touch
-      ? () => undefined
-      : attachScripturePopover(container, scriptureOptions);
+    // On a touch screen, or set to "inline", the verse opens in the note
+    // instead (scripturePreview).
+    const detachScripturePopover = hoverBox
+      ? attachScripturePopover(container, scriptureOptions, {
+          clickOpensPanel: inlinePanel
+        })
+      : () => undefined;
     const detachScriptureCopy = attachScriptureCopy(container, {
       formatReference: readableRef,
       attributionOf,
@@ -636,7 +649,7 @@ function TipTap(props: TipTapProps) {
       detachScripturePopover();
       detachScriptureCopy();
     };
-  }, [editor, editorContainer, touch, scriptureOptions]);
+  }, [editor, editorContainer, hoverBox, inlinePanel, scriptureOptions]);
 
   useEffect(() => {
     const unsubscribe = useEditorManager.subscribe(
@@ -898,7 +911,7 @@ async function insertScripture(editor: Editor) {
   const asked = getTranslation();
   // The block records the translation that actually served the words, so its
   // attribution stays true even when the online layer fell back to a pack.
-  const verse = await resolveVerse(reference, asked);
+  const verse = await resolveVerse(reference, asked, WITH_HEADINGS);
   if (!verse.text) {
     showToast("error", strings.scriptureNoTextFor(asked, input));
     return;
@@ -950,7 +963,11 @@ function compareScripture(
             return showToast("info", strings.compareMax());
           const range = parseRef(block.ref);
           if (!range) return;
-          const verse = await resolveVerse(range, translation.id);
+          const verse = await resolveVerse(
+            range,
+            translation.id,
+            WITH_HEADINGS
+          );
           if (!verse.text)
             return showToast(
               "error",

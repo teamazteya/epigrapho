@@ -18,6 +18,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+import { headingSourceOf } from "./embedded.ts";
+
 /**
  * How the app gets the text of a translation:
  * - `embedded-offline`: it ships inside the app (VBL).
@@ -195,7 +197,29 @@ export const STUDY_PROVENANCE: Record<string, ResourceProvenance> = {
 /**
  * The attribution line for a translation. An unknown id falls back to the id
  * itself, so a verse is never shown with no credit at all.
+ *
+ * Given the passage's text, it also credits the section titles it borrowed
+ * (A7) when the passage shows one: "… · Títulos: PdDpt".
  */
-export function attributionOf(translationId: string): string {
-  return PROVENANCE[translationId]?.attribution || translationId;
+export function attributionOf(translationId: string, text?: string): string {
+  const attribution = PROVENANCE[translationId]?.attribution || translationId;
+  const credit =
+    text && /^\[§s[12]\]/m.test(text) ? headingsCreditOf(translationId) : "";
+  return credit ? `${attribution} · ${credit}` : attribution;
+}
+
+/**
+ * The credit for section titles a translation borrows (A7): "Títulos: PdDpt"
+ * under VBL, "Headings: BSB" under KJV. Undefined when it borrows none.
+ *
+ * In the translation's language, not the interface's: the line is stored in
+ * the note with the block, and a note must not change when the interface
+ * changes language.
+ */
+export function headingsCreditOf(translationId: string): string | undefined {
+  const source = headingSourceOf(translationId);
+  if (!source) return;
+  return PROVENANCE[translationId]?.language === "es"
+    ? `Títulos: ${source}`
+    : `Headings: ${source}`;
 }

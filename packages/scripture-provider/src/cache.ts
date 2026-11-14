@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import type { VerseRange } from "@notesnook/scripture-parser";
-import type { ScriptureTextProvider } from "./provider";
+import type { ScriptureTextProvider, VerseTextOptions } from "./provider";
 
 /**
  * Brand verses are cached apart from the embedded packs, in their own
@@ -35,7 +35,10 @@ export const CACHE_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
 export type CachedVerse = {
   text: string;
-  /** Version 2 keeps verse numbers. Legacy rows remain usable offline. */
+  /**
+   * Version 2 keeps verse numbers; 3 also headings (HEADINGS_FORMAT). Legacy
+   * rows remain usable offline.
+   */
   format?: number;
   /** When the text was fetched, in milliseconds since the epoch. */
   fetchedAt: number;
@@ -133,20 +136,47 @@ export function withCache(
 ): ScriptureTextProvider {
   const cache = store ?? indexedDbVerseCache();
   return {
-    async getVerseText(ref: VerseRange, translationId: string) {
+    async getVerseText(
+      ref: VerseRange,
+      translationId: string,
+      options?: VerseTextOptions
+    ) {
       const key = cacheKey(ref, translationId);
       const cached = await cache.get(key);
-      if (cached?.format === 2 && now() - cached.fetchedAt < ttlMs)
+      const fresh = cached && now() - cached.fetchedAt < ttlMs;
+      if (fresh && cached.format === HEADINGS_FORMAT)
+        return options?.headings ? cached.text : withoutHeadings(cached.text);
+      // A copy from before A7 still answers whoever does not want headings.
+      if (fresh && cached.format === 2 && !options?.headings)
         return cached.text;
 
-      const text = await provider.getVerseText(ref, translationId);
+      const text = await provider.getVerseText(ref, translationId, options);
       if (text)
         await cache.set(key, {
           text,
           fetchedAt: now(),
-          format: /^\[\d/.test(text) ? 2 : 1
+          format: options?.headings
+            ? HEADINGS_FORMAT
+            : /^\[\d/.test(text)
+            ? 2
+            : 1
         });
       return text;
     }
   };
+}
+
+/**
+ * Version 3 carries headings (A7). Their verse lines are the same as text
+ * mode's — measured on 18 passages of the three translations on 2026-11-14 —
+ * so one copy serves both kinds of caller.
+ */
+export const HEADINGS_FORMAT = 3;
+
+/** The verse lines only, for a caller that did not ask for headings. */
+export function withoutHeadings(text: string) {
+  return text
+    .split("\n")
+    .filter((line) => !line.startsWith("[§"))
+    .join("\n");
 }

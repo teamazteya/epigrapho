@@ -32,7 +32,7 @@ const readVerse = (translationId, book, chapter, verse) =>
   page.evaluate(
     ([translationId, book, chapter, verse]) =>
       new Promise((resolve, reject) => {
-        const open = indexedDB.open("epigrapho-scripture", 1);
+        const open = indexedDB.open("epigrapho-scripture");
         open.onerror = () => reject(open.error);
         open.onsuccess = () => {
           const db = open.result;
@@ -58,7 +58,7 @@ const countOf = (translationId) =>
   page.evaluate(
     (translationId) =>
       new Promise((resolve) => {
-        const open = indexedDB.open("epigrapho-scripture", 1);
+        const open = indexedDB.open("epigrapho-scripture");
         open.onerror = () => resolve(0);
         open.onsuccess = () => {
           const db = open.result;
@@ -94,7 +94,7 @@ try {
   await page.waitForFunction(
     () =>
       new Promise((resolve) => {
-        const open = indexedDB.open("epigrapho-scripture", 1);
+        const open = indexedDB.open("epigrapho-scripture");
         open.onerror = () => resolve(false);
         open.onsuccess = () => {
           const db = open.result;

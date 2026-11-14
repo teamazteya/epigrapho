@@ -33,7 +33,7 @@ import {
   attributionOf,
   formatReference,
   getTranslation,
-  resolveVerse
+  resolveWithHeadings
 } from "../common/scripture";
 import { askForScripture, compareScripture } from "../common/scripture-prompt";
 import {
@@ -117,7 +117,7 @@ const Tiptap = ({
   const scripturePreview = useMemo(
     () => ({
       translation: getTranslation,
-      resolve: resolveVerse,
+      resolve: resolveWithHeadings,
       attributionOf,
       // A3 Fase 2, as on the desktop: inserted after the reference being
       // previewed, unmarked, and detection marks it.
@@ -299,7 +299,7 @@ const Tiptap = ({
           indices: reference.indices
         })),
       scriptureAttribution: attributionOf,
-      resolveScriptureBlock: resolveVerse,
+      resolveScriptureBlock: resolveWithHeadings,
       compareScripture,
       insertScripture: async (editor) => {
         const scripture = await askForScripture();

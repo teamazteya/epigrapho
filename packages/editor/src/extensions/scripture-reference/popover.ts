@@ -51,7 +51,8 @@ export type ScripturePopoverOptions = {
   /** The translation this person reads in, read at the moment of the hover. */
   translation: () => string;
   resolve: (ref: string, translationId: string) => Promise<ResolvedVerse>;
-  attributionOf: (translationId: string) => string;
+  /** With the text, it also credits borrowed section titles (A7). */
+  attributionOf: (translationId: string, text?: string) => string;
   /** "See also" under the verse (A3). Without it the popover is the verse only. */
   crossReferences?: {
     load: (ref: string) => Promise<string[]>;
@@ -294,7 +295,10 @@ export async function fillScripturePreview(
   );
   // Credit what was actually served; the notice below it says why that is not
   // the fresh text of what was asked for.
-  parts.attribution.textContent = options.attributionOf(verse.translationId);
+  parts.attribution.textContent = options.attributionOf(
+    verse.translationId,
+    verse.text
+  );
   const notice = noticeFor(verse.notice, verse.translationId);
   parts.notice.textContent = notice;
   parts.notice.hidden = !notice;
@@ -377,8 +381,19 @@ function referenceOf(selection: Selection | null, within: HTMLElement) {
  */
 export function attachScripturePopover(
   dom: HTMLElement,
-  options: ScripturePopoverOptions
+  options: ScripturePopoverOptions,
+  {
+    clickOpensPanel = false
+  }: {
+    /**
+     * A7, "both": a click opens the passage in the note, so it closes this box
+     * and the caret it drops in the reference does not open it again. The
+     * keyboard still does.
+     */
+    clickOpensPanel?: boolean;
+  } = {}
 ) {
+  let caretFromPointer = false;
   const onPointerOver = (event: PointerEvent) => {
     const target = (event.target as Element | null)?.closest?.(SELECTOR);
     if (target) void show(target as HTMLElement, options);
@@ -403,12 +418,14 @@ export function attachScripturePopover(
    */
   const onSelectionChange = () => {
     const target = referenceOf(document.getSelection(), dom);
+    if (target && caretFromPointer) return;
     if (target) void show(target, options);
     else if (describing) hide();
   };
 
   // Dismissable without moving the pointer, which hovering alone is not.
   const onKeyDown = (event: KeyboardEvent) => {
+    caretFromPointer = false;
     if (event.key === "Escape" && popover) hide();
   };
 
@@ -419,8 +436,12 @@ export function attachScripturePopover(
    * else on the screen.
    */
   const onPointerDown = (event: PointerEvent) => {
-    if (!popover) return;
     const node = event.target as Node | null;
+    if (clickOpensPanel && dom.contains(node)) {
+      caretFromPointer = true;
+      if ((node as Element | null)?.closest?.(SELECTOR)) return hide();
+    }
+    if (!popover) return;
     if (popover.contains(node)) return;
     // Tapping another reference is a new preview, not a dismissal.
     if ((node as Element | null)?.closest?.(SELECTOR)) return;

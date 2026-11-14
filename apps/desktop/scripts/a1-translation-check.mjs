@@ -117,7 +117,7 @@ try {
   await page.waitForFunction(
     () =>
       new Promise((resolve) => {
-        const open = indexedDB.open("epigrapho-scripture", 1);
+        const open = indexedDB.open("epigrapho-scripture");
         open.onerror = () => resolve(false);
         open.onsuccess = () => {
           const db = open.result;

@@ -184,3 +184,89 @@ test("a late refresh cannot restore a block the person deleted", async () => {
   expect(editor.state.doc.textContent).toBe("Mis palabras");
   editor.destroy();
 });
+
+// A7: the section titles travel in the block's text, as the verses do.
+const HEADED = "[§s1] El amor de Dios\n[16] Porque Dios amó al mundo";
+const creditWithHeadings = (_id: string, text?: string) =>
+  text?.includes("[§s1]") ? `${ATTRIBUTION} · Títulos: PdDpt` : ATTRIBUTION;
+
+test("a block with headings survives saving and reopening, with its credit", () => {
+  const make = (initialContent: string) =>
+    createEditor({
+      initialContent,
+      extensions: {
+        scriptureBlock: ScriptureBlock.configure({
+          attributionOf: creditWithHeadings
+        })
+      }
+    }).editor;
+  const editor = make("<p></p>");
+  editor.commands.insertScriptureBlock({
+    ref: "JHN.3.16",
+    label: "Juan 3:16",
+    translationId: "VBL",
+    text: HEADED,
+    parallel: [
+      { translationId: "BSB", text: "[§s1] Jesus and Nicodemus\n[16] For God" }
+    ]
+  });
+  const html = editor.getHTML();
+  expect(html).toContain('data-verse-heading="s1"');
+  expect(html).not.toContain("[§");
+  expect(html).toContain(`${ATTRIBUTION} · Títulos: PdDpt`);
+  const reopened = make(html);
+  expect(reopened.state.doc.firstChild?.attrs.text).toBe(HEADED);
+  expect(reopened.state.doc.firstChild?.attrs.parallel[0].text).toBe(
+    "[§s1] Jesus and Nicodemus\n[16] For God"
+  );
+  editor.destroy();
+  reopened.destroy();
+});
+
+test("a block that opens with a heading is not asked for again", async () => {
+  const resolve = vi.fn(async (_ref: string, translationId: string) => ({
+    translationId,
+    text: "[16] Otro"
+  }));
+  const first = createEditor({
+    initialContent: "<p></p>",
+    extensions: { scriptureBlock: ScriptureBlock }
+  }).editor;
+  first.commands.insertScriptureBlock({
+    ref: "JHN.3.16",
+    translationId: "VBL",
+    text: HEADED
+  });
+  const { editor } = createEditor({
+    initialContent: first.getHTML(),
+    extensions: { scriptureBlock: ScriptureBlock.configure({ resolve }) }
+  });
+  await new Promise((done) => setTimeout(done, 0));
+  expect(resolve).not.toHaveBeenCalled();
+  expect(editor.state.doc.firstChild?.attrs.text).toBe(HEADED);
+  first.destroy();
+  editor.destroy();
+});
+
+test("copying a block puts each heading on its own line, without its mark", () => {
+  const { editor } = createEditor({
+    initialContent: "<p></p>",
+    extensions: {
+      scriptureBlock: ScriptureBlock.configure({
+        attributionOf: creditWithHeadings
+      })
+    }
+  });
+  const spec = editor.schema.nodes.scriptureBlock.spec as {
+    toText?: (props: { node: unknown }) => string;
+  };
+  const node = editor.schema.nodes.scriptureBlock.create({
+    ref: "JHN.3.16",
+    label: "Juan 3:16",
+    translationId: "VBL",
+    text: HEADED
+  });
+  expect(spec.toText?.({ node })).toBe(
+    `«El amor de Dios\n[16] Porque Dios amó al mundo» — Juan 3:16 (VBL)\n${ATTRIBUTION} · Títulos: PdDpt`
+  );
+});

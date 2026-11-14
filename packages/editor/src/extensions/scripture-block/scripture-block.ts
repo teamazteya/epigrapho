@@ -50,6 +50,9 @@ export type ScriptureBlockAttributes = {
 
 export type ParallelColumn = { translationId: string; text: string };
 
+/** Text with verse numbers, or a heading before them (A7): not the oldest format. */
+const PORTABLE = /^\[(\d|§)/;
+
 /** At most three columns: the block's own translation and two more. */
 export const MAX_PARALLEL = 2;
 
@@ -59,7 +62,12 @@ export type ScriptureBlockOptions = {
    * scripture packages, so the app injects the lookup; without it the block
    * credits the translation by its id alone.
    */
-  attributionOf: (translationId: string) => string;
+  /**
+   * With the text, it also credits borrowed section titles (A7): "… ·
+   * Títulos: PdDpt". It goes into the markup, so exports and shared notes
+   * carry it too.
+   */
+  attributionOf: (translationId: string, text?: string) => string;
   /** Private editors upgrade old blocks; published snapshots never do. */
   resolve?: (
     ref: string,
@@ -177,7 +185,7 @@ export const ScriptureBlock = Node.create<ScriptureBlockOptions>({
       [
         "p",
         { class: "scripture-block-attribution" },
-        this.options.attributionOf(node.attrs.translationId)
+        this.options.attributionOf(node.attrs.translationId, node.attrs.text)
       ],
       ...(node.attrs.parallel as ParallelColumn[]).map((column) => [
         "div",
@@ -193,7 +201,7 @@ export const ScriptureBlock = Node.create<ScriptureBlockOptions>({
         [
           "p",
           { class: "scripture-block-attribution" },
-          this.options.attributionOf(column.translationId)
+          this.options.attributionOf(column.translationId, column.text)
         ]
       ])
     ];
@@ -233,7 +241,8 @@ export const ScriptureBlock = Node.create<ScriptureBlockOptions>({
       const attribution = document.createElement("p");
       attribution.className = "scripture-block-attribution";
       attribution.textContent = this.options.attributionOf(
-        node.attrs.translationId
+        node.attrs.translationId,
+        node.attrs.text
       );
 
       // Copying is a button, not the whole block: a click meant to select a
@@ -257,7 +266,10 @@ export const ScriptureBlock = Node.create<ScriptureBlockOptions>({
           renderVerseText(words, column.text);
           const credit = document.createElement("p");
           credit.className = "scripture-block-attribution";
-          credit.textContent = this.options.attributionOf(column.translationId);
+          credit.textContent = this.options.attributionOf(
+            column.translationId,
+            column.text
+          );
           element.append(words, credit);
           return element;
         }
@@ -302,10 +314,10 @@ export const ScriptureBlock = Node.create<ScriptureBlockOptions>({
           text: node.attrs.text
         };
         const saved = [primary, ...(node.attrs.parallel as ParallelColumn[])];
-        if (saved.some((column) => !/^\[\d/.test(column.text))) {
+        if (saved.some((column) => !PORTABLE.test(column.text))) {
           void Promise.all(
             saved.map(async (column) => {
-              if (/^\[\d/.test(column.text)) return column;
+              if (PORTABLE.test(column.text)) return column;
               const verse = await resolve(
                 node.attrs.ref,
                 column.translationId
@@ -313,7 +325,7 @@ export const ScriptureBlock = Node.create<ScriptureBlockOptions>({
               return verse &&
                 verse.translationId === column.translationId &&
                 verse.notice !== "fallback" &&
-                /^\[\d/.test(verse.text)
+                PORTABLE.test(verse.text)
                 ? { translationId: column.translationId, text: verse.text }
                 : column;
             })

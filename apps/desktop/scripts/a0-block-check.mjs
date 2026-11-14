@@ -48,7 +48,7 @@ try {
   await page.waitForFunction(
     () =>
       new Promise((resolve) => {
-        const open = indexedDB.open("epigrapho-scripture", 1);
+        const open = indexedDB.open("epigrapho-scripture");
         open.onsuccess = () => {
           const db = open.result;
           if (![...db.objectStoreNames].includes("verses")) {
@@ -95,8 +95,9 @@ try {
   console.log("insertado:", JSON.stringify(inserted));
   assert.equal(inserted.ref, "JHN.3.16");
   assert.equal(inserted.translationId, "VBL");
-  assert.match(inserted.text, /^16 “Porque Dios amó al mundo/);
-  assert.equal(inserted.attribution, "VBL — CC BY-SA 4.0");
+  // Since A7 the section title comes first, borrowed from PdDpt and credited.
+  assert.match(inserted.text, /^El amor de Dios\s*16 “Porque Dios amó al mundo/);
+  assert.equal(inserted.attribution, "VBL — CC BY-SA 4.0 · Títulos: PdDpt");
 
   // No typing here: the inserted block is selected, and a keystroke would
   // replace it.

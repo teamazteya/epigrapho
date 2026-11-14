@@ -3198,6 +3198,13 @@ Continue without attachments?`,
   scriptureNoTextForRef: (translationId: string) =>
     t`${translationId} has no text for this reference.`,
   copyVerse: () => t`Copy verse`,
+  // Epigrapho A7: how a reference shows its verse on desktop and web.
+  versePreviewMode: () => t`Verse preview`,
+  versePreviewModeDesc: () =>
+    t`How a reference shows its verse: in a box when you point at it, inserted in the note when you click it, or both.`,
+  versePreviewHover: () => t`On hover`,
+  versePreviewInline: () => t`Inserted on click`,
+  versePreviewBoth: () => t`Both`,
   compareTranslations: () => t`Compare`,
   compareMax: () => t`A passage can be compared in up to three translations.`,
   verseCopied: () => t`Verse copied with its attribution.`,

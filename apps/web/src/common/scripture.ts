@@ -24,9 +24,12 @@ import {
   apiBiblePassageId,
   cacheKey,
   embeddedProvider,
+  HEADINGS_FORMAT,
   indexedDbVerseCache,
   withCache,
-  type ScriptureTextProvider
+  withoutHeadings,
+  type ScriptureTextProvider,
+  type VerseTextOptions
 } from "@notesnook/scripture-provider";
 import { desktop } from "./desktop-bridge";
 import { DEFAULT_TRANSLATION } from "./translation";
@@ -53,16 +56,21 @@ const VERSE_HOST = "https://publica.epigrapho.app";
  * server itself.
  */
 const onlineProvider: ScriptureTextProvider = {
-  async getVerseText(ref: VerseRange, translationId: string) {
+  async getVerseText(
+    ref: VerseRange,
+    translationId: string,
+    options?: VerseTextOptions
+  ) {
     if (desktop)
       return desktop.scripture.verse.query({
         reference: ref,
-        translationId
+        translationId,
+        headings: !!options?.headings
       });
     const response = await fetch(
       `${VERSE_HOST}/api/verse?ref=${apiBiblePassageId(
         ref
-      )}&t=${translationId}&numbers=1`
+      )}&t=${translationId}&numbers=1${options?.headings ? "&headings=1" : ""}`
     );
     if (!response.ok)
       throw new Error(`verse server responded ${response.status}`);
@@ -88,20 +96,24 @@ const cachedOnline = withCache(onlineProvider, { store: verseCache });
  *
  * What never happens is a raw error or an empty box: that is the point of the
  * step.
+ *
+ * `{ headings: true }` (A7) is for what the editor shows and stores: the
+ * previews and the blocks. Everything else reads the verses alone.
  */
 export async function resolveVerse(
   ref: VerseRange,
-  translationId: string
+  translationId: string,
+  options?: VerseTextOptions
 ): Promise<ResolvedVerse> {
   const provenance = PROVENANCE[translationId];
   if (!provenance || provenance.deliveryMode === "embedded-offline")
     return {
-      text: await embeddedProvider.getVerseText(ref, translationId),
+      text: await embeddedProvider.getVerseText(ref, translationId, options),
       translationId
     };
 
   try {
-    const text = await cachedOnline.getVerseText(ref, translationId);
+    const text = await cachedOnline.getVerseText(ref, translationId, options);
     if (text) return { text, translationId };
   } catch (error) {
     console.error("could not reach the online layer", error);
@@ -110,10 +122,22 @@ export async function resolveVerse(
   const stale = await verseCache
     .get(cacheKey(ref, translationId))
     .catch(() => undefined);
-  if (stale?.text) return { text: stale.text, translationId, notice: "stale" };
+  if (stale?.text)
+    return {
+      text:
+        stale.format === HEADINGS_FORMAT && !options?.headings
+          ? withoutHeadings(stale.text)
+          : stale.text,
+      translationId,
+      notice: "stale"
+    };
 
   return {
-    text: await embeddedProvider.getVerseText(ref, DEFAULT_TRANSLATION),
+    text: await embeddedProvider.getVerseText(
+      ref,
+      DEFAULT_TRANSLATION,
+      options
+    ),
     translationId: DEFAULT_TRANSLATION,
     notice: "fallback"
   };

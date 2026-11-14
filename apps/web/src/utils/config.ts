@@ -69,7 +69,9 @@ function logout() {
     "followSystemTheme",
     "doubleSpacedLines",
     // Epigrapho A6: the welcome center's answer belongs to this computer.
-    "welcome:hide"
+    "welcome:hide",
+    // Epigrapho A7: so is how a reference shows its verse here.
+    "scripture-preview-mode"
   ];
   const vals = {} as Record<string, any>;
 

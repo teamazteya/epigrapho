@@ -26,7 +26,7 @@ try {
   const result = await page.evaluate(async () => {
     const open = () =>
       new Promise((resolve, reject) => {
-        const request = indexedDB.open("epigrapho-scripture", 1);
+        const request = indexedDB.open("epigrapho-scripture");
         request.onsuccess = () => resolve(request.result);
         request.onerror = () => reject(request.error);
       });

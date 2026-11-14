@@ -18,7 +18,13 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { VERSES_DB, VERSES_STORE } from "./embedded";
+import {
+  HEADINGS_STORE,
+  openVersesDb,
+  VERSES_STORE,
+  type HeadingKind,
+  type HeadingRow
+} from "./embedded";
 
 /**
  * Scripture text lives apart from the user's notes: Notesnook keeps notes in
@@ -53,22 +59,18 @@ type VersePack = {
   translationId: string;
   license: string;
   verses: [book: string, chapter: number, verse: number, text: string][];
+  /** Since A7. A pack built before it has none. */
+  headings?: [
+    book: string,
+    chapter: number,
+    verse: number,
+    kind: HeadingKind,
+    text: string
+  ][];
 };
 
 function promisify<T>(request: IDBRequest<T>) {
   return new Promise<T>((resolve, reject) => {
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error);
-  });
-}
-
-export function openVersesDb() {
-  return new Promise<IDBDatabase>((resolve, reject) => {
-    const request = indexedDB.open(VERSES_DB, 1);
-    request.onupgradeneeded = () =>
-      request.result.createObjectStore(VERSES_STORE, {
-        keyPath: ["translationId", "book", "chapter", "verse"]
-      });
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error);
   });
@@ -95,12 +97,12 @@ function readPack(url: string) {
   });
 }
 
-/** How many verses of a translation are already stored. */
-async function countOf(db: IDBDatabase, translationId: string) {
+/** How many rows of a translation a store already holds. */
+async function countOf(db: IDBDatabase, store: string, translationId: string) {
   return promisify(
     db
-      .transaction(VERSES_STORE, "readonly")
-      .objectStore(VERSES_STORE)
+      .transaction(store, "readonly")
+      .objectStore(store)
       // An array sorts after any number in IndexedDB key order, so [id, []] is
       // an upper bound past every key of this translation.
       .count(IDBKeyRange.bound([translationId], [translationId, []]))
@@ -112,6 +114,9 @@ async function countOf(db: IDBDatabase, translationId: string) {
  * already stored, so it is safe to call unconditionally. A missing pack means
  * a broken build, so the error is left to the caller.
  *
+ * Verses and headings are checked apart: an install from before A7 has every
+ * verse and no heading, and gets only the headings, once.
+ *
  * `base` is where the packs sit next to the page: "/" for a served app, "" or
  * a directory for a page loaded from a file.
  */
@@ -120,30 +125,55 @@ export async function loadPacks(base = "/", files = PACK_FILES) {
   let loaded = 0;
   try {
     for (const [translationId, file] of Object.entries(files)) {
-      if ((await countOf(db, translationId)) > 0) continue;
+      const hasVerses = (await countOf(db, VERSES_STORE, translationId)) > 0;
+      // shortcut: a pack with no headings at all would be read again on every
+      // start; all four have some. Store a marker if one ever ships without.
+      const hasHeadings =
+        (await countOf(db, HEADINGS_STORE, translationId)) > 0;
+      if (hasVerses && hasHeadings) continue;
 
       const pack = await readPack(`${base}${file}`);
       // ponytail: one transaction per pack, 31k rows each. It takes about a
       // second once, on first run; chunk it only if that ever blocks the first
       // paint.
-      const transaction = db.transaction(VERSES_STORE, "readwrite");
-      const store = transaction.objectStore(VERSES_STORE);
-      for (const [book, chapter, verse, text] of pack.verses)
-        store.put({
-          translationId: pack.translationId,
-          book,
-          chapter,
-          verse,
-          text,
-          source: "pack"
-        } satisfies VerseRow);
+      const transaction = db.transaction(
+        [VERSES_STORE, HEADINGS_STORE],
+        "readwrite"
+      );
+      if (!hasVerses) {
+        const store = transaction.objectStore(VERSES_STORE);
+        for (const [book, chapter, verse, text] of pack.verses)
+          store.put({
+            translationId: pack.translationId,
+            book,
+            chapter,
+            verse,
+            text,
+            source: "pack"
+          } satisfies VerseRow);
+        loaded += pack.verses.length;
+      }
+      if (!hasHeadings) {
+        const store = transaction.objectStore(HEADINGS_STORE);
+        pack.headings?.forEach(([book, chapter, verse, kind, text], order) =>
+          store.put({
+            translationId: pack.translationId,
+            book,
+            chapter,
+            verse,
+            // Unique and in reading order: the pack lists them that way.
+            order,
+            kind,
+            text
+          } satisfies HeadingRow)
+        );
+      }
 
       await new Promise<void>((resolve, reject) => {
         transaction.oncomplete = () => resolve();
         transaction.onerror = () => reject(transaction.error);
         transaction.onabort = () => reject(transaction.error);
       });
-      loaded += pack.verses.length;
     }
     return loaded;
   } finally {

@@ -85,11 +85,15 @@ type VerseRange = Parameters<typeof apiBiblePassageId>[0];
 const VERSE_HOST =
   process.env.EPIGRAPHO_VERSE_HOST || "https://publica.epigrapho.app";
 
-async function viaServer(ref: VerseRange, translationId: string) {
+async function viaServer(
+  ref: VerseRange,
+  translationId: string,
+  headings: boolean
+) {
   const response = await net.fetch(
     `${VERSE_HOST}/api/verse?ref=${apiBiblePassageId(
       ref
-    )}&t=${translationId}&numbers=1`
+    )}&t=${translationId}&numbers=1${headings ? "&headings=1" : ""}`
   );
   if (!response.ok)
     throw new Error(`verse server responded ${response.status}`);
@@ -98,10 +102,14 @@ async function viaServer(ref: VerseRange, translationId: string) {
 }
 
 /** A key file on this machine (development, tests) wins over the server. */
-async function verseText(ref: VerseRange, translationId: string) {
+async function verseText(
+  ref: VerseRange,
+  translationId: string,
+  headings: boolean
+) {
   return (await readKey())
-    ? direct.getVerseText(ref, translationId)
-    : viaServer(ref, translationId);
+    ? direct.getVerseText(ref, translationId, { headings })
+    : viaServer(ref, translationId, headings);
 }
 
 const reference = z.object({
@@ -125,8 +133,12 @@ export const scriptureRouter = t.router({
         reference,
         translationId: z.enum(
           Object.keys(API_BIBLE_IDS) as [string, ...string[]]
-        )
+        ),
+        /** With the section titles, as "[§s1] ..." lines (A7). */
+        headings: z.boolean().optional()
       })
     )
-    .query(({ input }) => verseText(input.reference, input.translationId))
+    .query(({ input }) =>
+      verseText(input.reference, input.translationId, !!input.headings)
+    )
 });

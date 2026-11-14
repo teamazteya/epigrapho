@@ -30,10 +30,13 @@ import {
   attributionOf,
   cacheKey,
   embeddedProvider,
+  HEADINGS_FORMAT,
   indexedDbVerseCache,
   loadPacks,
   withCache,
-  type ScriptureTextProvider
+  withoutHeadings,
+  type ScriptureTextProvider,
+  type VerseTextOptions
 } from "@notesnook/scripture-provider";
 
 /**
@@ -79,11 +82,11 @@ const VERSE_HOST = "https://publica.epigrapho.app";
  * no CORS is involved.
  */
 const onlineProvider: ScriptureTextProvider = {
-  async getVerseText(ref, translationId) {
+  async getVerseText(ref, translationId, options) {
     const response = await fetch(
       `${VERSE_HOST}/api/verse?ref=${apiBiblePassageId(
         ref
-      )}&t=${translationId}&numbers=1`
+      )}&t=${translationId}&numbers=1${options?.headings ? "&headings=1" : ""}`
     );
     if (!response.ok)
       throw new Error(`verse server responded ${response.status}`);
@@ -100,10 +103,14 @@ const cachedOnline = withCache(onlineProvider, { store: verseCache });
  * translation from the cache or the server; without network the last copy,
  * marked as saved; and with no copy at all, the default, marked as a
  * substitute.
+ *
+ * `{ headings: true }` (A7) is for what the editor shows and stores: the
+ * previews and the blocks. Everything else reads the verses alone.
  */
 export async function resolveVerse(
   ref: string,
-  translationId: string
+  translationId: string,
+  options?: VerseTextOptions
 ): Promise<ResolvedVerse> {
   const range = parseRef(ref);
   if (!range) return { text: "", translationId };
@@ -111,7 +118,11 @@ export async function resolveVerse(
   const provenance = PROVENANCE[translationId];
   if (provenance?.deliveryMode === "online-cached") {
     try {
-      const text = await cachedOnline.getVerseText(range, translationId);
+      const text = await cachedOnline.getVerseText(
+        range,
+        translationId,
+        options
+      );
       if (text) return { text, translationId };
     } catch (error) {
       console.error("could not reach the online layer", error);
@@ -120,20 +131,39 @@ export async function resolveVerse(
       .get(cacheKey(range, translationId))
       .catch(() => undefined);
     if (stale?.text)
-      return { text: stale.text, translationId, notice: "stale" };
+      return {
+        text:
+          stale.format === HEADINGS_FORMAT && !options?.headings
+            ? withoutHeadings(stale.text)
+            : stale.text,
+        translationId,
+        notice: "stale"
+      };
   } else {
-    const text = await embeddedProvider.getVerseText(range, translationId);
+    const text = await embeddedProvider.getVerseText(
+      range,
+      translationId,
+      options
+    );
     if (text) return { text, translationId };
     if (translationId === DEFAULT_TRANSLATION)
       return { text: "", translationId };
   }
 
   return {
-    text: await embeddedProvider.getVerseText(range, DEFAULT_TRANSLATION),
+    text: await embeddedProvider.getVerseText(
+      range,
+      DEFAULT_TRANSLATION,
+      options
+    ),
     translationId: DEFAULT_TRANSLATION,
     notice: "fallback"
   };
 }
+
+/** resolveVerse for what the editor shows and stores (A7). */
+export const resolveWithHeadings = (ref: string, translationId: string) =>
+  resolveVerse(ref, translationId, { headings: true });
 
 export { attributionOf };
 

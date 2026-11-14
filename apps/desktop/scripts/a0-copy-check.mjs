@@ -48,7 +48,7 @@ try {
   await page.waitForFunction(
     () =>
       new Promise((resolve) => {
-        const open = indexedDB.open("epigrapho-scripture", 1);
+        const open = indexedDB.open("epigrapho-scripture");
         open.onsuccess = () => {
           const db = open.result;
           if (![...db.objectStoreNames].includes("verses")) {
@@ -95,8 +95,9 @@ try {
   console.log("insertado:", JSON.stringify(inserted));
   assert.equal(inserted.ref, "JHN.3.16");
   assert.equal(inserted.translationId, "VBL");
-  assert.match(inserted.text, /^16 “Porque Dios amó al mundo/);
-  assert.equal(inserted.attribution, "VBL — CC BY-SA 4.0");
+  // Since A7 the section title comes first, borrowed from PdDpt and credited.
+  assert.match(inserted.text, /^El amor de Dios\s*16 “Porque Dios amó al mundo/);
+  assert.equal(inserted.attribution, "VBL — CC BY-SA 4.0 · Títulos: PdDpt");
 
   // The block's copy button copies it — a click on the block itself no longer
   // does, so selecting a verse cannot quietly take over the clipboard. The
@@ -118,20 +119,22 @@ try {
   }
   console.log("portapapeles:", JSON.stringify(copied));
 
-  const [quoted, attribution] = copied.split(/\r?\n/);
+  // Since A7 the section title opens the quote, on its own line, unmarked.
+  const [title, quoted, attribution] = copied.split(/\r?\n/);
+  assert.equal(title, "«El amor de Dios", "falta el título de sección");
   assert.match(
     quoted,
-    /^«\[16\] “Porque Dios amó al mundo/,
+    /^\[16\] “Porque Dios amó al mundo/,
     "falta el texto del verso"
   );
   assert.ok(
     quoted.includes("» — Juan 3:16 (VBL)"),
     "falta la referencia legible o la traducción"
   );
-  assert.equal(attribution, "VBL — CC BY-SA 4.0");
+  assert.equal(attribution, "VBL — CC BY-SA 4.0 · Títulos: PdDpt");
   assert.equal(
-    quoted.slice(1, quoted.indexOf("» — ")),
-    inserted.text.replace(/^16 /, "[16] "),
+    quoted.slice(0, quoted.indexOf("» — ")),
+    inserted.text.replace(/^El amor de Dios\s*16 /, "[16] "),
     "el verso copiado no es el del bloque"
   );
 

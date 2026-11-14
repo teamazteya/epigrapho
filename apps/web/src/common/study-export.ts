@@ -28,7 +28,8 @@ import {
   StudyDocument,
   studyDocumentDocx as docxOf,
   studyDocumentHtml,
-  studyFileName
+  studyFileName,
+  studyPdfFonts
 } from "@notesnook/core";
 import { strings } from "@notesnook/intl";
 import { parseRef } from "@notesnook/scripture-parser";
@@ -42,7 +43,7 @@ import Vault from "./vault";
 import Config from "../utils/config";
 import { PromptDialog } from "../dialogs/prompt";
 
-export { studyDocumentHtml };
+export { studyDocumentHtml, studyPdfFonts };
 export type { StudyDocument };
 
 const AUTHOR_KEY = "exportAuthor";
@@ -107,5 +108,8 @@ export async function exportStudy(note: Note, format: "pdf" | "docx") {
     return true;
   }
   const { exportToPDF } = await import("./export");
-  return exportToPDF(note.title, studyDocumentHtml(document));
+  return exportToPDF(
+    note.title,
+    studyDocumentHtml(document, await studyPdfFonts())
+  );
 }

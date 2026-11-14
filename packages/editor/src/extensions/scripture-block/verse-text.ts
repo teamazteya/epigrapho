@@ -19,9 +19,31 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import { DOMSerializer, type DOMOutputSpec } from "@tiptap/pm/model";
 
+/**
+ * How each kind of heading (A7) looks: a section title in bold, its subtitle
+ * in italics, a psalm's title and who speaks smaller and grey. Inline styles,
+ * like the verse numbers, so the same look survives copying and sharing.
+ */
+const HEADING_STYLES: Record<string, string> = {
+  s1: "display:block;font-weight:600;margin-top:0.25em",
+  s2: "display:block;font-style:italic",
+  d: "display:block;font-style:italic;font-size:0.85em;color:var(--paragraph-secondary,#4a5468)",
+  sp: "display:block;font-style:italic;font-size:0.85em;color:var(--paragraph-secondary,#4a5468)"
+};
+
+/** "[§s1] The Creation", the line a provider writes for a heading. */
+export const HEADING_LINE = /^\[§(s1|s2|d|sp)\]\s*(.*)$/;
+
 /** Providers keep real verse numbers as portable [16] markers, never counters. */
 export function verseTextMarkup(text: string): (DOMOutputSpec | string)[] {
   return text.split("\n").map<DOMOutputSpec | string>((line) => {
+    const heading = HEADING_LINE.exec(line);
+    if (heading)
+      return [
+        "span",
+        { "data-verse-heading": heading[1], style: HEADING_STYLES[heading[1]] },
+        heading[2]
+      ];
     const match = /^\[(\d+[a-z]?(?:[-–]\d+[a-z]?)?)\]\s*(.*)$/i.exec(line);
     if (!match) return line;
     return [
@@ -54,10 +76,15 @@ export function renderVerseText(element: HTMLElement, text: string) {
 /** Restore the portable text when reopening, copying or exporting saved HTML. */
 export function readVerseText(element: Element | null): string {
   if (!element) return "";
-  const lines = [...element.querySelectorAll("[data-verse-line]")];
+  const lines = [
+    ...element.querySelectorAll("[data-verse-line], [data-verse-heading]")
+  ];
   if (!lines.length) return element.textContent || "";
   return lines
     .map((line) => {
+      const kind = line.getAttribute("data-verse-heading");
+      if (kind && HEADING_STYLES[kind])
+        return `[§${kind}] ${line.textContent || ""}`;
       const number = line.querySelector("[data-verse-number]");
       const label = number?.getAttribute("data-verse-number");
       return label && /^\d+[a-z]?(?:[-–]\d+[a-z]?)?$/i.test(label)

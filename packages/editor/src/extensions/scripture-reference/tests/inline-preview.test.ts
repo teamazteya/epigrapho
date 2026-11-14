@@ -26,7 +26,7 @@ import { ScriptureInlinePreview } from "../inline-preview.js";
 
 const NOTE = `<p>Lee <span data-scripture-ref="JHN.3.16">Juan 3:16</span> hoy.</p><p>Después.</p>`;
 
-function setup() {
+function setup(text = "Porque de tal manera…") {
   const { editor } = createEditor({
     element: document.createElement("div"),
     initialContent: NOTE,
@@ -35,11 +35,11 @@ function setup() {
       scriptureInlinePreview: ScriptureInlinePreview.configure({
         preview: {
           translation: () => "VBL",
-          resolve: async () => ({
-            text: "Porque de tal manera…",
-            translationId: "VBL"
-          }),
-          attributionOf: (id) => `${id} credit`
+          resolve: async () => ({ text, translationId: "VBL" }),
+          attributionOf: (id, words) =>
+            words?.includes("[§s1]")
+              ? `${id} credit · Títulos: PdDpt`
+              : `${id} credit`
         }
       })
     }
@@ -75,6 +75,16 @@ describe("scripture inline preview", () => {
 
     tap();
     expect(panel()).toBeNull();
+  });
+
+  test("the panel shows the section title and its credit (A7)", async () => {
+    const { tap, panel } = setup("[§s1] El amor de Dios\n[16] Porque");
+    tap();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    const heading = panel()?.querySelector('[data-verse-heading="s1"]');
+    expect(heading?.textContent).toBe("El amor de Dios");
+    expect(panel()?.textContent).not.toContain("[§");
+    expect(panel()?.textContent).toContain("VBL credit · Títulos: PdDpt");
   });
 
   test("deleting the reference closes it", () => {

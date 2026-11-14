@@ -41,7 +41,7 @@ try {
   const result = await page.evaluate(async (url) => {
     const countRows = () =>
       new Promise((resolve, reject) => {
-        const open = indexedDB.open("epigrapho-scripture", 1);
+        const open = indexedDB.open("epigrapho-scripture");
         open.onsuccess = () => {
           const db = open.result;
           if (![...db.objectStoreNames].includes("verses")) {

@@ -22,6 +22,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
   CACHE_TTL_MS,
+  HEADINGS_FORMAT,
   cacheKey,
   withCache,
   type CachedVerse,
@@ -173,4 +174,75 @@ test("un fallo no se guarda ni tapa lo que ya estaba", async () => {
   // The expired copy survives: Paso 4.3 shows it, labelled, when there is no
   // network.
   assert.equal(store.rows.get("NBLA:JHN.3.16").text, "texto bueno");
+});
+
+// A7.
+const WITH_HEADINGS = "[§s1] Un título\n[16] Porque de tal manera amó Dios";
+
+test("una copia con títulos sirve también a quien no los pide", async () => {
+  const store = memoryStore();
+  const online = countingProvider(() => WITH_HEADINGS);
+  const provider = withCache(online, { store });
+
+  assert.equal(
+    await provider.getVerseText(JOHN, "NBLA", { headings: true }),
+    WITH_HEADINGS
+  );
+  assert.equal(store.rows.get(cacheKey(JOHN, "NBLA"))?.format, HEADINGS_FORMAT);
+  assert.equal(
+    await provider.getVerseText(JOHN, "NBLA"),
+    "[16] Porque de tal manera amó Dios"
+  );
+  assert.equal(online.calls, 1);
+});
+
+test("una copia de antes de A7 se vuelve a pedir para tener títulos", async () => {
+  const store = memoryStore();
+  store.rows.set(cacheKey(JOHN, "NBLA"), {
+    text: "[16] copia vieja",
+    fetchedAt: 1000,
+    format: 2
+  });
+  const options: { headings: boolean }[] = [];
+  const online = {
+    async getVerseText(_ref: unknown, _id: string, o?: { headings?: boolean }) {
+      options.push({ headings: !!o?.headings });
+      return WITH_HEADINGS;
+    }
+  };
+  const provider = withCache(online, { store, now: () => 1001 });
+
+  // Without headings the old copy still answers, without the network.
+  assert.equal(await provider.getVerseText(JOHN, "NBLA"), "[16] copia vieja");
+  assert.deepEqual(options, []);
+
+  assert.equal(
+    await provider.getVerseText(JOHN, "NBLA", { headings: true }),
+    WITH_HEADINGS
+  );
+  assert.deepEqual(options, [{ headings: true }]);
+});
+
+test("sin red, la copia de antes de A7 se queda para mostrarse", async () => {
+  const store = memoryStore();
+  store.rows.set(cacheKey(JOHN, "NBLA"), {
+    text: "[16] copia vieja",
+    fetchedAt: 1000,
+    format: 2
+  });
+  const provider = withCache(
+    countingProvider(() => {
+      throw new Error("offline");
+    }),
+    { store, now: () => 1001 }
+  );
+  await assert.rejects(
+    () => provider.getVerseText(JOHN, "NBLA", { headings: true }),
+    /offline/
+  );
+  // resolveVerse reads this row and shows it, marked as saved.
+  assert.equal(
+    store.rows.get(cacheKey(JOHN, "NBLA"))?.text,
+    "[16] copia vieja"
+  );
 });

@@ -79,6 +79,8 @@ export async function exportToPDF(
       ) {
         await new Promise((resolve) => setTimeout(resolve, 1000));
       }
+      // Embedded fonts decode after load; printing before would fall back.
+      await iframe.contentDocument?.fonts?.ready;
 
       iframe.contentWindow.print();
     };

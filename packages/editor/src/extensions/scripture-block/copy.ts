@@ -33,7 +33,8 @@ const BUTTON = "[data-scripture-copy]";
 export type ScriptureCopyOptions = {
   /** A USFM reference as a person reads it, in the app's language. */
   formatReference: (ref: string) => string;
-  attributionOf: (translationId: string) => string;
+  /** With the text, it also credits borrowed section titles (A7). */
+  attributionOf: (translationId: string, text?: string) => string;
   copy: (text: string) => void | Promise<void>;
 };
 
@@ -49,8 +50,12 @@ export function formatVerseForClipboard(
 ) {
   // The book name is written in the language the person is reading the app in;
   // the reference itself, in the clipboard as everywhere else, stays USFM.
-  const line = `«${text}» — ${options.formatReference(ref)} (${translationId})`;
-  const attribution = options.attributionOf(translationId);
+  // A heading (A7) keeps its own line, without its "[§s1]" mark.
+  const words = text.replace(/^\[§(?:s1|s2|d|sp)\]\s*/gm, "");
+  const line = `«${words}» — ${options.formatReference(
+    ref
+  )} (${translationId})`;
+  const attribution = options.attributionOf(translationId, text);
   return attribution ? `${line}\n${attribution}` : line;
 }
 

@@ -129,8 +129,11 @@ export const ScriptureInlinePreview =
     },
 
     addProseMirrorPlugins() {
-      const options = this.options.preview;
-      if (!options) return [];
+      // Read when used, not now: the app rebuilds only the view when a setting
+      // changes (A7, "Vista previa de versículos"), never these plugins, so
+      // the current options come through the editor's storage.
+      const current = (): ScripturePopoverOptions | undefined =>
+        this.options.preview ?? this.editor.storage.scripturePreview;
       return [
         new Plugin<PanelState>({
           key: panelKey,
@@ -152,7 +155,8 @@ export const ScriptureInlinePreview =
           props: {
             decorations(state) {
               const { at, opened } = panelKey.getState(state) ?? {};
-              if (at == null || opened == null) return null;
+              const options = current();
+              if (at == null || opened == null || !options) return null;
               const $at = state.doc.resolve(at);
               // Under the block, inside whatever holds it: a list item, a
               // table cell.
@@ -171,6 +175,7 @@ export const ScriptureInlinePreview =
               ]);
             },
             handleClick(view, pos, event) {
+              if (!current()) return false;
               const tapped = (event.target as Element | null)?.closest?.(
                 "span[data-scripture-ref]"
               );

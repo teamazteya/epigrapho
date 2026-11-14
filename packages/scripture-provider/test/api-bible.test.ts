@@ -22,6 +22,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
   API_BIBLE_IDS,
+  apiBibleHtmlToText,
   apiBiblePassageId,
   createApiBibleProvider
 } from "../src/api-bible.ts";
@@ -198,4 +199,62 @@ test("las tres de marca tienen id y atribución, y son online", () => {
       `${id} necesita la línea de copyright del editor`
     );
   }
+});
+
+// A7. The markup is API.Bible's, as it came back on 2026-11-14; the words are
+// placeholders, so no licensed text lives in the repository.
+const HTML_NTV_GEN =
+  '<p class="s1">Título de la creación</p>' +
+  '<p class="p"><span data-number="1" data-sid="GEN 1:1" class="v">1</span>Uno uno.</p>' +
+  '<p class="p"><span data-number="2" data-sid="GEN 1:2" class="v">2</span>Dos dos. ' +
+  '<span data-number="3" data-sid="GEN 1:3" class="v">3</span>Tres &amp; tres.</p>';
+const HTML_NBLA_PSA =
+  '<p class="ms">Libro primero</p>' +
+  '<p class="s">Título del salmo</p>' +
+  '<p class="d">Salmo de alguien.</p>' +
+  '<p class="q1"><span data-number="1" data-sid="PSA 23:1" class="v">1</span>Uno,</p>' +
+  '<p class="q2">sigue el uno.</p>' +
+  '<p class="q1"><span data-number="2" data-sid="PSA 23:2" class="v">2</span>Dos.</p>';
+const HTML_NASB_SNG =
+  '<p class="ms2">Sección mayor</p>' +
+  '<p class="sp">Él</p>' +
+  '<p class="p"><span data-number="15" data-sid="SNG 1:15" class="v">15</span>Quince&#8212;quince.</p>' +
+  '<p class="r">(Mat 1:1)</p>' +
+  '<p class="sp">Ella</p>' +
+  '<p class="p"><span data-number="16" data-sid="SNG 1:16" class="v">16</span>Dieciséis.</p>';
+
+test("con títulos se pide HTML con títulos, y nada más cambia", async () => {
+  const { calls, fetch } = spyFetch({ data: { content: HTML_NTV_GEN } });
+  const provider = createApiBibleProvider({ apiKey: () => "k", fetch });
+  await provider.getVerseText(JOHN, "NTV", { headings: true });
+  assert.equal(
+    calls[0].url,
+    "https://api.scripture.api.bible/v1/bibles/826f63861180e056-01/passages/JHN.3.16" +
+      "?content-type=html&include-notes=false&include-titles=true" +
+      "&include-chapter-numbers=false&include-verse-numbers=true" +
+      "&include-verse-spans=false"
+  );
+});
+
+test("NTV: el título va antes de su verso y cada verso en su línea", async () => {
+  const { fetch } = spyFetch({ data: { content: HTML_NTV_GEN } });
+  const provider = createApiBibleProvider({ apiKey: () => "k", fetch });
+  assert.equal(
+    await provider.getVerseText(JOHN, "NTV", { headings: true }),
+    "[§s1] Título de la creación\n[1] Uno uno.\n[2] Dos dos.\n[3] Tres & tres."
+  );
+});
+
+test("NBLA: «s» es un título de sección, «d» el del salmo, y «ms» se quita", () => {
+  assert.equal(
+    apiBibleHtmlToText(HTML_NBLA_PSA),
+    "[§s1] Título del salmo\n[§d] Salmo de alguien.\n[1] Uno, sigue el uno.\n[2] Dos."
+  );
+});
+
+test("NASB: quién habla queda en su lugar; las secciones mayores y paralelos no", () => {
+  assert.equal(
+    apiBibleHtmlToText(HTML_NASB_SNG),
+    "[§sp] Él\n[15] Quince—quince.\n[§sp] Ella\n[16] Dieciséis."
+  );
 });

@@ -23,7 +23,7 @@
     "build-reading-plans": "node --experimental-strip-types scripts/build-reading-plans.ts && prettier --write src/mcheyne-data.ts",
     "build-versification": "node --experimental-strip-types scripts/build-versification.ts && prettier --write src/versification-data.ts",
     "watch": "npm run build -- --watch",
-    "test": "node --experimental-strip-types --test test/api-bible.test.ts test/cache.test.ts test/versification.test.ts test/embedded.test.ts test/reading-plans.test.ts"
+    "test": "node --experimental-strip-types --test test/api-bible.test.ts test/cache.test.ts test/versification.test.ts test/embedded.test.ts test/reading-plans.test.ts test/headings.test.ts"
   },
   "dependencies": {
     "@notesnook/scripture-parser": "file:../scripture-parser"

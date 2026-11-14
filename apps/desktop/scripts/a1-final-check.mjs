@@ -45,7 +45,7 @@ const packsLoaded = () =>
   page.waitForFunction(
     () =>
       new Promise((resolve) => {
-        const request = indexedDB.open("epigrapho-scripture", 1);
+        const request = indexedDB.open("epigrapho-scripture");
         request.onerror = () => resolve(false);
         request.onsuccess = () => {
           const database = request.result;

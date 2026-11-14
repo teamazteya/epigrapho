@@ -26,9 +26,13 @@ import { parseRef } from "@notesnook/scripture-parser";
 import {
   API_BIBLE_IDS,
   attributionOf,
+  borrowHeadings,
   createApiBibleProvider,
+  headingSourceOf,
   textInRange,
-  toTranslation
+  toTranslation,
+  type Heading,
+  type HeadingKind
 } from "@notesnook/scripture-provider";
 
 /**
@@ -41,10 +45,20 @@ import {
  * API_BIBLE_KEY, which lives only on the server: the desktop app asks here so
  * no installer ever carries it. Without the key they answer 404 and the app
  * falls back to its embedded packs.
+ *
+ * &headings=1 (A7) adds the section titles as "[§s1] ..." lines. Only with
+ * &numbers=1: an app that asks for one asks for both.
  */
-type Pack = { verses: [string, number, number, string][] };
+type Pack = {
+  verses: [string, number, number, string][];
+  headings?: [string, number, number, HeadingKind, string][];
+};
+type LoadedPack = {
+  books: Map<string, Map<string, string>>;
+  headings: Map<string, Heading[]>;
+};
 const PACKS = ["VBL", "BSB"];
-const packs = new Map<string, Promise<Map<string, Map<string, string>>>>();
+const packs = new Map<string, Promise<LoadedPack>>();
 
 function load(translationId: string) {
   let pack = packs.get(translationId);
@@ -56,13 +70,18 @@ function load(translationId: string) {
         .map((dir) => path.join(process.cwd(), dir, name))
         .find((candidate) => existsSync(candidate));
       if (!file) throw new Error(`${name} is missing`);
-      const { verses } = JSON.parse(await readFile(file, "utf-8")) as Pack;
+      const pack = JSON.parse(await readFile(file, "utf-8")) as Pack;
       const books = new Map<string, Map<string, string>>();
-      for (const [book, chapter, verse, text] of verses) {
+      for (const [book, chapter, verse, text] of pack.verses) {
         if (!books.has(book)) books.set(book, new Map());
         books.get(book)!.set(`${chapter}:${verse}`, text);
       }
-      return books;
+      const headings = new Map<string, Heading[]>();
+      for (const [book, chapter, verse, kind, text] of pack.headings ?? []) {
+        if (!headings.has(book)) headings.set(book, []);
+        headings.get(book)!.push({ chapter, verse, kind, text });
+      }
+      return { books, headings };
     })();
     packs.set(translationId, pack);
   }
@@ -85,6 +104,26 @@ function displayText(request: Request, text: string | undefined) {
     : text?.replace(/(^|\n)\[\d+[a-z]?(?:[-–]\d+[a-z]?)?\]\s*/gi, " ").trim();
 }
 
+function wantsHeadings(request: Request) {
+  const { searchParams } = new URL(request.url);
+  return (
+    searchParams.get("headings") === "1" && searchParams.get("numbers") === "1"
+  );
+}
+
+/** What embedded.ts headingsFor does, from the packs in memory. */
+async function packHeadings(translationId: string, book: string) {
+  const own = (await load(translationId)).headings.get(book) ?? [];
+  const source = headingSourceOf(translationId);
+  if (!source) return own;
+  return borrowHeadings(
+    translationId,
+    book,
+    own,
+    (await load(source)).headings.get(book) ?? []
+  );
+}
+
 async function brandVerse(
   request: Request,
   ref: string,
@@ -93,7 +132,8 @@ async function brandVerse(
   if (!process.env.API_BIBLE_KEY)
     return Response.json({ error: "Not available" }, { status: 404 });
 
-  const key = `${translationId}:${ref}`;
+  const headings = wantsHeadings(request);
+  const key = `${translationId}:${ref}${headings ? ":h" : ""}`;
   let text = verses.get(key);
   if (text === undefined) {
     // Caddy overwrites X-Forwarded-For with the real address.
@@ -104,7 +144,9 @@ async function brandVerse(
       return Response.json({ error: "Too many requests" }, { status: 429 });
 
     try {
-      text = await apiBible.getVerseText(parseRef(ref)!, translationId);
+      text = await apiBible.getVerseText(parseRef(ref)!, translationId, {
+        headings
+      });
     } catch (error) {
       console.error(error);
       return Response.json({ error: "Upstream failed" }, { status: 502 });
@@ -136,10 +178,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   // References are stored in the canonical numbering (ADR 0004).
   const ref = toTranslation(range, translationId);
-  const book = (await load(translationId)).get(ref.book);
+  const book = (await load(translationId)).books.get(ref.book);
+  const text = !book
+    ? ""
+    : wantsHeadings(request)
+    ? textInRange(book, ref, await packHeadings(translationId, ref.book))
+    : textInRange(book, ref);
   return Response.json(
     {
-      text: displayText(request, book ? textInRange(book, ref) : ""),
+      text: displayText(request, text),
       translationId,
       attribution: attributionOf(translationId)
     },

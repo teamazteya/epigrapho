@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import type { VerseRange } from "@notesnook/scripture-parser";
-import type { ScriptureTextProvider } from "./provider";
+import type { ScriptureTextProvider, VerseTextOptions } from "./provider";
 import { toTranslation } from "./versification.ts";
 
 const ENDPOINT = "https://api.scripture.api.bible/v1";
@@ -51,6 +51,107 @@ const QUERY = [
   "include-verse-numbers=true",
   "include-verse-spans=false"
 ].join("&");
+
+/**
+ * With headings (A7). Plain text runs a title into the verse after it, so the
+ * titles are asked for as HTML, where each is a paragraph with its USFM
+ * marker as class: <p class="s1">El relato de la creación</p>.
+ */
+const QUERY_WITH_HEADINGS = [
+  "content-type=html",
+  "include-notes=false",
+  "include-titles=true",
+  "include-chapter-numbers=false",
+  "include-verse-numbers=true",
+  "include-verse-spans=false"
+].join("&");
+
+/**
+ * The headings A7 shows, from the classes API.Bible gives them. NBLA and NASB
+ * write a section title as plain "s". Major sections (ms, "Salmo 23") and
+ * parallel passages (r) stay out, as in the packs.
+ */
+const HEADING_CLASSES: Record<string, string> = {
+  s: "s1",
+  s1: "s1",
+  s2: "s2",
+  d: "d",
+  sp: "sp"
+};
+
+const ENTITIES: Record<string, string> = {
+  amp: "&",
+  lt: "<",
+  gt: ">",
+  quot: '"',
+  apos: "'",
+  nbsp: " "
+};
+
+/**
+ * Titles A7 does not show. They are dropped whole: text mode without titles
+ * never had them, so they must not run into the verse after them either.
+ */
+const DROPPED_CLASSES = /^(ms\d?|mr|mt\d?|mte\d?|r|sr|s3|s4|qa|cl|cp|d\d)$/;
+
+/** Where a verse starts, kept apart from the whitespace being collapsed. */
+const VERSE_BREAK = "\u0001";
+
+function plain(html: string) {
+  return html
+    .replace(/<[^>]*>/g, "")
+    .replace(/&(#x?[0-9a-f]+|[a-z]+);/gi, (entity, name: string) =>
+      name[0] === "#"
+        ? String.fromCodePoint(
+            name[1] === "x" || name[1] === "X"
+              ? parseInt(name.slice(2), 16)
+              : Number(name.slice(1))
+          )
+        : ENTITIES[name.toLowerCase()] ?? entity
+    );
+}
+
+/**
+ * API.Bible's HTML as the portable lines every layer uses: "[16] text" per
+ * verse and "[§s1] title" per heading (the format of embedded.ts).
+ *
+ * ponytail: regular expressions, not a DOM parser. This runs in the server and
+ * the desktop main process, which have no DOM, and the markup is flat: one
+ * level of <p>, verse numbers as <span class="v">.
+ */
+export function apiBibleHtmlToText(html: string): string {
+  const lines: string[] = [];
+  let open = "";
+  const flush = () => {
+    for (const line of open.replace(/\s+/g, " ").split(VERSE_BREAK))
+      if (line.trim()) lines.push(line.trim());
+    open = "";
+  };
+  for (const [, attributes, inner] of html.matchAll(
+    /<p\b([^>]*)>([\s\S]*?)<\/p>/g
+  )) {
+    const name = /class="([^"]*)"/.exec(attributes)?.[1] ?? "";
+    if (DROPPED_CLASSES.test(name)) continue;
+    const kind = HEADING_CLASSES[name];
+    if (kind) {
+      const title = plain(inner).replace(/\s+/g, " ").trim();
+      if (!title) continue;
+      flush();
+      lines.push(`[§${kind}] ${title}`);
+      continue;
+    }
+    open +=
+      " " +
+      plain(
+        inner.replace(
+          /<span\b[^>]*class="v"[^>]*>([^<]*)<\/span>/g,
+          (_, number: string) => `${VERSE_BREAK}[${number.trim()}] `
+        )
+      );
+  }
+  flush();
+  return lines.filter(Boolean).join("\n");
+}
 
 /** The passage id API.Bible uses is the USFM reference itself. */
 export function apiBiblePassageId(ref: VerseRange): string {
@@ -85,7 +186,11 @@ export function createApiBibleProvider({
   fetch = globalThis.fetch
 }: ApiBibleOptions): ScriptureTextProvider {
   return {
-    async getVerseText(ref: VerseRange, translationId: string) {
+    async getVerseText(
+      ref: VerseRange,
+      translationId: string,
+      options?: VerseTextOptions
+    ) {
       const bibleId = API_BIBLE_IDS[translationId];
       if (!bibleId) return "";
 
@@ -95,7 +200,7 @@ export function createApiBibleProvider({
       const response = await fetch(
         `${ENDPOINT}/bibles/${bibleId}/passages/${apiBiblePassageId(
           toTranslation(ref, translationId)
-        )}?${QUERY}`,
+        )}?${options?.headings ? QUERY_WITH_HEADINGS : QUERY}`,
         {
           method: "GET",
           headers: { "api-key": key },
@@ -111,6 +216,7 @@ export function createApiBibleProvider({
       const { data } = (await response.json()) as {
         data?: { content?: string };
       };
+      if (options?.headings) return apiBibleHtmlToText(data?.content || "");
       return (data?.content || "")
         .replace(/\s+/g, " ")
         .replace(/\s*\[(\d+[a-z]?(?:[-–]\d+[a-z]?)?)\]\s*/gi, "\n[$1] ")

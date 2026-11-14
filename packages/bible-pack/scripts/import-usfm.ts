@@ -145,6 +145,80 @@ export function* readVerses(translationId = "VBL"): Generator<VerseRow> {
 }
 
 /**
+ * The headings a reader sees between verses (A7): a section title (s1), a
+ * subtitle (s2), a psalm's title (d) and who speaks (sp, the Song of Songs).
+ * Parallel passages (r) and major sections (ms, mr) stay out.
+ */
+export type HeadingKind = "s1" | "s2" | "d" | "sp";
+
+export type HeadingRow = {
+  book: string;
+  chapter: number;
+  /** The verse the heading stands before. */
+  verse: number;
+  kind: HeadingKind;
+  text: string;
+};
+
+const HEADING_KIND = /^\\(s1?|s2|d|sp)\s+(.*)$/;
+
+/**
+ * KJV marks the letters of Psalm 119 (\s1 ALEPH, \s1 BETH…) as section
+ * titles; they are not, and KJV takes its section titles from BSB instead.
+ */
+const NO_SECTION_TITLES = new Set(["KJV"]);
+
+/**
+ * Reads every heading of a translation, in order, each tied to the first
+ * verse after it. A heading closing a chapter goes with the next chapter's
+ * first verse; one after a book's last verse belongs to nothing and is left
+ * out. No heading line carries a verse in these sources (checked on the
+ * 2026-11-14 copies), so headings are read line by line.
+ */
+export function* readHeadings(translationId = "VBL"): Generator<HeadingRow> {
+  const dir = dirOf(translationId);
+  const files = readdirSync(dir)
+    .filter((file) => file.endsWith(".usfm"))
+    .sort();
+  const sections = !NO_SECTION_TITLES.has(translationId);
+
+  for (const file of files) {
+    let book = "";
+    let chapter = 0;
+    let pending: { kind: HeadingKind; text: string }[] = [];
+
+    for (const line of readFileSync(dir + file, "utf8").split("\n")) {
+      const id = /^\\id (\w+)/.exec(line);
+      if (id) {
+        book = id[1];
+        continue;
+      }
+      if (!book || book === "FRT") break;
+
+      const chapterStart = /^\\c (\d+)/.exec(line);
+      if (chapterStart) {
+        chapter = Number(chapterStart[1]);
+        continue;
+      }
+      const heading = HEADING_KIND.exec(line.trimEnd());
+      if (heading) {
+        const kind = (heading[1] === "s" ? "s1" : heading[1]) as HeadingKind;
+        const text = cleanVerseText(heading[2]);
+        if (text && (sections || (kind !== "s1" && kind !== "s2")))
+          pending.push({ kind, text });
+        continue;
+      }
+      if (!pending.length) continue;
+      const verse = /\\v (\d+)/.exec(line);
+      if (!verse) continue;
+      for (const { kind, text } of pending)
+        yield { book, chapter, verse: Number(verse[1]), kind, text };
+      pending = [];
+    }
+  }
+}
+
+/**
  * The compact shape shipped to the app: `translationId` is implicit and every
  * verse is a tuple, which keeps the file a third of the size of full rows.
  */
@@ -152,6 +226,14 @@ export type VersePack = {
   translationId: string;
   license: string;
   verses: [book: string, chapter: number, verse: number, text: string][];
+  /** In reading order; several can stand before the same verse. */
+  headings: [
+    book: string,
+    chapter: number,
+    verse: number,
+    kind: HeadingKind,
+    text: string
+  ][];
 };
 
 export function buildPack(translationId = "VBL"): VersePack {
@@ -162,6 +244,13 @@ export function buildPack(translationId = "VBL"): VersePack {
       row.book,
       row.chapter,
       row.verse,
+      row.text
+    ]),
+    headings: [...readHeadings(translationId)].map((row) => [
+      row.book,
+      row.chapter,
+      row.verse,
+      row.kind,
       row.text
     ])
   };
@@ -185,7 +274,9 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       for (const out of folders) {
         const file = `${out}/${translationId.toLowerCase()}.json`;
         writeFileSync(file, json);
-        console.error(`${pack.verses.length} versos escritos en ${file}`);
+        console.error(
+          `${pack.verses.length} versos y ${pack.headings.length} títulos escritos en ${file}`
+        );
       }
     }
     process.exit(0);
