@@ -39,7 +39,7 @@ import AppEffects from "./app-effects";
 import HashRouter from "./components/hash-router";
 import { useWindowFocus } from "./hooks/use-window-focus";
 import { Global } from "@emotion/react";
-import { isMac } from "./utils/platform";
+import { isIOS, isMac } from "./utils/platform";
 import useSlider from "./hooks/use-slider";
 import { AppEventManager, AppEvents } from "./common/app-events";
 import { TITLE_BAR_HEIGHT } from "./components/title-bar";
@@ -264,6 +264,10 @@ function DesktopAppContents() {
   );
 }
 
+// Epigrapho (W2): a pane is the screen minus the notch on either side.
+const SAFE_WIDTH =
+  "calc(100vw - env(safe-area-inset-left) - env(safe-area-inset-right))";
+
 function MobileAppContents() {
   const { ref, slideToIndex } = useSlider({
     onSliding: (_e, { position }) => {
@@ -316,7 +320,11 @@ function MobileAppContents() {
         WebkitOverflowScrolling: "touch",
         scrollSnapStop: "always",
         overscrollBehavior: "contain",
-        overflowX: "auto",
+        // Epigrapho (W2): on iPhone and iPad a finger on the note list was
+        // also a sideways swipe of this pager, and near the top of the list
+        // iOS gave it the whole gesture: the list crept 10px a swipe. There
+        // the panes move only by their buttons (scrollTo still works).
+        overflowX: isIOS() ? "hidden" : "auto",
         flex: 1
       }}
     >
@@ -339,7 +347,7 @@ function MobileAppContents() {
           scrollSnapAlign: "start",
           scrollSnapStop: "always",
           flexShrink: 0,
-          width: "100vw"
+          width: SAFE_WIDTH
         }}
       >
         <CachedRouter />
@@ -367,7 +375,7 @@ function MobileAppContents() {
           scrollSnapStop: "always",
           flexDirection: "column",
           flexShrink: 0,
-          width: "100vw"
+          width: SAFE_WIDTH
         }}
       >
         <HashRouter />

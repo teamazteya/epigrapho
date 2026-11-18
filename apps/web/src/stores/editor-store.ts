@@ -52,6 +52,7 @@ import { isCipher } from "@notesnook/core";
 import { AppEventManager, AppEvents } from "../common/app-events";
 import Vault from "../common/vault";
 import { indexNote } from "../common/reference-index";
+import { debounce } from "@notesnook/common";
 import { Mutex } from "async-mutex";
 import { useEditorManager } from "../components/editor/manager";
 import { Context } from "../components/list-container/types";
@@ -204,6 +205,31 @@ const tabSessionHistory = new TabSessionHistory({
 });
 
 const saveMutex = new Mutex();
+
+/**
+ * Epigrapho (W2): typing in a note's first line changes its headline on
+ * every save, and each refresh re-rendered the whole list; once the typing
+ * pauses is enough.
+ */
+const refreshNotes = debounce(() => useNoteStore.getState().refresh(), 500);
+
+// Epigrapho (W2): the reference index is read once the app is quiet, once
+// per note however many saves came in between. It lives only in memory and is
+// rebuilt at start (ensureIndexed), so nothing is lost if the app closes first.
+const pendingIndex = new Map<string, string>();
+function indexWhenIdle(noteId: string, html: string) {
+  if (pendingIndex.size === 0) {
+    const flush = () => {
+      const notes = [...pendingIndex];
+      pendingIndex.clear();
+      for (const [id, data] of notes) indexNote(id, data);
+    };
+    if ("requestIdleCallback" in window)
+      requestIdleCallback(flush, { timeout: 2000 });
+    else setTimeout(flush, 0);
+  }
+  pendingIndex.set(noteId, html);
+}
 
 class EditorStore extends BaseStore<EditorStore> {
   tabs: TabItem[] = [];
@@ -1056,8 +1082,10 @@ class EditorStore extends BaseStore<EditorStore> {
         // still carrying a session id at that point. A locked note is left
         // out on purpose — what a locked note cites is part of what locking
         // it was meant to hide.
-        if (partial.content && !isLockedSession(currentSession))
-          indexNote(note.id, partial.content.data);
+        if (partial.content && !isLockedSession(currentSession)) {
+          // Epigrapho (W2): after the keystroke has been drawn, not before.
+          indexWhenIdle(note.id, partial.content.data);
+        }
 
         if (currentSession.type === "new") {
           const context = useNoteStore.getState().context;
@@ -1074,7 +1102,7 @@ class EditorStore extends BaseStore<EditorStore> {
           note.title !== currentSession.note?.title ||
           note.headline !== currentSession.note?.headline ||
           attachmentsLength !== currentSession.attachmentsLength;
-        if (shouldRefreshNotes) useNoteStore.getState().refresh();
+        if (shouldRefreshNotes) refreshNotes();
 
         if (currentSession.type === "new") {
           await this.openSession(note, { force: true });

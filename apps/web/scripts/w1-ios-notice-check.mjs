@@ -27,6 +27,11 @@ async function open(device, platform, { standalone = false } = {}) {
     ...devices[device],
     serviceWorkers: "block"
   });
+  // The welcome opens over the notice on a new profile; it is not what this
+  // checks, and when it opens first is a race.
+  await context.addInitScript(() =>
+    localStorage.setItem("welcome:hide", "true")
+  );
   await context.addInitScript(
     ([platform, standalone]) => {
       if (platform) {

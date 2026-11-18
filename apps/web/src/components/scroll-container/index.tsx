@@ -17,9 +17,47 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import React, { PropsWithChildren, useLayoutEffect } from "react";
+import React, { PropsWithChildren } from "react";
 import { MacScrollbar, MacScrollbarProps } from "mac-scrollbar";
 import "mac-scrollbar/dist/mac-scrollbar.css";
+
+/**
+ * Epigrapho (W2): on a touch screen the custom scrollbar only costs work on
+ * every scroll frame, and the system draws its own; a plain scrolling div.
+ */
+const IS_TOUCH =
+  typeof window !== "undefined" &&
+  window.matchMedia("(pointer: coarse)").matches;
+
+const TouchScroll = React.forwardRef<
+  HTMLDivElement,
+  PropsWithChildren<MacScrollbarProps>
+>(function TouchScroll(props, ref) {
+  const {
+    skin: _skin,
+    trackGap: _trackGap,
+    trackStyle: _trackStyle,
+    thumbStyle: _thumbStyle,
+    minThumbSize: _minThumbSize,
+    suppressAutoHide: _suppressAutoHide,
+    as: _as,
+    suppressScrollX,
+    suppressScrollY,
+    style,
+    ...rest
+  } = props;
+  return (
+    <div
+      {...(rest as React.HTMLAttributes<HTMLDivElement>)}
+      ref={ref}
+      style={{
+        overflowX: suppressScrollX ? "hidden" : "auto",
+        overflowY: suppressScrollY ? "hidden" : "auto",
+        ...style
+      }}
+    />
+  );
+});
 
 export type ScrollContainerProps = {
   style?: React.CSSProperties;
@@ -32,8 +70,9 @@ const ScrollContainer = ({
   style,
   ...props
 }: PropsWithChildren<ScrollContainerProps>) => {
+  const Scroll = IS_TOUCH ? TouchScroll : MacScrollbar;
   return (
-    <MacScrollbar
+    <Scroll
       suppressScrollX
       minThumbSize={40}
       {...props}
@@ -47,7 +86,7 @@ const ScrollContainer = ({
       }}
     >
       {children}
-    </MacScrollbar>
+    </Scroll>
   );
 };
 export default ScrollContainer;
@@ -67,16 +106,17 @@ export function FlexScrollContainer({
   scrollRef,
   ...restProps
 }: PropsWithChildren<FlexScrollContainerProps>) {
+  const Scroll = IS_TOUCH ? TouchScroll : MacScrollbar;
   return (
-    <MacScrollbar
+    <Scroll
       {...restProps}
-      ref={scrollRef}
+      ref={scrollRef as React.Ref<HTMLDivElement>}
       id={id}
       className={className}
       style={style}
       minThumbSize={40}
     >
       {children}
-    </MacScrollbar>
+    </Scroll>
   );
 }

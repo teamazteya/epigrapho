@@ -47,6 +47,17 @@ import { getRandom, useResolvedItem } from "@notesnook/common";
 import { Context } from "./types";
 import { AppEventManager, AppEvents } from "../../common/app-events";
 
+/**
+ * Epigrapho (W2): on iOS, items that leave and re-enter the rendered range
+ * are measured again, and Virtuoso makes up for any change by moving the
+ * list after the finger lifts: the list jumped. On touch screens the list
+ * keeps 2000px of items rendered on each side, so a list of a few dozen
+ * notes is measured once and never moves on its own.
+ */
+const IS_TOUCH =
+  typeof window !== "undefined" &&
+  window.matchMedia("(pointer: coarse)").matches;
+
 export const CustomScrollbarsVirtualList = forwardRef<
   HTMLDivElement,
   ScrollerProps & ScrollContainerProps
@@ -234,7 +245,11 @@ function ListContainer(props: ListContainerProps) {
                 Item: VirtuosoItem,
                 Header: ListHeader
               }}
-              increaseViewportBy={{ top: 200, bottom: 200 }}
+              increaseViewportBy={
+                IS_TOUCH
+                  ? { top: 2000, bottom: 2000 }
+                  : { top: 200, bottom: 200 }
+              }
               context={{
                 header,
                 items,

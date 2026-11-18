@@ -63,16 +63,21 @@ function _EmotionThemeProvider(
     [colors, theme.colorScheme]
   );
 
+  // Epigrapho (W2): one object per theme change. A new one on every render
+  // made theme-ui merge it again and re-render every Box below (typing lag).
+  const mergedTheme = useMemo(
+    () => ({
+      ...(emotionTheme && "space" in emotionTheme
+        ? emotionTheme
+        : themeProperties),
+      ...partialTheme,
+      colors: themeProperties.colors
+    }),
+    [emotionTheme, partialTheme, themeProperties]
+  );
+
   return (
-    <ThemeProvider
-      theme={{
-        ...(emotionTheme && "space" in emotionTheme
-          ? emotionTheme
-          : themeProperties),
-        ...partialTheme,
-        colors: themeProperties.colors
-      }}
-    >
+    <ThemeProvider theme={mergedTheme}>
       <ScopedThemeProvider value={scope}>
         {injectCssVars ? (
           <Box
@@ -123,12 +128,7 @@ function _FixedThemeProvider(
   );
 
   return (
-    <ThemeProvider
-      theme={{
-        ...themeProperties,
-        colors: themeProperties.colors
-      }}
-    >
+    <ThemeProvider theme={themeProperties}>
       <ScopedThemeProvider value={scope}>
         {injectCssVars ? (
           <Box

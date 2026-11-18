@@ -25,6 +25,8 @@ import { useStore as useThemeStore } from "../../stores/theme-store";
 import { Close, Loading } from "../icons";
 import { FlexScrollContainer } from "../scroll-container";
 import { ScopedThemeProvider } from "../theme-provider";
+import useMobile from "../../hooks/use-mobile";
+import { strings } from "@notesnook/intl";
 
 ReactModal.setAppElement("#root");
 
@@ -59,6 +61,11 @@ type DialogProps = SxProp & {
 
 function BaseDialog(props: React.PropsWithChildren<DialogProps>) {
   const theme = useThemeStore((store) => store.colorScheme);
+  const isMobile = useMobile();
+  // Epigrapho (W2): on a phone a dialog fills the screen, so it always shows
+  // its close button; without it some dialogs had no way out.
+  const showCloseButton =
+    props.showCloseButton ?? (isMobile && !!props.onClose);
 
   return (
     <ReactModal
@@ -82,7 +89,9 @@ function BaseDialog(props: React.PropsWithChildren<DialogProps>) {
           flexDirection: "column",
           justifyContent: "center",
           // backgroundColor: undefined,
-          padding: 0,
+          // Epigrapho (W2): clear of the notch and the home indicator.
+          padding:
+            "env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)",
           overflowY: "hidden",
           border: 0,
           zIndex: 999,
@@ -114,7 +123,9 @@ function BaseDialog(props: React.PropsWithChildren<DialogProps>) {
           }`,
           borderRadius: "dialog",
 
-          ...props.sx
+          ...props.sx,
+          // Epigrapho (W2): never larger than the screen, whatever the dialog asks.
+          ...(isMobile ? { maxWidth: "100%", maxHeight: "100%" } : {})
         }}
         onKeyDown={(e) => {
           if (e.key === "Escape") {
@@ -124,22 +135,31 @@ function BaseDialog(props: React.PropsWithChildren<DialogProps>) {
           }
         }}
       >
-        {props.showCloseButton && (
+        {showCloseButton && (
           <Close
             sx={{
               position: "absolute",
               cursor: "pointer",
               top: 0,
-              right: 20,
-              mt: 26,
+              // Epigrapho (W2): a 44px target for a finger, same spot.
+              right: isMobile ? "8px" : 20,
+              mt: isMobile ? "14px" : 26,
+              p: isMobile ? "12px" : 0,
+              boxSizing: "content-box",
               zIndex: 999
             }}
             size={20}
+            title={strings.close()}
+            data-test-id="dialog-close"
             onClick={props.onClose}
           />
         )}
         {props.title || props.description ? (
-          <Flex sx={{ flexDirection: "column" }} p={4} pb={0}>
+          <Flex
+            sx={{ flexDirection: "column", pr: showCloseButton ? 50 : 4 }}
+            p={4}
+            pb={0}
+          >
             {props.title && (
               <Flex
                 sx={{

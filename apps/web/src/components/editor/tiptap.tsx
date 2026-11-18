@@ -200,6 +200,38 @@ async function resolveScriptureBlock(ref: string, translationId: string) {
 }
 
 /** A reference as the reader writes it, in the language the app is in. */
+/**
+ * Epigrapho (W2): how much of the bottom the on-screen keyboard covers. iOS
+ * lays the keyboard over the page instead of shrinking it; only the visual
+ * viewport knows. The safe area is left out: #root already pads it.
+ */
+function useKeyboardInset(enabled?: boolean) {
+  const [inset, setInset] = useState(0);
+  useEffect(() => {
+    const viewport = window.visualViewport;
+    if (!enabled || !viewport) return;
+    const update = () => {
+      // Zoomed in, the visual viewport is smaller without any keyboard.
+      if (viewport.scale > 1.01) return setInset(0);
+      const root = document.getElementById("root");
+      const safeArea = root
+        ? parseFloat(getComputedStyle(root).paddingBottom) || 0
+        : 0;
+      const covered =
+        window.innerHeight - viewport.height - viewport.offsetTop - safeArea;
+      setInset(Math.max(0, Math.round(covered)));
+    };
+    update();
+    viewport.addEventListener("resize", update);
+    viewport.addEventListener("scroll", update);
+    return () => {
+      viewport.removeEventListener("resize", update);
+      viewport.removeEventListener("scroll", update);
+    };
+  }, [enabled]);
+  return inset;
+}
+
 function readableRef(ref: string) {
   const range = parseRef(ref);
   return range ? formatReadableRef(range, getBookNameLocale()) : ref;
@@ -237,6 +269,7 @@ function TipTap(props: TipTapProps) {
 
   const autoSave = useRef(true);
   const { toolbarConfig } = useToolbarConfig();
+  const keyboardInset = useKeyboardInset(props.isMobile);
   const features = useAreFeaturesAvailable([
     "callout",
     "outlineList",
@@ -673,9 +706,17 @@ function TipTap(props: TipTapProps) {
         sx={{
           width: "100%",
           position: "sticky",
-          top: 0,
           bg: "background",
-          zIndex: 2
+          zIndex: 2,
+          // Epigrapho (W2): on a phone the toolbar sits at the bottom, right
+          // above the keyboard, as in the Android app.
+          ...(props.isMobile
+            ? {
+                order: 1,
+                bottom: keyboardInset,
+                borderTop: "1px solid var(--separator)"
+              }
+            : { top: 0 })
         }}
       >
         <ScrollContainer
@@ -698,7 +739,7 @@ function TipTap(props: TipTapProps) {
         >
           <Toolbar
             editor={editor}
-            location={"top"}
+            location={props.isMobile ? "bottom" : "top"}
             sx={{
               flexWrap: "unset",
               overflowX: "unset"

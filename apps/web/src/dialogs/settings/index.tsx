@@ -39,8 +39,11 @@ import {
   Servers,
   ShieldLock,
   Sync,
-  Inbox
+  Inbox,
+  ArrowLeft,
+  Close
 } from "../../components/icons";
+import useMobile from "../../hooks/use-mobile";
 import NavigationItem from "../../components/navigation-menu/navigation-item";
 import { FlexScrollContainer } from "../../components/scroll-container";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -203,23 +206,89 @@ export const SettingsDialog = DialogManager.register(function SettingsDialog(
       (g) => g.section === (props.activeSection || "profile")
     )
   );
+  // Epigrapho (W2): on a phone, one column at a time: the list of sections,
+  // then the section, with an arrow back and the close button always shown.
+  const isMobile = useMobile();
+  const [section, setSection] = useState<SectionKeys | undefined>(
+    props.activeSection
+  );
+  const [isSearching, setIsSearching] = useState(false);
+  const showMenu = !isMobile || !section;
+  const showSettings = !isMobile || !!section || isSearching;
+  const close = () => props.onClose(false);
 
   return (
     <Dialog
       isOpen={true}
       width={"968px"}
-      onClose={() => props.onClose(false)}
+      onClose={close}
+      showCloseButton={false}
       noScroll
-      sx={{ bg: "transparent" }}
+      sx={{ bg: isMobile ? "background" : "transparent" }}
     >
+      {isMobile && (
+        <Flex
+          sx={{
+            alignItems: "center",
+            gap: 1,
+            px: 1,
+            minHeight: 50,
+            borderBottom: "1px solid var(--separator)",
+            flexShrink: 0
+          }}
+        >
+          {section && !isSearching ? (
+            <Button
+              variant="secondary"
+              title={strings.back()}
+              data-test-id="settings-back"
+              onClick={() => setSection(undefined)}
+              sx={{ bg: "transparent", p: "12px" }}
+            >
+              <ArrowLeft size={20} />
+            </Button>
+          ) : null}
+          <Text
+            variant="heading"
+            sx={{
+              flex: 1,
+              ml: section && !isSearching ? 0 : 2,
+              fontSize: "subheading",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap"
+            }}
+          >
+            {(section && !isSearching && findSection(section)?.title) ||
+              strings.settings()}
+          </Text>
+          <Button
+            variant="secondary"
+            title={strings.close()}
+            data-test-id="dialog-close"
+            onClick={close}
+            sx={{ bg: "transparent", p: "12px" }}
+          >
+            <Close size={20} />
+          </Button>
+        </Flex>
+      )}
       <Flex
         sx={{
-          height: "80vw",
+          height: ["auto", "80vw"],
+          flex: [1, "initial"],
+          minHeight: 0,
+          flexDirection: isMobile && !section ? "column" : "row",
           overflow: "hidden"
         }}
       >
         <SettingsSideBar
           activeSection={props.activeSection}
+          isHidden={!showMenu}
+          isMobile={isMobile}
+          isSearching={isSearching}
+          onSearch={(query) => setIsSearching(!!query)}
+          onOpenSection={setSection}
           onNavigate={(settings) => {
             const scrollbar = document.getElementById("settings-scrollbar");
             if (scrollbar !== null) scrollbar.scrollTop = 0;
@@ -229,7 +298,7 @@ export const SettingsDialog = DialogManager.register(function SettingsDialog(
         <FlexScrollContainer
           id="settings-scrollbar"
           style={{
-            display: "flex",
+            display: showSettings ? "flex" : "none",
             backgroundColor: "var(--background)",
             flex: 1,
             flexDirection: "column",
@@ -260,9 +329,15 @@ export const SettingsDialog = DialogManager.register(function SettingsDialog(
 type SettingsSideBarProps = {
   onNavigate: (settings: SettingsGroup[]) => void;
   activeSection?: SectionKeys;
+  // Epigrapho (W2): the phone layout (SettingsDialog).
+  isHidden?: boolean;
+  isMobile?: boolean;
+  isSearching?: boolean;
+  onSearch?: (query: string) => void;
+  onOpenSection?: (section: SectionKeys) => void;
 };
 function SettingsSideBar(props: SettingsSideBarProps) {
-  const { onNavigate, activeSection } = props;
+  const { onNavigate, activeSection, isHidden, isMobile, isSearching } = props;
   const [route, setRoute] = useState<SectionKeys>(activeSection || "profile");
   useUserStore((store) => store.isLoggedIn);
 
@@ -277,7 +352,10 @@ function SettingsSideBar(props: SettingsSideBarProps) {
       id="settings-side-menu"
       className="theme-scope-navigationMenu"
       style={{
-        width: 240,
+        width: isMobile ? "100%" : 240,
+        display: isHidden ? "none" : undefined,
+        // While searching on a phone the results fill the rest of the screen.
+        flex: isMobile && isSearching ? "none" : undefined,
         overflow: "auto",
         backgroundColor: "var(--background)"
       }}
@@ -295,7 +373,8 @@ function SettingsSideBar(props: SettingsSideBarProps) {
           <Input
             id="search"
             name="search"
-            autoFocus
+            // Epigrapho (W2): on a phone the keyboard would cover the list.
+            autoFocus={!isMobile}
             placeholder={strings.search()}
             data-test-id="settings-search"
             sx={{
@@ -306,6 +385,7 @@ function SettingsSideBar(props: SettingsSideBarProps) {
             }}
             onChange={(e) => {
               const query = e.target.value.toLowerCase().trim();
+              props.onSearch?.(query);
               if (!query)
                 return onNavigate(
                   SettingsGroups.filter((g) => g.section === route)
@@ -361,46 +441,48 @@ function SettingsSideBar(props: SettingsSideBarProps) {
               onNavigate(groups);
             }}
           />
-          {sectionGroups.map((group) => (
-            <Flex
-              key={group.key}
-              sx={{ flexDirection: "column", mx: 1, gap: "small" }}
-            >
-              <Text
-                variant={"subBody"}
-                sx={{
-                  fontWeight: "bold",
-                  color: "heading",
-                  mb: 1,
-                  ml: 1,
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  wordSpacing: "nowrap"
-                }}
+          {!(isMobile && isSearching) &&
+            sectionGroups.map((group) => (
+              <Flex
+                key={group.key}
+                sx={{ flexDirection: "column", mx: 1, gap: "small" }}
               >
-                {group.title}
-              </Text>
-              {group.sections.map(
-                (section) =>
-                  (!section.isHidden || !section.isHidden()) && (
-                    <NavigationItem
-                      key={section.key}
-                      icon={section.icon}
-                      title={section.title}
-                      selected={section.key === route}
-                      onClick={() => {
-                        onNavigate(
-                          SettingsGroups.filter(
-                            (g) => g.section === section.key
-                          )
-                        );
-                        setRoute(section.key);
-                      }}
-                    />
-                  )
-              )}
-            </Flex>
-          ))}
+                <Text
+                  variant={"subBody"}
+                  sx={{
+                    fontWeight: "bold",
+                    color: "heading",
+                    mb: 1,
+                    ml: 1,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    wordSpacing: "nowrap"
+                  }}
+                >
+                  {group.title}
+                </Text>
+                {group.sections.map(
+                  (section) =>
+                    (!section.isHidden || !section.isHidden()) && (
+                      <NavigationItem
+                        key={section.key}
+                        icon={section.icon}
+                        title={section.title}
+                        selected={section.key === route}
+                        onClick={() => {
+                          onNavigate(
+                            SettingsGroups.filter(
+                              (g) => g.section === section.key
+                            )
+                          );
+                          setRoute(section.key);
+                          props.onOpenSection?.(section.key);
+                        }}
+                      />
+                    )
+                )}
+              </Flex>
+            ))}
         </Flex>
       </ScopedThemeProvider>
     </FlexScrollContainer>
@@ -505,9 +587,11 @@ function SettingItem(props: { item: Setting }) {
       <Flex
         sx={{
           flexDirection: "row",
+          // Epigrapho (W2): on a phone the controls drop below the text.
+          flexWrap: ["wrap", "nowrap"],
           justifyContent: "space-between",
           alignItems: "start",
-          gap: 4
+          gap: [2, 4]
         }}
       >
         <Flex sx={{ flexDirection: "column", flex: 1 }}>
@@ -606,7 +690,7 @@ function SettingItem(props: { item: Setting }) {
                   <Input
                     type={"text"}
                     defaultValue={component.defaultValue()}
-                    sx={{ width: 250, mr: 1 }}
+                    sx={{ width: 250, maxWidth: "100%", mr: 1 }}
                     onChange={debounce(
                       (e) => component.onChange(e.target.value),
                       500

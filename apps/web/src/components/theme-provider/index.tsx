@@ -28,6 +28,13 @@ import { PropsWithChildren, useEffect } from "react";
 import { BoxProps } from "@theme-ui/components";
 import { useStore as useThemeStore } from "../../stores/theme-store";
 import { useSystemTheme } from "../../hooks/use-system-theme";
+import { NOT_MOBILE_MEDIA_QUERY } from "../../hooks/use-mobile";
+
+// Epigrapho (W2): `sx` arrays switch from phone to tablet where useMobile
+// does, so a phone on its side keeps its phone styles. Desktop is unchanged.
+const WEB_THEME = {
+  breakpoints: [NOT_MOBILE_MEDIA_QUERY, "1000px", "1000px"]
+};
 
 export function BaseThemeProvider(
   props: PropsWithChildren<
@@ -88,7 +95,7 @@ export function BaseThemeProvider(
 
   return (
     <>
-      <EmotionThemeProvider {...restProps} scope={scope}>
+      <EmotionThemeProvider {...restProps} theme={WEB_THEME} scope={scope}>
         {children}
       </EmotionThemeProvider>
     </>

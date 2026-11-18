@@ -19,7 +19,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import useMediaQuery, { matchMediaQuery } from "./use-media-query";
 
-const TABLET_MEDIA_QUERY = "(min-width: 480px) and (max-width: 1000px)";
+// Epigrapho (W2): a phone on its side is a phone, not a tablet (use-mobile.ts).
+const TABLET_MEDIA_QUERY =
+  "(min-width: 481px) and (max-width: 1000px) and (min-height: 481px), (min-width: 481px) and (max-width: 1000px) and (pointer: fine)";
 export const useTablet = () => useMediaQuery(TABLET_MEDIA_QUERY);
 export const isTablet = () => matchMediaQuery(TABLET_MEDIA_QUERY);
 export default useTablet;

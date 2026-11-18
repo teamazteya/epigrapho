@@ -5,7 +5,12 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Epigrapho (W2): viewport-fit=cover lets the app pad itself around
+      the notch and the home indicator (env(safe-area-inset-*) below). -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
     <!--
       manifest.json provides metadata used when your web app is installed on a
       user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
@@ -138,11 +143,19 @@
         font-size: 16px;
       }
 
-      @media only screen and (max-width: 480px) {
+      @media only screen and (max-width: 480px),
+        only screen and (max-height: 480px) and (pointer: coarse) {
         html,
         body {
           font-size: 18px;
           background-color: var(--background);
+        }
+        /* Epigrapho (W2): iOS zooms into any field under 16px and stays
+           zoomed; the theme's input sizes are smaller. */
+        input,
+        textarea,
+        select {
+          font-size: max(16px, 1em) !important;
         }
       }
 
@@ -157,6 +170,30 @@
       #root {
         display: flex;
         flex-direction: column;
+      }
+
+      /* Epigrapho (W2): iOS lets a touch scroll the page itself despite
+         overflow: hidden, and after a turn of the phone it stays shifted up;
+         pinned to the screen, only the app's own lists scroll. */
+      @media (pointer: coarse) {
+        html,
+        body {
+          position: fixed;
+          inset: 0;
+          overscroll-behavior: none;
+        }
+      }
+
+      /* Epigrapho (W2): keep the app off the notch, the status bar and the
+         home indicator. On desktop every inset is 0. */
+      html,
+      body {
+        background-color: var(--background);
+      }
+      #root {
+        box-sizing: border-box;
+        padding: env(safe-area-inset-top) env(safe-area-inset-right)
+          env(safe-area-inset-bottom) env(safe-area-inset-left);
       }
 
       /* svg {

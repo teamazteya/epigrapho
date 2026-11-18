@@ -20,9 +20,22 @@ const expect = (ok, what) => {
   if (!ok) problems.push(what);
 };
 
+/**
+ * Polls an async check in the page until it returns true. Playwright's
+ * waitForFunction takes the promise an async check returns for a yes.
+ */
+async function until(page, check, every = 2000, timeout = 240_000) {
+  const end = Date.now() + timeout;
+  while (!(await page.evaluate(check))) {
+    if (Date.now() > end) throw new Error("until: timed out");
+    await page.waitForTimeout(every);
+  }
+}
+
 /** Whether the embedded verse packs are all in the browser's store. */
 const versesLoaded = (page) =>
-  page.waitForFunction(
+  until(
+    page,
     async () => {
       // Opening a store that is not there yet would create it empty, under
       // the app's feet.
@@ -36,26 +49,28 @@ const versesLoaded = (page) =>
             db.close();
             return resolve(false);
           }
-          // A read waits behind the packs still being written, so wait for
-          // the last one (packs.ts loads them in this order).
-          const store = db
-            .transaction("verses", "readonly")
-            .objectStore("verses");
-          const last = store.count(IDBKeyRange.bound(["PdDpt"], ["PdDpt", []]));
-          last.onsuccess = () => {
+          // packs.ts loads them in this order and marks each one "done" in
+          // headings (W2); a build from before W2 writes no mark, and its
+          // rows only show once the pack is whole.
+          const read = db.transaction(["verses", "headings"], "readonly");
+          const mark = read.objectStore("headings").get(["PdDpt", "", 0, 0, 0]);
+          const last = read
+            .objectStore("verses")
+            .count(IDBKeyRange.bound(["PdDpt"], ["PdDpt", []]));
+          read.oncomplete = () => {
             db.close();
-            resolve(last.result > 0);
+            resolve(
+              mark.result ? mark.result.text === "done" : last.result > 0
+            );
           };
-          last.onerror = () => {
+          read.onerror = () => {
             db.close();
             resolve(false);
           };
         };
         open.onerror = () => resolve(false);
       });
-    },
-    undefined,
-    { timeout: 240_000, polling: 2000 }
+    }
   );
 
 /**
@@ -64,7 +79,8 @@ const versesLoaded = (page) =>
  * note's first save swaps its document, which closes an open panel.
  */
 const settled = (page) =>
-  page.waitForFunction(
+  until(
+    page,
     () =>
       new Promise((resolve) => {
         const started = performance.now();
@@ -80,9 +96,7 @@ const settled = (page) =>
             resolve(Boolean(read.result) && performance.now() - started < 500);
           };
         };
-      }),
-    undefined,
-    { timeout: 240_000, polling: 2000 }
+      })
   );
 
 const browser = await chromium.launch();

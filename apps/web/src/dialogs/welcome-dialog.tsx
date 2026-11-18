@@ -15,6 +15,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+import useMediaQuery from "../hooks/use-media-query";
 import { useState } from "react";
 import { strings } from "@notesnook/intl";
 import Dialog from "../components/dialog";
@@ -47,7 +48,10 @@ const SHOTS: Shot[][] = [
 
 export function welcomeCapture(page: number, shot: Shot) {
   const language = getUiLocale() === "en-US" ? "en" : "es";
-  return `/welcome/${language}/${String(page + 1).padStart(2, "0")}-${shot}.webp`;
+  return `/welcome/${language}/${String(page + 1).padStart(
+    2,
+    "0"
+  )}-${shot}.webp`;
 }
 
 /** Epigrapho A6 (Fase 9): nine pages on what the app can do. */
@@ -60,7 +64,8 @@ export const WelcomeDialog = DialogManager.register(function WelcomeDialog({
   const [hide, setHide] = useState(() => Config.get(WELCOME_KEY, true));
   const [zoomed, setZoomed] = useState(false);
   // In a narrow window the index folds above the page (welcome-dialog.css).
-  const [wide] = useState(() => window.matchMedia("(min-width: 701px)").matches);
+  // Epigrapho (W2): follows the screen when a phone or tablet turns.
+  const wide = useMediaQuery("(min-width: 701px)");
   const welcome = strings.welcome;
   const page = welcome.pages[step];
   const shots = SHOTS[step];

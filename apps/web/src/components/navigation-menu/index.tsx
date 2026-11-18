@@ -989,9 +989,13 @@ function ReorderableList<T extends { id: string }>(
     ? orderItems(items, order)
     : items;
 
+  // Epigrapho (W2): `order` is a new function on every render; following it
+  // wrote the order back (and re-rendered) on each one, every keystroke.
+  const latestOrder = _order().join(",");
   useEffect(() => {
     setOrder(_order());
-  }, [_order]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [latestOrder]);
 
   return (
     <DndContext

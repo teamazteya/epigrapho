@@ -82,14 +82,39 @@ export function Menu(props: MenuProps) {
     }
 
     function repositionSubmenu() {
-      if (!subMenuRef.current || !menuItemElement) return;
+      const menu = subMenuRef.current;
+      if (!menu || !menuItemElement) return;
 
-      const { top, left } = getPosition(subMenuRef.current, {
+      const position = getPosition(menu, {
         target: menuItemElement,
         location: "right"
       });
-      subMenuRef.current.style.top = `${top}px`;
-      subMenuRef.current.style.left = `${left}px`;
+      menu.style.top = `${position.top}px`;
+      menu.style.left = `${position.left}px`;
+
+      // Epigrapho (W2): getPosition works from offsetLeft/offsetTop, which
+      // ignore a scrolled menu, and never checks that a submenu to the right
+      // fits: on a phone it opened off the screen. Where it lands off the
+      // screen or away from its item, it moves: to the item's left, else
+      // against the screen's right edge, and level with the item, never
+      // below the screen. Where it fits (a desktop), it stays as it was.
+      const item = menuItemElement.getBoundingClientRect();
+      const placed = menu.getBoundingClientRect();
+      const { clientWidth: screenWidth, clientHeight: screenHeight } =
+        document.body;
+      if (placed.right > screenWidth) {
+        const left =
+          item.left - placed.width >= 0
+            ? item.left - placed.width
+            : Math.max(0, screenWidth - placed.width);
+        menu.style.left = `${position.left + left - placed.left}px`;
+      }
+      const top = Math.max(
+        0,
+        Math.min(item.top, screenHeight - placed.height)
+      );
+      if (Math.abs(placed.top - top) > 2)
+        menu.style.top = `${position.top + top - placed.top}px`;
     }
 
     repositionSubmenu();

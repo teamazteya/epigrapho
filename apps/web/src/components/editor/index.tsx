@@ -49,7 +49,7 @@ import { AppEventManager, AppEvents } from "../../common/app-events";
 import { FlexScrollContainer } from "../scroll-container";
 import Tiptap, { OnChangeHandler } from "./tiptap";
 import Header from "./header";
-import { Attachment } from "../icons";
+import { ArrowLeft, Attachment } from "../icons";
 import { AttachmentProgress, insertAttachments } from "./picker";
 import { AttachFilesDialog } from "../../dialogs/attach-files-dialog";
 import { useEditorManager } from "./manager";
@@ -145,6 +145,96 @@ export default function TabsView() {
     (store) => store.dictionaryPane !== undefined
   );
   const [dropRef, overlayRef] = useDragOverlay();
+  const width = useWidth(dropRef);
+  const editorStore = useEditorStore.getState();
+
+  const panels: SidePanel[] = [];
+  if (documentPreview)
+    panels.push({
+      id: "pdf-preview-panel",
+      size: 435,
+      close: () => useEditorStore.setState({ documentPreview: undefined }),
+      content: (
+        <ScopedThemeProvider
+          scope="editorSidebar"
+          id="editorSidebar"
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            overflow: "hidden",
+            borderLeft: "1px solid var(--border)",
+            height: "100%",
+            bg: "background"
+          }}
+        >
+          {documentPreview.url ? (
+            <Suspense
+              fallback={
+                <DownloadAttachmentProgress hash={documentPreview.hash} />
+              }
+            >
+              <PDFPreview
+                fileUrl={documentPreview.url}
+                hash={documentPreview.hash}
+                onClose={() =>
+                  useEditorStore.setState({
+                    documentPreview: undefined
+                  })
+                }
+              />
+            </Suspense>
+          ) : (
+            <DownloadAttachmentProgress hash={documentPreview.hash} />
+          )}
+        </ScopedThemeProvider>
+      )
+    });
+  if (isTOCVisible && activeSession)
+    panels.push({
+      id: "table-of-contents-pane",
+      size: 300,
+      close: () => editorStore.toggleTableOfContents(false),
+      content: <TableOfContents sessionId={activeSession.id} />
+    });
+  if (areBacklinksVisible && activeSession)
+    panels.push({
+      id: "backlinks-pane",
+      size: 300,
+      close: () => editorStore.toggleBacklinks(false),
+      content: <Backlinks sessionId={activeSession.id} />
+    });
+  if (isConcordanceVisible && activeSession)
+    panels.push({
+      id: "concordance-pane",
+      size: 300,
+      close: () => editorStore.toggleConcordance(),
+      content: <ConcordancePanel sessionId={activeSession.id} />
+    });
+  if (isDictionaryVisible && activeSession)
+    panels.push({
+      id: "dictionary-pane",
+      size: 300,
+      close: () => editorStore.toggleDictionary(),
+      content: <DictionaryPanel sessionId={activeSession.id} />
+    });
+  if (
+    arePropertiesVisible &&
+    activeSession &&
+    activeSession.type !== "new" &&
+    activeSession.type !== "locked"
+  )
+    panels.push({
+      id: "properties-pane",
+      size: 250,
+      close: () => editorStore.toggleProperties(false),
+      content: <Properties sessionId={activeSession.id} />
+    });
+  // Epigrapho (W2): a panel beside a note that would be left narrower than
+  // 400px covers it instead, with an arrow back to the note.
+  const covering =
+    width > 0 &&
+    panels.length > 0 &&
+    width - panels.reduce((sum, panel) => sum + panel.size, 0) < 400;
 
   return (
     <>
@@ -154,6 +244,7 @@ export default function TabsView() {
         sx={{
           bg: "background",
           flex: 1,
+          position: "relative",
           overflow: "hidden",
           display: "flex",
           flexDirection: "column"
@@ -198,76 +289,87 @@ export default function TabsView() {
             })}
           </Pane>
 
-          {documentPreview ? (
-            <Pane id="pdf-preview-panel" initialSize={435} minSize={435}>
-              <ScopedThemeProvider
-                scope="editorSidebar"
-                id="editorSidebar"
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  overflow: "hidden",
-                  borderLeft: "1px solid var(--border)",
-                  height: "100%",
-                  bg: "background"
-                }}
-              >
-                {documentPreview.url ? (
-                  <Suspense
-                    fallback={
-                      <DownloadAttachmentProgress hash={documentPreview.hash} />
-                    }
-                  >
-                    <PDFPreview
-                      fileUrl={documentPreview.url}
-                      hash={documentPreview.hash}
-                      onClose={() =>
-                        useEditorStore.setState({
-                          documentPreview: undefined
-                        })
-                      }
-                    />
-                  </Suspense>
-                ) : (
-                  <DownloadAttachmentProgress hash={documentPreview.hash} />
-                )}
-              </ScopedThemeProvider>
-            </Pane>
-          ) : null}
-
-          {isTOCVisible && activeSession ? (
-            <Pane id="table-of-contents-pane" initialSize={300} minSize={300}>
-              <TableOfContents sessionId={activeSession.id} />
-            </Pane>
-          ) : null}
-          {areBacklinksVisible && activeSession ? (
-            <Pane id="backlinks-pane" initialSize={300} minSize={300}>
-              <Backlinks sessionId={activeSession.id} />
-            </Pane>
-          ) : null}
-          {isConcordanceVisible && activeSession ? (
-            <Pane id="concordance-pane" initialSize={300} minSize={300}>
-              <ConcordancePanel sessionId={activeSession.id} />
-            </Pane>
-          ) : null}
-          {isDictionaryVisible && activeSession ? (
-            <Pane id="dictionary-pane" initialSize={300} minSize={300}>
-              <DictionaryPanel sessionId={activeSession.id} />
-            </Pane>
-          ) : null}
-          {arePropertiesVisible &&
-            activeSession &&
-            activeSession.type !== "new" &&
-            activeSession.type !== "locked" && (
-              <Pane id="properties-pane" initialSize={250} minSize={250}>
-                <Properties sessionId={activeSession.id} />
-              </Pane>
-            )}
+          {covering
+            ? null
+            : panels.map((panel) => (
+                <Pane
+                  key={panel.id}
+                  id={panel.id}
+                  initialSize={panel.size}
+                  minSize={panel.size}
+                >
+                  {panel.content}
+                </Pane>
+              ))}
         </SplitPane>
+        {covering ? <CoveringPane panel={panels[panels.length - 1]} /> : null}
         <DropZone overlayRef={overlayRef} />
       </ScopedThemeProvider>
     </>
   );
+}
+
+type SidePanel = {
+  id: string;
+  size: number;
+  close: () => void;
+  content: JSX.Element;
+};
+
+/** Epigrapho (W2): a side panel over the whole note, below the action bar. */
+function CoveringPane({ panel }: { panel: SidePanel }) {
+  return (
+    <Flex
+      id={panel.id}
+      sx={{
+        position: "absolute",
+        top: TITLE_BAR_HEIGHT,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 3,
+        flexDirection: "column",
+        bg: "background"
+      }}
+    >
+      <Flex
+        sx={{
+          alignItems: "center",
+          borderBottom: "1px solid var(--border)",
+          flexShrink: 0
+        }}
+      >
+        <Button
+          className="pane-back"
+          data-test-id="pane-back"
+          variant="secondary"
+          title={strings.back()}
+          onClick={panel.close}
+          sx={{ bg: "transparent", p: "12px", borderRadius: 0 }}
+        >
+          <ArrowLeft size={20} />
+        </Button>
+      </Flex>
+      <Flex sx={{ flex: 1, minHeight: 0, flexDirection: "column" }}>
+        {panel.content}
+      </Flex>
+    </Flex>
+  );
+}
+
+/** The element's width, followed as it changes. */
+function useWidth(ref: React.RefObject<HTMLElement>) {
+  const [width, setWidth] = useState(0);
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+    const observer = new ResizeObserver(([entry]) =>
+      setWidth(Math.round(entry.contentRect.width))
+    );
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [ref]);
+  return width;
 }
 
 const MemoizedEditorView = React.memo(EditorView, (prev, next) => {

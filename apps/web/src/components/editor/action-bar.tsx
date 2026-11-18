@@ -25,6 +25,7 @@ import {
   Cross,
   Icon,
   Lock,
+  MoreVertical,
   NewTab,
   Note,
   NoteRemove,
@@ -237,14 +238,40 @@ export function EditorActionBar() {
         activeSession.type !== "conflicted",
       onClick: () => useEditorStore.getState().toggleProperties(),
       toggled: arePropertiesVisible
-    },
-    ...getWindowControls(
-      hasNativeWindowControls,
-      isFullscreen,
-      isMaximized,
-      isTablet,
-      isMobile
-    )
+    }
+  ];
+  const windowControls: ToolButton[] = getWindowControls(
+    hasNativeWindowControls,
+    isFullscreen,
+    isMaximized,
+    isTablet,
+    isMobile
+  ).filter((tool) => !tool.hidden);
+
+  // Epigrapho (W2): the tools that do not fit go into "⋮". Undo, redo and
+  // search are the last to go; on a phone they are the only ones left out.
+  const barRef = useRef<HTMLDivElement>(null);
+  const moreRef = useRef<HTMLButtonElement>(null);
+  const room = useToolRoom(barRef, isMobile);
+  const isPinned = (tool: ToolButton) =>
+    tool.icon === Undo || tool.icon === Redo || tool.icon === Search;
+  const candidates = tools.filter(
+    (tool) => !tool.hidden && !(isMobile && tool.hideOnMobile)
+  );
+  const ranked = [
+    ...candidates.filter(isPinned),
+    ...(isMobile ? [] : candidates.filter((tool) => !isPinned(tool)))
+  ];
+  const fits = room - windowControls.length;
+  const shown = new Set(
+    ranked.length === candidates.length && candidates.length <= fits
+      ? ranked
+      : ranked.slice(0, Math.max(0, fits - 1))
+  );
+  const overflow = candidates.filter((tool) => !shown.has(tool));
+  const visibleTools = [
+    ...candidates.filter((tool) => shown.has(tool)),
+    ...windowControls
   ];
 
   return (
@@ -270,6 +297,7 @@ export function EditorActionBar() {
         <TabStrip />
       )}
       <Flex
+        ref={barRef}
         sx={{
           alignItems: "center",
           // Epigrapho: start, not center: an overflowing group centred would
@@ -290,7 +318,7 @@ export function EditorActionBar() {
           scrollbarWidth: "none"
         }}
       >
-        {tools.map((tool) => (
+        {visibleTools.map((tool) => (
           <Button
             data-test-id={tool.title}
             disabled={!tool.enabled}
@@ -301,10 +329,7 @@ export function EditorActionBar() {
               p: 1,
               alignItems: "center",
               bg: tool.toggled ? "background-selected" : "transparent",
-              display: [
-                "hideOnMobile" in tool && tool.hideOnMobile ? "none" : "flex",
-                tool.hidden ? "none" : "flex"
-              ],
+              display: "flex",
               flexShrink: 0,
               "&:hover svg path": {
                 fill:
@@ -318,9 +343,74 @@ export function EditorActionBar() {
             <tool.icon size={16} />
           </Button>
         ))}
+        {overflow.length > 0 && (
+          <Button
+            ref={moreRef}
+            className="editor-more"
+            data-test-id="editor-more"
+            variant="secondary"
+            title={strings.more()}
+            sx={{ p: 1, bg: "transparent", flexShrink: 0 }}
+            onClick={() =>
+              Menu.openMenu(
+                overflow.map((tool) => ({
+                  type: "button",
+                  key: tool.title,
+                  title: tool.title,
+                  icon: tool.icon.path,
+                  isDisabled: !tool.enabled,
+                  isChecked: tool.toggled,
+                  // Share opens its popup next to whatever was clicked.
+                  onClick: () =>
+                    tool.onClick({
+                      target: moreRef.current
+                    } as unknown as React.MouseEvent<HTMLButtonElement>)
+                }))
+              )
+            }
+          >
+            <MoreVertical size={16} />
+          </Button>
+        )}
       </Flex>
     </>
   );
+}
+
+/** Epigrapho (W2): room left for the tools, before the tabs (see TabStrip). */
+const TAB_ROOM = 120;
+
+/**
+ * How many tool buttons fit next to the back arrow (phone) or the new-note
+ * group plus a tab's room (wider). Measured on the whole bar, not the tools,
+ * because the tools shrink to what they show.
+ */
+function useToolRoom(
+  barRef: React.RefObject<HTMLDivElement>,
+  isMobile: boolean
+) {
+  const [room, setRoom] = useState(Infinity);
+  useEffect(() => {
+    const bar = barRef.current;
+    const row = bar?.parentElement;
+    if (!bar || !row) return;
+    const measure = () => {
+      const start = row.firstElementChild?.firstElementChild as
+        | HTMLElement
+        | undefined;
+      const reserved = (start?.offsetWidth || 0) + (isMobile ? 0 : TAB_ROOM);
+      const style = getComputedStyle(bar);
+      const chrome =
+        parseFloat(style.paddingLeft) + parseFloat(style.marginRight) + 1;
+      const button = bar.querySelector("button")?.offsetWidth || 28;
+      setRoom(Math.floor((row.clientWidth - reserved - chrome) / button));
+    };
+    const observer = new ResizeObserver(measure);
+    observer.observe(row);
+    measure();
+    return () => observer.disconnect();
+  }, [barRef, isMobile]);
+  return room;
 }
 
 const TabStrip = React.memo(function TabStrip() {

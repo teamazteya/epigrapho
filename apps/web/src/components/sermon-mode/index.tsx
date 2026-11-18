@@ -37,6 +37,7 @@ import { useEditorStore } from "../../stores/editor-store";
 import Config from "../../utils/config";
 import { useEditorManager } from "../editor/manager";
 import { ScopedThemeProvider } from "../theme-provider";
+import useMobile from "../../hooks/use-mobile";
 
 const SIZE_KEY = "sermonFontSize";
 const SIZES = { min: 18, max: 64, step: 4, initial: 32 };
@@ -105,6 +106,7 @@ export const SermonMode = DialogManager.register(function SermonMode(
   );
   const [seconds, setSeconds] = useState(0);
   const [running, setRunning] = useState(false);
+  const isMobile = useMobile();
 
   useEffect(() => {
     noteHtml(note).then((data) => setHtml(sanitizeHtml(data)));
@@ -173,7 +175,12 @@ export const SermonMode = DialogManager.register(function SermonMode(
           overflowY: "auto",
           bg: "background",
           color: "paragraph",
-          fontFamily: "body"
+          fontFamily: "body",
+          // Epigrapho (W2): this sits outside #root, so it pads its own way
+          // around the notch.
+          pt: "env(safe-area-inset-top)",
+          pl: "env(safe-area-inset-left)",
+          pr: "env(safe-area-inset-right)"
         }}
       >
         <article
@@ -192,14 +199,25 @@ export const SermonMode = DialogManager.register(function SermonMode(
           className="sermon-mode-controls"
           sx={{
             position: "fixed",
-            right: 3,
-            bottom: 3,
             gap: 1,
             alignItems: "center",
             p: 1,
             bg: "background-secondary",
             border: "1px solid var(--border)",
-            borderRadius: "default"
+            ...(isMobile
+              ? {
+                  // Epigrapho (W2): a full-width bar above the home indicator.
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  flexWrap: "wrap",
+                  justifyContent: "center",
+                  borderWidth: "1px 0 0 0",
+                  pb: "calc(4px + env(safe-area-inset-bottom))",
+                  pl: "calc(4px + env(safe-area-inset-left))",
+                  pr: "calc(4px + env(safe-area-inset-right))"
+                }
+              : { right: 3, bottom: 3, borderRadius: "default" })
           }}
         >
           <Button

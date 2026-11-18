@@ -31,6 +31,17 @@ import { alpha } from "@theme-ui/color";
 import { Item } from "@notesnook/core";
 import { setDragData } from "../../utils/data-transfer";
 
+/**
+ * Epigrapho (W2): Safari on iPhone and iPad fires no contextmenu on a long
+ * press, so the item menu (sermon mode, export...) was out of reach. Touch
+ * screens time the press themselves, and drop HTML drag, which iOS starts on
+ * the same press and which holds the list while it scrolls.
+ */
+const IS_TOUCH =
+  typeof window !== "undefined" &&
+  window.matchMedia("(pointer: coarse)").matches;
+const LONG_PRESS_MS = 500;
+
 type ListItemProps<TItem extends Item, TContext> = {
   colors?: {
     heading: SchemeColors;
@@ -90,6 +101,12 @@ function ListItem<TItem extends Item, TContext>(
 
   const listItemRef = useRef<HTMLDivElement>(null);
   const { openMenu, target } = useMenuTrigger();
+  const press = useRef<{
+    timer?: ReturnType<typeof setTimeout>;
+    x: number;
+    y: number;
+    opened: boolean;
+  }>({ x: 0, y: 0, opened: false });
   const isMenuTarget = target && target === listItemRef.current;
 
   const isSelected = useSelectionStore((store) => {
@@ -100,12 +117,34 @@ function ListItem<TItem extends Item, TContext>(
   });
   const selected = isSelected || isMenuTarget || isFocused;
 
+  async function showMenu() {
+    let title = undefined;
+    let selectedItems = selectionStore.get().selectedItems; // .filter((i) => i.type === item.type);
+
+    if (selectedItems.findIndex((i) => i === item.id) === -1) {
+      selectedItems = [];
+      selectedItems.push(item.id);
+    }
+    let menuItems = await props.menuItems?.(item, selectedItems, context);
+
+    if (selectedItems.length > 1) {
+      title = `${selectedItems.length} items selected`;
+      menuItems = menuItems?.filter((i) => i.multiSelect === true);
+    }
+
+    if (!menuItems) return;
+
+    openMenu(menuItems, {
+      title
+    });
+  }
+
   return (
     <Flex
       id={`id_${item.id}`}
       className={isSelected ? "selected" : ""}
       ref={listItemRef}
-      draggable={draggable}
+      draggable={draggable && !IS_TOUCH}
       onDragEnter={onDragEnter}
       onDrop={onDrop}
       onDragOver={(e) => e.preventDefault()}
@@ -120,30 +159,45 @@ function ListItem<TItem extends Item, TContext>(
         }
         setDragData(e.dataTransfer, item.type, selectedItems);
       }}
-      onContextMenu={async (e) => {
+      onContextMenu={(e) => {
         e.preventDefault();
         e.stopPropagation();
-
-        let title = undefined;
-        let selectedItems = selectionStore.get().selectedItems; // .filter((i) => i.type === item.type);
-
-        if (selectedItems.findIndex((i) => i === item.id) === -1) {
-          selectedItems = [];
-          selectedItems.push(item.id);
+        // Android fires it on the same long press the timer below handles.
+        clearTimeout(press.current.timer);
+        if (press.current.opened) {
+          press.current.opened = false;
+          return;
         }
-        let menuItems = await props.menuItems?.(item, selectedItems, context);
-
-        if (selectedItems.length > 1) {
-          title = `${selectedItems.length} items selected`;
-          menuItems = menuItems?.filter((i) => i.multiSelect === true);
-        }
-
-        if (!menuItems) return;
-
-        openMenu(menuItems, {
-          title
-        });
+        showMenu();
       }}
+      onTouchStart={(e) => {
+        if (!IS_TOUCH || e.touches.length !== 1) return;
+        const touch = e.touches[0];
+        clearTimeout(press.current.timer);
+        press.current = {
+          x: touch.clientX,
+          y: touch.clientY,
+          opened: false,
+          timer: setTimeout(() => {
+            press.current.opened = true;
+            showMenu();
+          }, LONG_PRESS_MS)
+        };
+      }}
+      onTouchMove={(e) => {
+        const touch = e.touches[0];
+        if (
+          Math.abs(touch.clientX - press.current.x) > 10 ||
+          Math.abs(touch.clientY - press.current.y) > 10
+        )
+          clearTimeout(press.current.timer);
+      }}
+      onTouchEnd={(e) => {
+        clearTimeout(press.current.timer);
+        // The press opened the menu: the lift must not open the note too.
+        if (press.current.opened) e.preventDefault();
+      }}
+      onTouchCancel={() => clearTimeout(press.current.timer)}
       tabIndex={-1}
       sx={{
         px: 1,
@@ -151,6 +205,8 @@ function ListItem<TItem extends Item, TContext>(
         pr: isCompact ? 10 : 0,
         height: isCompact ? 25 : "inherit",
         cursor: "pointer",
+        // iOS: a long press opens the menu, not the text callout.
+        ...(IS_TOUCH && { WebkitTouchCallout: "none", userSelect: "none" }),
         position: "relative",
         overflow: "hidden",
         maxWidth: "100%",
